@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="AgroEco.Data/AgroEco.Data.csproj" />
+  <Project Path="AgroEco.Core/AgroEco.Core.csproj" />
+  <Project Path="AgroEco.Hardware/AgroEco.Hardware.csproj" />
+  <Project Path="AgroEco.UI/AgroEco.UI.csproj" />
+</Solution>
