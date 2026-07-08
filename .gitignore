@@ -1,3 +1,7 @@
 .vs
 bin
 obj
+.github
+*.csproj.user
+Frontend/node_modules/
+AgroEco.UI/Frontend/
