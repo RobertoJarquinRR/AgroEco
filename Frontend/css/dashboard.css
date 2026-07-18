@@ -1,0 +1,387 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Boldonse&family=Iosevka+Charon:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+   
+    text-decoration: none;
+    list-style: none;   
+}
+:root{
+    --font-primary: 'Poppins', sans-serif;
+    --font-secundary: 'Iosevka Charon', monospace;
+    --font-size-primary: 16px;
+    --font-weight-primary: 600;
+    --font-weigth-secundary: 400;
+    --color-text-primary: #2C2C2C;
+    --color-text-secundary: #758A93;
+    --color-text-custom1:#1D634F;
+    --color-text-custom2:#D97706;
+}
+/*para hacerlo smooth me gusta sinceramente xd*/
+html{
+   scroll-behavior: smooth;
+}
+body{
+    font-family: var(--font-primary);   
+    background-color: #EEEEEE;
+}
+/*Styles del sidebar nota: a cada elemento le pondre coments para que lean el codigo bien  ojo solo funciona i con los a (links)*/
+aside{
+    display:flex;
+    flex-direction: column;
+    max-width: 250px;
+    min-height: 100vh;
+    padding:20px;   
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: start;
+    /*Color de fondo del sidebar*/
+    background-color: #1D634F;
+}
+/* COntenedor de todo el Dashboard */
+.contenedor{
+    display:grid;
+    grid-template-columns: 250px 1fr;
+}
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;     
+}
+.logo{
+    overflow:visible;
+    display: flex;
+    align-items: center;
+    gap:12px;
+    margin-bottom: 20px;
+}
+.logo-text{
+    
+    text-align: center;
+    font-family: var(--font-secundary);
+    font-size: 28px;
+    font-weight: 700;
+    color: #EDEDED;
+}
+.sidebar ul{
+    display:flex;
+    flex-direction: column;
+    height: 100%;
+    margin:0;
+    padding:0;
+    
+}
+.sidebar ul li a{
+    display:grid;
+    grid-template-columns: 40px 1fr;
+    gap :10px;
+    padding:10px 20px;
+    align-items: center;  
+    margin-top:10px; 
+    color:#EDEDED;
+    font-size:14px;
+    font-weight: var(--font-weight-primary);
+    border-radius: 12px; 
+    cursor:default;
+    transition:all 0.3s ease-in-out;   
+}
+.sidebar ul li a:hover{    
+    background-color: rgba(255, 255, 255, 0.08);
+}
+.sidebar ul li a.active{
+    background-color: #2FA084;    
+}
+/*logout style*/
+.sidebar_2{
+    margin-top: auto;
+    
+}
+.txtlogout{
+    color: #BC6661;
+}
+
+/*---------------------------------------*/
+/* Hero Container el dahsboard principal */
+/*---------------------------------------*/
+.container-main{
+    position:relative;    
+    max-width: 100%;
+    display:flex;
+    flex-direction: column;    
+    height: 100vh;
+    gap:20px;
+    margin-left:25px;
+}
+
+.HeroHeader{   
+    width: 100%;    
+    display:flex;  
+    margin-top:25px;
+    height: fit-content; 
+    position: relative;
+}
+.hero-image{
+    display: block;    
+    width: 97%;
+    height: 12vw;
+    max-height: 160px;
+    object-fit: cover; 
+    border-radius: 12px;
+    
+}
+
+/* 🚀 Flotamos los contenidos encima de la imagen */
+.left {
+    max-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 85%;
+   
+    
+    position: absolute;
+    top: 15px;     /* Distancia desde el borde superior del fondo */
+    left: 20px;    /* Distancia desde el borde izquierdo del fondo */
+    z-index: 2;    /* Asegura que el texto quede por encima de la imagen */
+    
+}
+.union{
+    display:flex;
+    gap:7px;      
+    align-items: center;
+}
+.union .volverhref {
+    margin-left:-6px;
+    display: flex;
+    align-items: center;
+
+}
+.union span{
+    color:#1A3D33;
+    font-size: 13px;
+}
+.HeadText{
+    margin-top: 25px;
+    
+}
+.HeadText span{
+    color: var(--color-text-primary);
+    font-weight: 700;
+    font-size: 1.6rem;
+}
+
+.rigth {
+    position: absolute;
+    top:12px;     /* Distancia desde el borde superior del fondo */
+    right: 74px;   /* Distancia desde el borde derecho del fondo */
+    z-index: 2;
+}
+
+/*boxes de contenido del dashboard*/
+.boxes{
+    margin-left:20px;
+    display:grid;
+    
+    grid-template-columns: 1fr 1fr;  
+    gap:15px;
+
+}
+.box1, .box2{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:15px 20px;
+    background-color: #FFFFFF;
+    border-radius:9px;
+    width: 220px;
+}
+.title {
+    font-size:14px;
+    color: var(--color-text-secundary);
+}
+.valueT{
+    font-size:26px;
+    font-weight: 600;
+    color: var(--color-text-custom2);
+}
+.valueH{
+    font-size:26px;
+    font-weight: 600;
+    color: var(--color-text-custom1);
+}
+.note{
+    font-size:14px;
+    color: var(--color-text-secundary); /* el color se cambiar conforme al estado en js con c# */
+}
+/*---------------------------------------*/
+/*styles de cajas de dashboar sensores etc */
+.boxesD{      
+    width: 100%;
+    max-width: 97%;
+    display:grid;
+    grid-template-columns: repeat(4 , 1fr);
+    height: 90px;
+    gap:10px;
+}
+.box{    
+    padding: 15px 20px;    
+    background-color: #FFFFFF;
+    border-radius:9px;
+    border: 0.5px solid #E0E0E0;
+}
+.box .top{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.box .top img{     
+    width:25px;
+    height:25px;
+}
+.box .top span{
+    font-size:14px;
+    color: var(--color-text-secundary);
+}
+.box .num{
+    font-size:24px;
+    font-weight:600;
+    color: var(--color-text-custom1);
+}
+/*-----------------------------------*/
+/*section de weather y estado cultivo*/
+/*-----------------------------------*/
+.cont{
+    display:flex;
+    width: 97%;
+    height: 340px;
+    
+}
+.hijo1{   
+    padding:20px;
+    width:55%; /* MATEMATICAMENTE LOS 2 OCUPAN TANTO HIJO 1 COMO HIJO2 LAS MISMAS PROPORCIONES EN TODAS LAS PANTALLAS */
+    background-color: #FFFFFF;
+    border-radius:12px 0 0 12px;
+}
+.boxesC{
+    margin-top:25px;
+    width: 100%;
+    max-width: 97%;
+    display:grid;
+    grid-template-columns: repeat(4 , 1fr);
+    gap:10px;
+}
+.boxCalendar{   
+    background-color: #F6F7F7;
+    border-radius: 8px;
+    height: 140px;    
+    display:flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+.boxCalendar span{
+    color:var(--color-text-secundary);
+}
+.union .resumen{
+    color:var(--color-text-primary);
+    font-size: 20px;
+    font-weight: 500;
+}
+#dia1 ,#dia2,#dia3,#dia4 {
+    font-weight: 600;
+}
+#tempDia1, #tempDia2 ,#tempDia3, #tempDia4{
+    margin-top: 7px;
+    color: var(--color-text-custom2);
+    font-size: 18px;
+    font-weight: 500;
+}
+#humedadDia1, #humedadDia2, #humedadDia3 ,#humedadDia4{
+    margin-top: -8px;
+    color: var(--color-text-custom1);
+    font-size: 14px;
+    font-weight: 500;
+}
+.hijo2{
+    display:flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding:20px;
+    width:45%;
+    background-color: #EDF6F2;
+    border-radius:0 12px 12px 0;
+}
+.plagasMsg{
+    color:var(--color-text-secundary);
+    font-weight: 500;
+}
+/* pag 2 tareas y alertas*/
+.contpag2{
+    display:grid;
+    width: 100%;
+    max-width: 95%;
+    grid-template-columns: 1fr 1fr;
+    gap:40px;
+    margin-left:25px;
+    margin-bottom: 60px;
+}
+.alertas , .tareas{
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding:24px;
+}
+.line{
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+.union .alertaspan{
+    color:var(--color-text-primary);
+    font-size: 20px;
+    font-weight: 600;
+}
+#alertNotification{
+    padding:2px 12px;
+    color: var(--color-text-primary);
+    border:1px solid #BFC6C4;
+    border-radius: 12px;    
+}
+.cards{
+    display:flex; 
+    flex-direction: column; 
+    justify-content: center;
+    align-items: start;
+    gap:10px;
+}
+.card{
+    display: flex;   
+    align-items: center;   
+    gap:15px;
+    width: 100%;
+    border-radius: 12px;
+    padding: 10px 20px;
+    background-color: #F4F5F5;
+}
+.card img{
+    width: 35px;
+    height: 35px;
+}
+.card .join h4 {
+    color: var(--color-text-primary);
+    font-size: 18px;
+    font-weight: 500;
+}
+.card .join p{
+    color:var(--color-text-secundary);
+    font-size: 14px;
+    font-weight: 400;
+}
+.num .ref {
+    color:var(--color-text-custom1);
+    font-size: 14px;
+    margin-right: 20px;
+    font-weight: 500;
+}
