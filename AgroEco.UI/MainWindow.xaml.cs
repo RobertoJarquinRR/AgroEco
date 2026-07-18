@@ -28,7 +28,7 @@ namespace AgroEco.UI
             );
 
 #if DEBUG
-            webView.Source = new Uri("http://app.AgroEco/index.html");
+            webView.Source = new Uri("http://localhost:5173/");
 #else
             webView.Source = new Uri("http://app.AgroEco/index.html");
 #endif
