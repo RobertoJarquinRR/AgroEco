@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <None Include="Frontend\**\*.*" Exclude="Frontend\node_modules\**">
+	  <None Include="Frontend\**\*.*" Exclude="Frontend\.gitkeep">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
   </ItemGroup>
