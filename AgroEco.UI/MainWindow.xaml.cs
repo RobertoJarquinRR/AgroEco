@@ -21,15 +21,16 @@ namespace AgroEco.UI
 
             string webRootFolder = Path.Combine(AppContext.BaseDirectory, "Frontend");
 
-            webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
-                "app.AgroEco",
-                webRootFolder,
-                CoreWebView2HostResourceAccessKind.Allow
-            );
+           
 
 #if DEBUG
             webView.Source = new Uri("http://localhost:5173/");
 #else
+ webView.CoreWebView2.SetVirtualHostNameToFolderMapping(
+                "app.AgroEco",
+                webRootFolder,
+                CoreWebView2HostResourceAccessKind.Allow
+            );
             webView.Source = new Uri("http://app.AgroEco/index.html");
 #endif
             this.WindowState = WindowState.Maximized;
