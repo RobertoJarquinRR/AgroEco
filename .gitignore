@@ -4,4 +4,5 @@ obj
 .github
 *.csproj.user
 Frontend/node_modules/
-AgroEco.UI/Frontend/
+AgroEco.UI/Frontend/*
+!AgroEco.UI/Frontend/.gitkeep
