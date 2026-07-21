@@ -32,10 +32,9 @@ namespace AgroEco.UI
 #else
             webView.Source = new Uri("http://app.AgroEco/index.html");
 #endif
-
-
-
+            this.WindowState = WindowState.Maximized;
         }
+        
 
         private void OnWebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
