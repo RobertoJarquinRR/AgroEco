@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Boldonse&family=Iosevka+Charon:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+*{ /*Ahorro lineas de codigo por eso lo hice asi*/
+    margin: 0; padding: 0;box-sizing: border-box;text-decoration: none;list-style: none;   
+}
+/*Variables */
+:root{
+    --font-primary: 'Poppins', sans-serif;
+    --font-secundary: 'Iosevka Charon', monospace;
+    --font-size-primary: 16px;
+    --font-weight-primary: 600;
+    --font-weigth-secundary: 400;
+    --color-text-primary: #2C2C2C;
+    --color-text-secundary: #758A93;
+    --color-text-custom1:#1D634F;
+    --color-text-custom2:#D97706;
+}
+html{scroll-behavior: smooth;}
+body{background-color: #EEEEEE; font-family: var(--font-primary)}
+
+.container{
+    width: 100%;
+    height: 100vh;
+}
+.cont{
+    display: flex;
+    flex-direction: column;
+    max-width: 1300px;
+    margin:0 auto;
+   
+}
+.text{display:flex;flex-direction: column;margin-top:100px;}
+.text h1{color:var(--color-text-primary);font-size: 48px;
+
+}
+.uniontext{
+    display: flex;
+    gap:20px;
+    align-items: center;
+    margin-top:-40px;
+}
+/*selector de fincas*/
+.selector{
+    display:flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+/*el text del selector parte de arriba*/
+.union{display: flex;align-items: center; justify-content: space-between; margin-bottom: 15px;}
+.btnAdd{
+    padding: 10px 20px;
+    border-radius: 20px;
+    border:none;
+    background-color: #2FA084;
+    color:#FFFFFF;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease-in-out
+}
+.btnAdd:hover{background-color: #1D634F;}
+/*boxes para las fincas creadas con grid*/
+.boxes{
+    display:grid;
+    grid-template-columns: repeat(1fr);
+    gap:15px;
+   
+}
+.box{
+    width: 100%;
+    height: 90px;
+    display:flex;
+    gap:20px;
+    align-items: center;
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    border: #CBCBCB solid 1px;    
+}
+.box .icon {
+    margin-left:40px;    
+    background-color: #016B61;
+    color:#D1FAE5;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 12px 14px; 
+    border-radius:8px;
+    color:#D1FAE5;   
+}
+.union-vertical{
+    display:flex;
+    flex-direction: column;
+    gap:2px;
+    width: 100%;    
+}
+.union-vertical #finca1 {
+    color:var(--color-text-primary);
+    font-size: 18px;
+    font-weight: 600;
+}
+.union-vertical .unionDescription {
+    display:flex;
+    gap:20px;
+    color:var(--color-text-secundary);
+}
+.union-vertical .unionDescription *{
+    font-size: 14px;
+    font-weight: 400;
+}
+#deleteFinca{
+    width: 25px; height: 25px;
+    cursor:pointer;
+}
+#goFinca1,#goFinca2{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap:7px;
+    padding:10px 20px;
+    width:300px;
+    min-width: 250px;
+    border-radius: 21px;
+    border:none;
+    background-color:#E89951;
+    margin-right: 20px;
+}
+.aDash{
+    color:#FFFFFF;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+
