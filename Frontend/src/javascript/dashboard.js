@@ -12,8 +12,12 @@ btnClicked.forEach(btn => {
         });
         //Paso 2: Agregar La clase "active" al boton clickeado
         btn.classList.add('active');
+        
         //paso 3 ir al enlace
-        window.location.href = btn.getAttribute('href');
+        const href = btn.getAttribute('href');
+        if (href) {
+            window.location.href = href;
+        }
     });
 });
 // ============================================================
@@ -38,32 +42,49 @@ const el = {
 };
 
 // ---------- 1. Temperatura / Humedad ambiente ----------
+/**
+ * @param {Object} data
+ * @param {string|number} [data.temperatura]
+ * @param {string} [data.notaTemperatura]
+ * @param {string|number} [data.humedad]
+ * @param {string} [data.notaHumedad]
+ */
 function updateAmbiente({ temperatura, notaTemperatura, humedad, notaHumedad }) {
-    if (temperatura !== undefined) el.temp.textContent = `${temperatura}°C`;
-    if (notaTemperatura !== undefined) el.notaTemp.textContent = notaTemperatura;
-    if (humedad !== undefined) el.humedad.textContent = `${humedad}%`;
-    if (notaHumedad !== undefined) el.notaHumedad.textContent = notaHumedad; 
+    if (temperatura !== undefined && el.temp) el.temp.textContent = `${temperatura}°C`;
+    if (notaTemperatura !== undefined && el.notaTemp) el.notaTemp.textContent = notaTemperatura;
+    if (humedad !== undefined && el.humedad) el.humedad.textContent = `${humedad}%`;
+    if (notaHumedad !== undefined && el.notaHumedad) el.notaHumedad.textContent = notaHumedad; 
 }
 
 // ---------- 2. Nombre de finca ----------
+/** @param {string} nombre */
 function updateFinca(nombre) {
-    el.fincaName.textContent = `Finca : ${nombre}`;
+    if (el.fincaName) el.fincaName.textContent = `Finca : ${nombre}`;
 }
 
 // ---------- 3. Boxes superiores (sensores/alertas/tareas activas/completadas) ----------
+/**
+ * @param {Object} data
+ * @param {string|number} [data.sensoresActivos]
+ * @param {string|number} [data.alertas]
+ * @param {string|number} [data.tareasActivas]
+ * @param {string|number} [data.tareasCompletadas]
+ */
 function updateStats({ sensoresActivos, alertas, tareasActivas, tareasCompletadas }) {
+    if (!el.boxesD) return;
     const nums = el.boxesD.querySelectorAll(".num");
     // Orden fijo del HTML: sensores, alertas, tareas activas, tareas completadas
-    if (sensoresActivos !== undefined) nums[0].textContent = sensoresActivos;
-    if (alertas !== undefined) nums[1].textContent = alertas;
-    if (tareasActivas !== undefined) nums[2].textContent = tareasActivas;
-    if (tareasCompletadas !== undefined) nums[3].textContent = tareasCompletadas;
+    if (sensoresActivos !== undefined && nums[0]) nums[0].textContent = String(sensoresActivos);
+    if (alertas !== undefined && nums[1]) nums[1].textContent = String(alertas);
+    if (tareasActivas !== undefined && nums[2]) nums[2].textContent = String(tareasActivas);
+    if (tareasCompletadas !== undefined && nums[3]) nums[3].textContent = String(tareasCompletadas);
 }
 
 // ---------- 4. Resumen semanal (Temp / Humedad) ----------
 // data = [{ dia:"Lun", temp:25, humedad:60, icon:"/images/svg-hackaton/Vector (6).svg" }, ...]
+/** @param {Array<{dia: string, temp: number|string, humedad: number|string, icon?: string}>} data */
 function updateResumenSemanal(data) {
-    if (!Array.isArray(data) || data.length === 0) return;
+    if (!Array.isArray(data) || data.length === 0 || !el.resumenDias) return;
 
     el.resumenDias.innerHTML = data.map(d => `
         <div class="boxCalendar">
@@ -76,15 +97,22 @@ function updateResumenSemanal(data) {
 }
 
 // ---------- 5. Estado del cultivo / plagas ----------
+/**
+ * @param {Object} data
+ * @param {boolean} [data.hayPlagas]
+ * @param {string} [data.mensaje]
+ */
 function updateEstadoCultivo({ hayPlagas, mensaje }) {
+    if (!el.plagasMsg) return;
     el.plagasMsg.textContent = mensaje || (hayPlagas ? "Plagas detectadas" : "Sin plagas reportadas");
-    el.plagasMsg.style.color = hayPlagas ? "#BC6661" : "";
+    /** @type {HTMLElement} */ (el.plagasMsg).style.color = hayPlagas ? "#BC6661" : "";
 }
 
 // ---------- 6. Alertas (cards dinámicas) ----------
 // data = [{ titulo:"Alerta 1", tiempo:"5 min", icon:"/images/svg-hackaton/alerta1.svg" }, ...]
+/** @param {Array<{titulo: string, tiempo: string, icon?: string}>} data */
 function renderAlertas(data) {
-    if (!Array.isArray(data)) return;
+    if (!Array.isArray(data) || !el.alertasCont) return;
 
     el.alertasCont.innerHTML = data.map(a => `
         <div class="card">
@@ -96,13 +124,14 @@ function renderAlertas(data) {
         </div>
     `).join("");
 
-    if (el.alertNotif) el.alertNotif.textContent = data.length;
+    if (el.alertNotif) el.alertNotif.textContent = String(data.length);
 }
 
 // ---------- 7. Tareas (cards dinámicas) ----------
 // data = [{ titulo:"Regar sector A", estado:"Pendiente", icon:"/images/svg-hackaton/task-checklist 2.svg" }, ...]
+/** @param {Array<{titulo: string, estado?: string, icon?: string}>} data */
 function renderTareas(data) {
-    if (!Array.isArray(data)) return;
+    if (!Array.isArray(data) || !el.tareasCont) return;
 
     // Si el contenedor de cards de tareas no existe todavía, lo creamos una vez
     let cardsDiv = el.tareasCont.querySelector(".cards");
@@ -128,8 +157,9 @@ function renderTareas(data) {
 // Desde C#: webView.CoreWebView2.PostWebMessageAsJson(jsonString)
 // jsonString con forma: { type: "ambiente" | "stats" | "resumen" | "plagas" | "alertas" | "tareas" | "finca", payload: {...} }
 // ============================================================
-if (window.chrome && window.chrome.webview) {
-    window.chrome.webview.addEventListener("message", (event) => {
+const win = /** @type {any} */ (window);
+if (win.chrome && win.chrome.webview) {
+    win.chrome.webview.addEventListener("message", (/** @type {MessageEvent} */ event) => {
         const { type, payload } = event.data;
 
         switch (type) {
@@ -146,5 +176,5 @@ if (window.chrome && window.chrome.webview) {
     });
 
     // Avisamos a C# que el WebView ya cargó y puede empezar a mandar data
-    window.chrome.webview.postMessage({ type: "ready" });
+    win.chrome.webview.postMessage({ type: "ready" });
 }

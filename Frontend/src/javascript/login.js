@@ -2,65 +2,68 @@
 //iconos para mostrar / ocultar
 const mostrar = document.getElementById("eye");
 const ocultar = document.getElementById("eye-hidden");
-const passwordInput = document.getElementById("login-password"); //input para la contraseña
+const passwordInput = /** @type {HTMLInputElement} */ (document.getElementById("login-password")); //input para la contraseña
 
-mostrar.addEventListener("click", () => {
-    passwordInput.type = "text";
-    mostrar.style.display = "none";
-    ocultar.style.display = "block";
+mostrar?.addEventListener("click", () => {
+    if (passwordInput) passwordInput.type = "text";
+    if (mostrar) mostrar.style.display = "none";
+    if (ocultar) ocultar.style.display = "block";
 });
 
-ocultar.addEventListener("click", () => {
-    passwordInput.type = "password";
-    ocultar.style.display = "none";
-    mostrar.style.display = "block";
+ocultar?.addEventListener("click", () => {
+    if (passwordInput) passwordInput.type = "password";
+    if (ocultar) ocultar.style.display = "none";
+    if (mostrar) mostrar.style.display = "block";
 });
 
 // -obtener los datos-
 const btnLogin = document.getElementById("btnLogin"); //boton de login
-const correoInput = document.getElementById("login-correo"); //input para el correo
+const correoInput = /** @type {HTMLInputElement} */ (document.getElementById("login-correo")); //input para el correo
 const alerta = document.getElementById("alerta"); //alerta
 const alertaMensaje = document.getElementById("alerta-mensaje"); //mensaje que se mostrara en la alerta
-btnLogin.addEventListener("click", () => {
+
+btnLogin?.addEventListener("click", () => {
     //obtener correo, tipo: string
-    const correo = document.getElementById("login-correo").value;
+    const correo = correoInput ? correoInput.value : "";
     // obtener contraseña, tipo: string
-    const password = document.getElementById("login-password").value;
+    const password = passwordInput ? passwordInput.value : "";
     
     // restablecer estilos
-    correoInput.style.border = "0.15rem solid var(--input)";
-    passwordInput.style.border = "0.15rem solid var(--input)";
-    alerta.style.display = "none";
+    if (correoInput) correoInput.style.border = "0.15rem solid var(--input)";
+    if (passwordInput) passwordInput.style.border = "0.15rem solid var(--input)";
+    if (alerta) alerta.style.display = "none";
     
     // comprobar que el campo de correo no este vacio
     if (correo === "") {
-        correoInput.style.border = "0.15rem solid #DC2626";
-        alerta.style.display = "flex";
-        alertaMensaje.textContent = "Ingrese su correo";
+        if (correoInput) correoInput.style.border = "0.15rem solid #DC2626";
+        if (alerta) alerta.style.display = "flex";
+        if (alertaMensaje) alertaMensaje.textContent = "Ingrese su correo";
         return;
     }
     // comprobar que el formato del correo sea valido
-    if (!correoInput.checkValidity()) {
+    if (correoInput && !correoInput.checkValidity()) {
         correoInput.style.border = "0.15rem solid #DC2626";
-        alerta.style.display = "flex";
-        alertaMensaje.textContent = "Correo inválido";
+        if (alerta) alerta.style.display = "flex";
+        if (alertaMensaje) alertaMensaje.textContent = "Correo inválido";
         return;
     }
     // comprobar que el campo de la contraseña no este vacio
     if (password === "") {
-        passwordInput.style.border = "0.15rem solid #DC2626";
-        alerta.style.display = "flex";
-        alertaMensaje.textContent = "Ingrese su contraseña";
+        if (passwordInput) passwordInput.style.border = "0.15rem solid #DC2626";
+        if (alerta) alerta.style.display = "flex";
+        if (alertaMensaje) alertaMensaje.textContent = "Ingrese su contraseña";
         return;
     }
 
     // enviar datos a C#
-    if (window.chrome && window.chrome.webview) {
-        window.chrome.webview.postMessage({
+    const win = /** @type {any} */ (window);
+    if (win.chrome && win.chrome.webview) {
+        win.chrome.webview.postMessage({
             type: "login",
             payload: {
                 correo,
                 password
-            }});
+            }
+        });
     }
 });
