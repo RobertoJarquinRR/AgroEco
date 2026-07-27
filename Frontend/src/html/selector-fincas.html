@@ -34,7 +34,7 @@
                                 <span id ="locationFinca1">Carazo,Jinotepe</span>
                             </div>                          
                         </div>
-                         <img id="deleteFinca" src="/images/svg-hackaton/trash 1.svg" alt="borrar-icon">
+                         <img class="deleteFinca" src="/images/svg-hackaton/trash 1.svg" alt="borrar-icon">
                             <a id="goFinca1" href = "dasboard.html">
                                 <span class="aDash">Ir al DashBoard</span>
                                 <img src="/images/svg-hackaton/Arrow 2.svg" alt="">
@@ -53,7 +53,7 @@
                             </div>                           
 
                         </div>
-                        <img id="deleteFinca" src="/images/svg-hackaton/trash 1.svg" alt="borrar-icon">
+                        <img class="deleteFinca" src="/images/svg-hackaton/trash 1.svg" alt="borrar-icon">
                         <a id="goFinca2" href="dasboard.html">
                             <span class ="aDash">Ir al DashBoard </span>
                             <img src="/images/svg-hackaton/Arrow 2.svg" alt="">
@@ -66,5 +66,46 @@
 
         </div>
     </div>
+    <!-- Modal para Registrar Nueva Finca -->
+    <div id="modalFinca" class="modal">
+        <div class="modal-content">
+            <!-- Botón para cerrar la ventana -->
+            <span class="close-btn">&times;</span>
+            
+            <h2>Registrar Nueva Finca</h2>
+            
+            <form id="formNuevaFinca">
+                <div class="form-group">
+                    <label>Nombre de la Finca *</label>
+                    <input type="text" id="inputNombre" placeholder="Mi Finca" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ubicacion *</label>
+                    <input type="text" id="inputUbicacion" placeholder="Departamento, municipio" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label>Area (Manzanas)</label>
+                        <input type="number" id="inputArea" placeholder="2">
+                    </div>
+                    <div class="form-group half">
+                        <label>Cultivo *</label>
+                        <input type="text" id="inputCultivo" placeholder="Aguacate" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="inputDescripcion" placeholder="Descripcion..........." rows="4"></textarea>
+                </div>
+                
+                <!-- Agregué un botón de guardar para poder enviar el formulario -->
+                <button type="submit" class="btnGuardar">Guardar Finca</button>
+            </form>
+        </div>
+    </div>
+    <script src="/src/javascript/selector-finca.js"></script>
 </body>
 </html>

@@ -104,7 +104,7 @@ body{background-color: #EEEEEE; font-family: var(--font-primary)}
     font-size: 14px;
     font-weight: 400;
 }
-#deleteFinca{
+.deleteFinca{
     width: 25px; height: 25px;
     cursor:pointer;
 }
@@ -127,4 +127,95 @@ body{background-color: #EEEEEE; font-family: var(--font-primary)}
     font-size: 16px;
 }
 
+/* ===============================
+   Estilos del Modal (Ventana Emergente)
+   =============================== */
+.modal {
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Se queda fijo en la pantalla */
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(25, 25, 25, 0.85); /* Fondo oscuro estilo imagen */
+    align-items: center; /* Centra el contenido verticalmente */
+    justify-content: center; /* Centra el contenido horizontalmente */
+}
 
+.modal-content {
+    background-color: #F3F4F6; /* Color gris claro de la imagen */
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    color: #555;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.close-btn:hover { color: #000; }
+
+.modal-content h2 {
+    margin-bottom: 25px;
+    font-size: 22px;
+    color: var(--color-text-primary);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-group.half { width: 50%; }
+
+.form-group label {
+    font-size: 14px;
+    color: #4A4A4A;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input, .form-group textarea {
+    padding: 10px 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-family: var(--font-primary);
+    font-size: 14px;
+    outline: none;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    border-color: #2FA084;
+}
+
+.btnGuardar {
+    width: 100%;
+    padding: 12px;
+    background-color: #2FA084;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btnGuardar:hover { background-color: #1D634F; }
