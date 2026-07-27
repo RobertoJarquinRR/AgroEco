@@ -1,12 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Boldonse&family=Iosevka+Charon:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-   
-    text-decoration: none;
-    list-style: none;   
+*{ /*Ahorro lineas de codigo por eso lo hice asi*/
+    margin: 0; padding: 0;box-sizing: border-box;text-decoration: none;list-style: none;   
 }
+
 :root{
     --font-primary: 'Poppins', sans-serif;
     --font-secundary: 'Iosevka Charon', monospace;
@@ -182,11 +178,9 @@ aside{
 /*boxes de contenido del dashboard*/
 .boxes{
     margin-left:20px;
-    display:grid;
-    
+    display:grid;    
     grid-template-columns: 1fr 1fr;  
     gap:15px;
-
 }
 .box1, .box2{
     display:flex;
@@ -256,7 +250,7 @@ aside{
     display:flex;
     width: 97%;
     height: 340px;
-    
+    margin-bottom: 30px;    
 }
 .hijo1{   
     padding:20px;
@@ -384,4 +378,190 @@ aside{
     font-size: 14px;
     margin-right: 20px;
     font-weight: 500;
+}
+/* ============================================================
+   RESPONSIVE - Laptop chica (max-width: 1200px)
+   ============================================================ */
+@media (max-width: 1200px){
+    .container-main{
+        height: auto;
+        min-height: 100vh;
+    }
+    .HeroHeader{
+        height: 150px;   
+    }
+    .hero-image{
+        height: 150px;
+    }
+    .left{
+        max-height: 120px;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE - Tablets (max-width: 1024px)
+   Sidebar pasa a fixed real (ya no depende de sticky).
+   ============================================================ */
+@media (max-width: 1024px){
+    .contenedor{
+        grid-template-columns: 1fr;
+    }
+    aside{
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        width: 90px;
+        max-width: 90px;
+        padding: 15px 8px;
+        align-items: center;
+    }
+    main{
+    display: block;
+    margin-left: 90px;
+    width: calc(100% - 90px);
+    }
+    .logo{
+        flex-direction: column;
+        gap: 5px;
+    }
+    .logo-text{
+        display: none;
+    }
+    .sidebar ul li a{
+        grid-template-columns: 1fr;
+        justify-items: center;
+        padding: 10px 5px;
+    }
+    .sidebar ul li a span{
+        display: none;
+    }
+    .container-main{
+        margin-left: 15px;
+    }
+    .boxesD{
+        grid-template-columns: repeat(2, 1fr);
+        height: auto;
+    }
+    .boxesC{
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .cont{
+        flex-direction: column;
+        height: auto;
+    }
+    .hijo1, .hijo2{
+        width: 100%;
+    }
+    .hijo1{ border-radius: 12px 12px 0 0; }
+    .hijo2{ border-radius: 0 0 12px 12px; }
+    .contpag2{
+        grid-template-columns: 1fr;
+        margin-left: 15px;
+    }
+}
+/* ============================================================
+   RESPONSIVE - Punto donde .rigth ya no cabe flotando (max-width: 900px)
+   ============================================================ */
+@media (max-width: 900px){
+    .HeroHeader{
+        position: relative; /* Mantiene la referencia para que .left flote */
+        display: flex;
+        flex-direction: column;
+        height: auto;
+    }
+    .hero-image{
+        width: 100%;
+        height: 150px; /* Asegura que la imagen tenga altura para el texto */
+        object-fit: cover;
+    }
+   .left {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    height: 100px; 
+    justify-content: flex-start; 
+    gap: 15px; 
+    }
+    .rigth{
+        position: static; /* Las cajas pasan abajo de la imagen para no encimarse al texto */
+        width: 100%;
+        margin-top: 15px;
+    }
+    .boxes{
+        margin-left: 0; /* Evita que el contenedor desborde y se pegue a la pantalla */
+        margin-right: 0;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    .box1, .box2{
+        width: 100%; 
+    }
+}
+/* ============================================================
+   RESPONSIVE - Mobile landscape (max-width: 768px)
+   ============================================================ */
+@media (max-width: 768px){
+    .HeroHeader{
+        display: flex;
+        flex-direction: column;
+    }
+    .hero-image{
+        height: 140px;
+    }
+    .left {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    height: 100px;
+    justify-content: flex-start;
+    gap: 15px; 
+    }
+    .HeadText span {
+        font-size: 1.3rem; 
+    }
+    .rigth{
+        position: static;
+        width: 100%;
+        margin-top: 15px;
+    }
+    .boxes{
+        margin-left: 0;
+        margin-right: 0;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE - Mobile (max-width: 480px)
+   ============================================================ */
+@media (max-width: 480px){
+    aside{
+        width: 70px;
+        max-width: 70px;
+        padding: 10px 5px;
+    }
+    main{
+    margin-left: 70px;
+    width: calc(100% - 70px);
+    }
+    .sidebar ul li a img{
+        width: 20px;
+        height: 20px;
+    }
+    .boxesD{
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    .boxesC{
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .boxCalendar{
+        height: 110px;
+    }
+    #tempDia1, #tempDia2, #tempDia3, #tempDia4{ font-size: 15px; }
+    #humedadDia1, #humedadDia2, #humedadDia3, #humedadDia4{ font-size: 12px; }
+    .contpag2{ gap: 20px; }
+    .alertas, .tareas{ padding: 16px; }
 }
