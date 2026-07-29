@@ -122,6 +122,7 @@ input{
     width: 95%;
     font-size: 1.5rem;
     font-weight: 600;
+    color: var(--gris-claro);
     padding: 1rem;
     margin: 0.5rem 0 2rem 0;
     background-color: #F7F7F7;
@@ -132,7 +133,10 @@ input{
 input:focus{
     background-color: white;
 }
-
+/* quita el icono de ojito por defecto */
+input[type="password"]::-ms-reveal {
+    display: none;
+}
 .inicio-sesion__cont-dos__contra{
     display: flex;
     justify-content:space-between;
