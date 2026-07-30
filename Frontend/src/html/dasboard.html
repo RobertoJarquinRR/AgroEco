@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <title>Dashboard</title>
+</head>
+<body>
+    <!-- SideBar-->
+    <!--Nota: Cada span tiene su id para identificarlo en el código js-->
+    <div class="contenedor">
+        <aside>
+            <nav class="sidebar">
+                <!--Logo AgroEco-->
+                <div class="logo">
+                    <img src = "/images/svg-hackaton/Logo.svg" class = "logo-svg" alt="Logo AgroEco" width = "70px" height = "auto">    
+                    <span id = "agroeco" class = "logo-text">AgroEco</span>            
+                </div>
+                <ul>
+                    <div class="sb_1">
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/objects-column 1.svg" alt="Dashboard" width = "25px" height = "25px"> <span id = "home">DashBoard</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/signal-stream 1.svg" alt="GestorTareas" width = "25px" height = "25px"> <span id = "tareas">Tareas</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Vector.svg" alt="Sensores" width = "25px" height = "25px"> <span id = "sensores">Sensores</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Group 141.svg" alt="Plagas" width = "25px" height = "25px"> <span id = "plagas">Plagas</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Vector (1).svg" alt="Imagen" width = "25px" height = "25px"> <span id = "educacion">Educacion</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Vector (2).svg" alt="Bodega" width = "25px" height = "25px"> <span id = "Bodega">Bodega</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Vector (3).svg" alt="Finanza" width = "25px" height = "25px"> <span id = "finanza">Finanza</span></a></li>
+                    </div>
+                    <!-- Log Out alfinal-->
+                    <div class="sidebar_2">
+                        <li><a href="../../index.html"><img class="icon logout"src="/images/svg-hackaton/vector (4).svg" alt="Log Out" width = "15px" height = "auto"> <span class = "txtlogout" id = "logout">Log Out</span></a></li>
+                    </div>
+                </ul>
+            </nav>
+        </aside>
+        <!--Contenido principal-->  
+        <main>
+            <div class="container-main">
+                <div class="HeroHeader">   
+                    <img class = "hero-image" src = "/images/svg-hackaton/divided-field-green-yellow-crops1.svg">                
+                    <!--volver al selector-->                    
+                    <div class="left">
+                        <!--Left side para division del bloque-->
+                        <div class="union">
+                            <a href="../../index.html" class="volverhref">
+                                <img src = "/images/svg-hackaton/arrow-left.svg" width="25px" height="auto">
+                                <span id = " volver">Volver al selector de fincas</span>
+                            </a>
+                        </div>
+                        <!--Logo AgroEco-->
+                        <div class="HeadText">                            
+                            <span id = "id-finca" class = "FincaName">Finca : NAME</span>           
+                        </div>
+                    </div>
+                    <!-- Right side for content (basicamente los info boxes )-->
+                    <div class="rigth">
+                        <div class="boxes">
+                            <div class="box1">
+                                <div class="union">
+                                    <img src = "/images/svg-hackaton/vector (5).svg" width = "25px" height = "25px">
+                                    <p class = "title">Temperatura Ambiente</p>
+                                </div>
+                                <span id = "Temperatura" class = "valueT">25°C </span>
+                                <p id= "nota-temperatura" class = "note">Optimo</p>
+                            </div>
+                            <div class="box2">
+                                <div class="union">
+                                    <img src = "/images/svg-hackaton/blood 1.svg" width = "25px" height = "25px">
+                                    <p class = "title" > Humedad del suelo </p> 
+                                </div>
+                                <span id = "Humedad" class = "valueH">60% </span>
+                                <p id= "nota-humedad" class = "note">Optimo</p> <!--Nota Aqui el valor cambiara con c# y js-->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+
+                </div>
+                <div class="boxesD">
+                    <div class="box">
+                        <div class="top">
+                            <img src="/images/svg-hackaton/Vector (7).svg" alt="Sensores Activos">
+                            <span>Sensores Activos</span>
+                        </div>
+                        <span class="num">{num}</span>
+                    </div>
+                    <div class="box">
+                        <div class="top">
+                            <img src="/images/svg-hackaton/Vector (8).svg" alt="Alertas">
+                            <span>Alertas</span>
+                        </div>
+                        <span class="num">{num}</span>
+                    </div>
+                    <div class="box">
+                        <div class="top">
+                            <img src="/images/svg-hackaton/money-income 1.svg" alt="Tareas Activas">
+                            <span>Tareas Activas</span>
+                        </div>
+                        <span class="num">{num}</span>
+                    </div>
+                    <div class="box">
+                        <div class="top">
+                            <img src="/images/svg-hackaton/task-checklist 2.svg" alt="Tareas Completadas">
+                            <span>Tareas Completadas</span>
+                        </div>
+                        <span class="num">{num}</span>
+                    </div>
+                </div>
+
+                <!--section de card de estado cultivo -->
+                <div class="cont">
+                    <!--Historial cultivo (estado)-->
+                    <div class="hijo1">
+                        <div class="union">
+                            <img src="/images/svg-hackaton/Vector (6).svg" alt="sun" width="30px" height="30px">
+                            <span class = "resumen">Resumen semanal (Temp / Humedad)</span>
+                        </div>
+                        <!--Reutilizo codigo DRY no te repitas mi norma (es para no escribir tanto innesesario xd)-->
+                        <div class="boxesC">
+                            <div class="boxCalendar">
+                                <span id = "dia1">Lun</span>
+                                <img src="/images/svg-hackaton/Vector (6).svg" alt="sun" width="25px" height="25px">
+                                <span id = "tempDia1">{temp}</span>
+                                <span id = "humedadDia1">{hum}</span>
+                            </div>
+                            <div class="boxCalendar">
+                                <span id = "dia2">Mar</span>
+                                <img src="/images/svg-hackaton/Vector (6).svg" alt="sun" width="25px" height="25px">
+                                <span id = "tempDia2">{temp}</span>
+                                <span id = "humedadDia2">{hum}</span>
+                            </div>
+                            <div class="boxCalendar">
+                                <span id = "dia3">Mie</span>
+                                <img src="/images/svg-hackaton/Vector (6).svg" alt="sun" width="25px" height="25px">
+                                <span id = "tempDia3">{temp}</span>
+                                <span id = "humedadDia3">{hum}</span>
+                            </div>
+                            <div class="boxCalendar">
+                                <span id = "dia4">Jue</span>
+                                <img src="/images/svg-hackaton/Vector (6).svg" alt="sun" width="25px" height="25px">
+                                <span id = "tempDia4">{temp}</span>
+                                <span id = "humedadDia4">{hum}</span>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                    <!--Estado cultivo-->
+                    <div class="hijo2">
+                        <h3 style="color:#1D634F ;font-size:24px;" >Estado Cultivo</h3>
+                        <img src="/images/svg-hackaton/Group 142.svg" alt="estado-cultivo-svg" width="160px" heigth = "160px">
+                        <span id="dashReportPlagas" class ="plagasMsg">Sin plagas reportadas</span>
+                        <img src="/images/svg-hackaton/estado_saludable.svg" alt="button-figma" width="auto" height="30px"> <!--estos svg bien los podia hacer desde 0 los reutilice del figma para avanzar rapido-->
+                    </div>
+                </div>
+            </div>
+            <!----------------------------->
+            <!------------pag 2 ----------->
+            <!----------------------------->
+
+            <!--Alertas y tareas Vista rapida-->
+            <div class="contpag2">
+                <div class="alertas">
+                    <div class="line">
+                        <div class="union">
+                            <img src="/images/svg-hackaton/Vector (8).svg" alt="">
+                            <span class = "alertaspan">Alertas Recientes</span>
+                        </div>
+                        <div class="num">
+                            <span id = "alertNotification" style="pointer-events: none;">2</span>
+                        </div>
+                    </div>
+                    <!--Cards-->
+                    <div class="cards"> <!--Son card de manera vertical son rows de la alertas pueden hgenerarse muchas -->
+                        <div class="card">                                                     
+                            <img src="/images/svg-hackaton/alerta1.svg">                                                    
+                            <div class="join">
+                                <h4>Alerta 1</h4>
+                                <p>Hace : <span id = "alertTime">{Min}</span></p> <!--Aqui sera con c# comunicacion js con c# y luego muestra datos-->
+                            </div>
+                        </div>
+                        <div class="card">                            
+                            <img src="/images/svg-hackaton/alerta2.svg">
+                            <div class="join">
+                                <h4>Alerta 2</h4>
+                                <p>Hace : <span id = "alertTime">{minutos -horas -dias}</span></p>
+                            </div>                            
+                        </div>
+                    </div>
+                </div>
+                <div class="tareas">
+                    <div class="line">
+                        <div class="union">
+                            <img src="/images/svg-hackaton/Vector (9).svg" alt="vectorcheck">
+                            <span class="alertaspan">Tareas de la finca</span>
+                        </div>
+                        <div class="num"> <!--reutilizo solo el css en realidas es el ver todas las tareas-->
+                            <a href="#" class="ref">Ver todas ></a>
+                        </div>
+                    </div>
+                        <!--cards  futuro agregadas con c#-->
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src = "../javascript/dashboard.js"></script>
+</body>
+</html>

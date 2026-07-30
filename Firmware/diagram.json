@@ -1,0 +1,53 @@
+{
+	"version": 1,
+	"editor": "wokwi",
+	"author": "roberto",
+	"parts": [
+		{
+			"type": "board-esp32-devkit-c-v4",
+			"id": "esp1",
+			"top": 110,
+			"left": 10,
+			"attrs": {}
+		},
+		{
+			"type": "wokwi-dht22",
+			"id": "dht1",
+			"top": 60,
+			"left": 110,
+			"attrs": {}
+		},
+		{
+			"type": "wokwi-potentiometer",
+			"id": "soilSim1",
+			"top": 160,
+			"left": 110,
+			"attrs": {}
+		},
+		{
+			"type": "wokwi-buzzer",
+			"id": "alarm1",
+			"top": 210,
+			"left": 10,
+			"attrs": {}
+		}
+	],
+	"connections": [
+		["dht1:VCC", "esp1:3V3", "red", []],
+		["dht1:GND", "esp1:GND.1", "black", []],
+		["dht1:SDA", "esp1:D4", "blue", []],
+		["soilSim1:VCC", "esp1:3V3", "red", []],
+		["soilSim1:GND", "esp1:GND.1", "black", []],
+		["soilSim1:SIG", "esp1:D34", "green", []],
+		["alarm1:2", "esp1:GND.1", "black", []],
+		["alarm1:1", "esp1:D26", "yellow", []],
+		["esp1:TX", "$serialMonitor:RX", "", []],
+		["esp1:RX", "$serialMonitor:TX", "", []]
+	],
+	"dependencies": {},
+	"serialMonitor": {
+		"display": "terminal",
+		"newline": "lf",
+		"convertEol": false
+	}
+}
