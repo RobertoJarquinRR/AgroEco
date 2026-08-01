@@ -41,6 +41,7 @@ a{
     font-weight: 500;
     color: var(--verde-claro);
     transition:all 0.1s ease-in-out;
+    cursor: pointer;
 }
 a:hover{
     color: var(--verde-claro-hover);

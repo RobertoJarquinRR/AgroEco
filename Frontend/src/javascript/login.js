@@ -67,3 +67,38 @@ btnLogin?.addEventListener("click", () => {
         });
     }
 });
+
+//-recuperar contraseña-
+const btnRecuperarContra = document.getElementById("btnRecuperarContra"); //boton para recuperar contraseña
+btnRecuperarContra?.addEventListener("click", () =>{
+    //obtener correo, tipo: string
+    const correo = correoInput ? correoInput.value : "";
+    sessionStorage.setItem("correoRecuperacion", correo) //guarda el correo temporalemte para la pantalla de codigo de recuperacion
+    
+    // restablecer estilos
+    if (correoInput) correoInput.style.border = "0.15rem solid var(--input)";
+    if (alerta) alerta.style.display = "none";
+
+    // comprobar que el campo de correo no este vacio
+    if (correo === "") {
+        if (correoInput) correoInput.style.border = "0.15rem solid #DC2626";
+        if (alerta) alerta.style.display = "flex";
+        if (alertaMensaje) alertaMensaje.textContent = "Ingrese un correo para enviar el código";
+        return;
+    }
+    // comprobar que el formato del correo sea valido
+    if (correoInput && !correoInput.checkValidity()) {
+        correoInput.style.border = "0.15rem solid #DC2626";
+        if (alerta) alerta.style.display = "flex";
+        if (alertaMensaje) alertaMensaje.textContent = "Correo inválido";
+        return;
+    }
+    // enviar datos a C#
+    const win = /** @type {any} */ (window);
+    if (win.chrome && win.chrome.webview) {
+        win.chrome.webview.postMessage({
+            type: "recuperacion",
+            payload: {correo}
+        });
+    }
+})
