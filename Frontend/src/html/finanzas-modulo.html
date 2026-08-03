@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas</title>
+    <link rel="stylesheet" href="/src/css/finanzas-styles.css">
+</head>
+<body>
+    <div class="contenedor">
+        <aside>
+            <nav class="sidebar">
+                <!--Logo AgroEco-->
+                <div class="logo">
+                    <img src = "/images/svg-hackaton/Logo.svg" class = "logo-svg" alt="Logo AgroEco" width = "70px" height = "auto">    
+                    <span id = "agroeco" class = "logo-text">AgroEco</span>            
+                </div>
+                <ul>
+                    <div class="sb_1">
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/objects-column 1.svg" alt="Dashboard" width = "25px" height = "25px"> <span id = "home">DashBoard</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/signal-stream 1.svg" alt="GestorTareas" width = "25px" height = "25px"> <span id = "tareas">Tareas</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Vector.svg" alt="Sensores" width = "25px" height = "25px"> <span id = "sensores">Sensores</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Group 141.svg" alt="Plagas" width = "25px" height = "25px"> <span id = "plagas">Plagas</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Vector (1).svg" alt="Imagen" width = "25px" height = "25px"> <span id = "educacion">Educacion</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Vector (2).svg" alt="Bodega" width = "25px" height = "25px"> <span id = "Bodega">Bodega</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/Vector (3).svg" alt="Finanza" width = "25px" height = "25px"> <span id = "finanza">Finanza</span></a></li>
+                    </div>
+                    <!-- Log Out alfinal-->
+                    <div class="sidebar_2">
+                        <li><a href="../../index.html"><img class="icon logout"src="/images/svg-hackaton/vector (4).svg" alt="Log Out" width = "15px" height = "auto"> <span class = "txtlogout" id = "logout">Log Out</span></a></li>
+                    </div>
+                </ul>
+            </nav>
+        </aside>
+        <!-- Contenido principal del MODULO FINANZAS -->
+        <main>
+            <div class="contenedor-main">
+                <div class="hero">
+                    <div class="cuadro-1">
+                        <div class="hero-text">
+                            <h1>Finanzas</h1>
+                            <p>Ingresos y costos</p>
+                        </div>
+                        <!-- Botones de exportar y agregar -->
+                        <div class="buttons">
+                            <button class="btn-exportar-info" id="exportInfo">Exportar PDF</button>
+                            <button class="btn-agregar-info" id="addInfo">Nuevo Registro</button>
+                        </div>                                 
+                    </div>
+                    <!--cards resumen de finanzas-->
+                    <div class="cards">
+                        <div class="card">
+                            <div class="join">
+                                <img src="/images/svg-hackaton/ingreso-finanza.svg" alt="Ingresos" width="40px" height="40px">
+                                <h3>Ingresos</h3>
+                            </div>
+                            <span id="ingresos">$0</span>
+                        </div>
+                        <div class="card">
+                            <div class="join">
+                                <img src="/images/svg-hackaton/perdida-finanzas.svg" alt="Costos" width="40px" height="40px">
+                                <h3>Costos</h3>
+                            </div>
+                            <span id="costos">$0</span>
+                        </div>
+                        <div class="card">
+                            <div class="join">
+                                <img src="/images/svg-hackaton/ganancia-finanza.svg" alt="Ganancias" width="40px" height="40px">
+                                <h3>Ganancias</h3>
+                            </div>
+                            <span id="ganancias">$0</span>
+                        </div>
+                        <div class="card">
+                            <div class="join">
+                                <img src="/images/svg-hackaton/porcentaje-finanzas.svg" alt="Ganancia Neta" width="40px" height="40px">
+                                <h3>Ganancia Neta</h3>
+                            </div>
+                            <span id="ganancia-neta">$0</span>
+                        </div>
+                    </div>
+                    <!--precios referencia Api if online ==true else poner los precios actuales mediante variables-->
+                    
+                </div>
+            </div>
+
+        </main>
+
+
+    </div>
+    
+    <script src="/src/javascript/sidebar.js"></script>
+    <script src="/src/javascript/finanzas-logic.js"></script>
+</body>
+</html>
