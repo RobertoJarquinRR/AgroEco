@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const ubicacion = inputUbicacion.value;
             const cultivo = inputCultivo.value;
 
-            // Extraemos la primera letra del nombre para el ícono de la tarjeta
+            // se extrae la primera letra de cada name
             const iniciales = nombre.substring(0, 2).toUpperCase();
 
             const nuevaTarjetaHTML = `
