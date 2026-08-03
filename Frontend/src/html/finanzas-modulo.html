@@ -45,26 +45,41 @@
                         <div class="buttons">
                             <button class="btn-exportar-info" id="exportInfo">Exportar PDF</button>
                             <button class="btn-agregar-info" id="addInfo">Nuevo Registro</button>
-                        </div>
-                        <!--cards resumen de finanzas-->
-                        <div class="cards">
-                            <div class="card">
+                        </div>                                 
+                    </div>
+                    <!--cards resumen de finanzas-->
+                    <div class="cards">
+                        <div class="card">
+                            <div class="join">
+                                <img src="/images/svg-hackaton/ingreso-finanza.svg" alt="Ingresos" width="40px" height="40px">
                                 <h3>Ingresos</h3>
                             </div>
-                            <div class="card">
+                            <span id="ingresos">$0</span>
+                        </div>
+                        <div class="card">
+                            <div class="join">
+                                <img src="/images/svg-hackaton/perdida-finanzas.svg" alt="Costos" width="40px" height="40px">
                                 <h3>Costos</h3>
                             </div>
-                            <div class="card">
+                            <span id="costos">$0</span>
+                        </div>
+                        <div class="card">
+                            <div class="join">
+                                <img src="/images/svg-hackaton/ganancia-finanza.svg" alt="Ganancias" width="40px" height="40px">
                                 <h3>Ganancias</h3>
                             </div>
-                            <div class="card">
+                            <span id="ganancias">$0</span>
+                        </div>
+                        <div class="card">
+                            <div class="join">
+                                <img src="/images/svg-hackaton/porcentaje-finanzas.svg" alt="Ganancia Neta" width="40px" height="40px">
                                 <h3>Ganancia Neta</h3>
                             </div>
+                            <span id="ganancia-neta">$0</span>
                         </div>
-
-                        
                     </div>
-
+                    <!--precios referencia Api if online ==true else poner los precios actuales mediante variables-->
+                    
                 </div>
             </div>
 
