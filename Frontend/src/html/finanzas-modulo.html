@@ -79,7 +79,15 @@
                         </div>
                     </div>
                     <!--precios referencia Api if online ==true else poner los precios actuales mediante variables-->
-                    
+                    <div class="box-cont">
+                        <div class="linea1">
+                            <img src="/images/svg-hackaton/earth.svg" alt="tierra" width="50px" height="50px">
+                            <p>Precios de referencia <span class="reference">• FAOSTAT / BCN </span></p>
+                            <p class ="status" id="statusConectionFinan">Modo sin conexión</p>
+                            
+                            
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -87,6 +95,74 @@
 
 
     </div>
+    <!-- Dialogo para agregar nuevo registro -->
+    <dialog id="showDialogNewReg" class="modal-dialog">
+        <div class="modal-header">
+            <h2>Nuevo registro financiero</h2>
+            <p>Registra un ingreso o costo</p>
+        </div>
+
+        <form id="formNuevoRegistro" method="dialog">
+            <div class="type-selector">
+                <label class="type-btn ingreso active">
+                    <input type="radio" name="tipoRegistro" value="ingreso" checked hidden>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>
+                    Ingreso
+                </label>
+                <label class="type-btn costo">
+                    <input type="radio" name="tipoRegistro" value="costo" hidden>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 18l-9.5-9.5-5 5L1 6"/><path d="M17 18h6v-6"/></svg>
+                    Costo
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Cultivo</label>
+                <div class="segmented-control">
+                    <label class="segment active">
+                        <input type="radio" name="cultivo" value="cafe" checked hidden>
+                        <span>Café</span>
+                    </label>
+                    <label class="segment">
+                        <input type="radio" name="cultivo" value="aguacate" hidden>
+                        <span>Aguacate</span>
+                    </label>
+                    <label class="segment">
+                        <input type="radio" name="cultivo" value="general" hidden>
+                        <span>General</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Categoría</label>
+                <select id="regCategoria" class="form-control" name="categoria" disabled>
+                    <option value="" disabled selected>Tipo insumo disponible solo si es costo</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Monto C$ *</label>
+                    <input type="number" id="regMonto" class="form-control" placeholder="0.00" step="0.01" required min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fecha *</label>
+                    <input type="date" id="regFecha" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="regDescripcion" class="form-control" placeholder="Ejem: venta de aguacates 1000 kg">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" id="btnCancelReg" class="btn-modal-secondary">Cancelar</button>
+                <button type="submit" id="btnSubmitReg" class="btn-modal-primary">Crear Registro</button>
+            </div>
+        </form>
+    </dialog>
+
     
     <script src="/src/javascript/sidebar.js"></script>
     <script src="/src/javascript/finanzas-logic.js"></script>

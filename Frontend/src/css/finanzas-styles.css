@@ -97,3 +97,321 @@ aside{
 .txtlogout{
     color: #BC6661;
 }
+
+
+/* --- Modal Backdrop y Diálogo --- */
+dialog.modal-dialog {
+    border: none;
+    border-radius: 20px;
+    padding: 28px;
+    width: 100%;
+    max-width: 460px;
+    background-color: #F4F5F7;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(3px);
+}
+
+.modal-header h2 {
+    font-size: 22px;
+    color: #1A1A1A;
+    margin: 0 0 4px 0;
+}
+
+.modal-header p {
+    font-size: 14px;
+    color: #718096;
+    margin: 0 0 20px 0;
+}
+
+/* --- Selector Ingreso / Costo --- */
+.type-selector {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.type-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.type-btn.ingreso {
+    border-color: #2D8A68;
+    color: #2D8A68;
+    background: #E8F5E9;
+}
+
+.type-btn.costo {
+    border-color: #E57373;
+    color: #E57373;
+    background: #FFEBEE;
+}
+
+.type-btn:not(.active) {
+    background: transparent;
+    opacity: 0.6;
+    border-color: #CBD5E0;
+    color: #4A5568;
+}
+
+/* --- Controles de Formulario --- */
+.form-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2D3748;
+    margin-bottom: 6px;
+}
+
+.form-row {
+    display: flex;
+    gap: 12px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+    background-color: #FFFFFF;
+    font-size: 14px;
+    color: #2D3748;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    border-color: #2D8A68;
+}
+
+/* --- Segmented Control (Cultivos) --- */
+.segmented-control {
+    display: flex;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 3px;
+    gap: 4px;
+}
+
+.segment {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #718096;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.segment.active {
+    background-color: #F7FAFC;
+    color: #1A202C;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #CBD5E0;
+}
+
+/* --- Botones del Modal --- */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.btn-modal-secondary {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid #CBD5E0;
+    background: #FFFFFF;
+    color: #2D8A68;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-modal-primary {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    background: #2D8A68;
+    color: #FFFFFF;
+    font-weight: 600;
+    cursor: pointer;
+}
+/* ============================================
+   ESTADOS ACTIVE - Type selector (Ingreso/Costo)
+   Controlados por JS (classList), no por :has()
+   ============================================ */
+.type-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: 1.5px solid #CBD5E0;
+    background: transparent;
+    opacity: 0.6;
+    color: #4A5568;
+    transition: all 0.2s ease;
+}
+
+.type-btn.ingreso.active {
+    border-color: #2D8A68;
+    color: #2D8A68;
+    background: #E8F5E9;
+    opacity: 1;
+}
+
+.type-btn.costo.active {
+    border-color: #E57373;
+    color: #E57373;
+    background: #FFEBEE;
+    opacity: 1;
+}
+
+/* ============================================
+   ESTADOS ACTIVE - Segmented control (Cultivo)
+   ============================================ */
+.segment {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #718096;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.segment.active {
+    background-color: #F7FAFC;
+    color: #1A202C;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #CBD5E0;
+}
+
+/* ============================================
+   VALIDACIÓN - estado de error en campos
+   ============================================ */
+.input-error {
+    border-color: #E53E3E !important;
+    background-color: #FFF5F5;
+}
+
+.input-error:focus {
+    border-color: #E53E3E !important;
+    box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.15);
+}
+
+.error-message {
+    display: block;
+    color: #E53E3E;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* ============================================
+   COMBO BOX (select) - estilo Fluent
+   ============================================ */
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #FFFFFF;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 36px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+select.form-control:disabled {
+    background-color: #F1F3F5;
+    color: #A0AEC0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+select.form-control:focus {
+    border-color: #2D8A68;
+}
+
+select.form-control:hover:not(:disabled) {
+    border-color: #A0AEC0;
+}
+
+/* ============================================
+   DATE PICKER - input[type="date"]
+   ============================================ */
+input[type="date"].form-control {
+    color-scheme: light;
+    color: #2D3748;
+    cursor: pointer;
+}
+
+input[type="date"].form-control::-webkit-calendar-picker-indicator {
+    filter: invert(48%) sepia(15%) saturate(1200%) hue-rotate(115deg) brightness(90%);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    margin-left: 4px;
+    transition: background-color 0.2s ease;
+}
+
+input[type="date"].form-control::-webkit-calendar-picker-indicator:hover {
+    background-color: rgba(45, 138, 104, 0.12);
+}
+
+input[type="date"].form-control::-webkit-datetime-edit {
+    padding: 0;
+}
+
+input[type="date"].form-control::-webkit-datetime-edit-fields-wrapper {
+    color: #2D3748;
+}
+
+input[type="date"].form-control::-webkit-datetime-edit-text,
+input[type="date"].form-control::-webkit-datetime-edit-month-field,
+input[type="date"].form-control::-webkit-datetime-edit-day-field,
+input[type="date"].form-control::-webkit-datetime-edit-year-field {
+    color: #2D3748;
+}
