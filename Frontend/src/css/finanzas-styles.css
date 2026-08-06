@@ -97,6 +97,114 @@ aside{
 .txtlogout{
     color: #BC6661;
 }
+/*styles del contenido principal*/
+.contenedor-main{
+    width: 100%;
+    padding:20px;  
+    display:flex;
+    flex-direction: column;
+    gap:20px;  
+}
+.hero{
+    display:grid;
+    grid-template-rows: 1fr;
+    gap:20px;
+}
+/*styles del texto principal*/
+.cuadro-1{
+    display:flex; 
+    justify-content: space-between;
+    align-items:center; 
+    margin-right :20px;   
+}
+.buttons{
+    display:flex;
+    gap:20px;
+}
+.btn-exportar-info{
+    border:1px solid #BFC6C4;
+    padding:10px 20px;
+    border-radius:8px;
+    background-color:#F7F7F7;
+    color:#2FA084;
+    font-weight:600;
+}
+.btn-agregar-info{
+    border:none;
+    padding:10px 20px;
+    border-radius:8px;
+    background-color:#2FA084;
+    color:#F7F7F7;
+    font-weight:600;
+}
+
+/*styles de los cards*/
+.cards{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));    
+    gap:20px;
+}
+.card{
+    background-color:#FFFFFF;
+    border-radius:8px;
+    padding:12px;
+}
+.join{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.join h3{
+    font-weight:500;
+    color:#758A93;
+    font-size:14px;
+}
+
+.card span{
+    display:flex;
+    align-items:center;    
+    font-weight:600;
+    font-size:24px;
+}
+#ingresos,#ganancias,#ganancia-neta{ color:#1D634F}
+#costos{
+    color:#EF4946;
+}
+.box-cont{
+    background-color:#FFFFFF;
+    border-radius:8px;
+    padding:12px;
+    min-height: 200px;
+}
+.linea1{
+    display:flex;
+    align-items:center;    
+    justify-content:space-between; 
+}
+.com{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.linea1 p{
+    font-weight:600;
+    font-size:18px;
+    color:#2C2C2C;
+}
+.reference{
+    font-size:12px;
+    color:#718096;
+}
+.reporte-mov{
+    font-weight:600;
+    font-size:18px;
+    color:#2C2C2C;
+}
+.line {
+    background-color: #E2E8F0;
+    height: 1px;
+    margin: 8px 0;
+}
 
 
 /* --- Modal Backdrop y Diálogo --- */
