@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario</title>
+    <link rel="stylesheet" href="../css/inventario.css">
+</head>
+<body>
+    <div class="contenedor"> 
+        <aside>
+            <nav class="sidebar">
+                <!--Logo AgroEco-->
+                <div class="logo">
+                    <img src = "../..//images/svg-hackaton/Logo.svg" class = "logo-svg" alt="Logo AgroEco" width = "70px" height = "auto">    
+                    <span id = "agroeco" class = "logo-text">AgroEco</span>            
+                </div>
+                <ul>
+                    <div class="sb_1">
+                        <li><a href="#"><img class = "icon"src = "../../images/svg-hackaton/objects-column 1.svg" alt="Dashboard" width = "25px" height = "25px"> <span id = "home">DashBoard</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "../../images/svg-hackaton/signal-stream 1.svg" alt="GestorTareas" width = "25px" height = "25px"> <span id = "tareas">Tareas</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "../../images/svg-hackaton/Vector.svg" alt="Sensores" width = "25px" height = "25px"> <span id = "sensores">Sensores</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "../../images/svg-hackaton/Group 141.svg" alt="Plagas" width = "25px" height = "25px"> <span id = "plagas">Plagas</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "../../images/svg-hackaton/Vector (1).svg" alt="Imagen" width = "25px" height = "25px"> <span id = "educacion">Educacion</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "../../images/svg-hackaton/Vector (2).svg" alt="Bodega" width = "25px" height = "25px"> <span id = "Bodega">Bodega</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "../../images/svg-hackaton/Vector (3).svg" alt="Finanza" width = "25px" height = "25px"> <span id = "finanza">Finanza</span></a></li>
+                    </div>
+                    <!-- Log Out alfinal-->
+                    <div class="sidebar_2">
+                        <li><a href="../../index.html"><img class="icon logout"src="../../images/svg-hackaton/vector (4).svg" alt="Log Out" width = "15px" height = "auto"> <span class = "txtlogout" id = "logout">Log Out</span></a></li>
+                    </div>
+                </ul>
+            </nav>
+        </aside>
+        <main class="inventario">
+            <div>
+                <h1>Inventario de Insumos</h1>
+                <p class="sub-gris">Control de stock</p>
+            </div>
+            
+            <button id="btnNuevoInsumo">+ Nuevo Insumo</button>
+            
+            <div class="inventario__resumen">
+                <div class="card">
+                    <svg class="icono icono-total" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24">
+                        <path d="m2,2.5c0-1.381,1.119-2.5,2.5-2.5s2.5,1.119,2.5,2.5-1.119,2.5-2.5,2.5-2.5-1.119-2.5-2.5Zm4,12.5H2v-6c0-.552.449-1,1-1h12v-2H3c-1.654,0-3,1.346-3,3v8h2v7h2v-7h2v7h2v-14h-2v5Zm18,3.5v5.5h-14v-5.5c0-1.379,1.122-2.5,2.5-2.5h.5v-3.5c0-1.379,1.122-2.5,2.5-2.5h3c1.378,0,2.5,1.121,2.5,2.5v3.5h.5c1.378,0,2.5,1.121,2.5,2.5Zm-9-2.5h4v-3.5c0-.275-.224-.5-.5-.5h-3c-.276,0-.5.225-.5.5v3.5Zm1,2.5c0-.275-.224-.5-.5-.5h-3c-.276,0-.5.225-.5.5v3.5h4v-3.5Zm6,0c0-.275-.224-.5-.5-.5h-3c-.276,0-.5.225-.5.5v3.5h4v-3.5Z"/>
+                    </svg>
+                    <div class="card-info">
+                        <h1 id="total-insumos">0</h1>
+                        <p>Total de insumos</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="../../images/svg-hackaton/Vector (8).svg" class="icono icono-stock" alt="">
+                    <div class="card-info">
+                        <h1 id="total-stock-bajo">0</h1>
+                        <p>Stock bajo</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <svg class="icono icono-categorias" xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24">
+                        <path d="m0,3v7h10V0H3C1.346,0,0,1.346,0,3Zm8,5H2V3c0-.551.449-1,1-1h5v6Zm14-5c0-1.654-1.346-3-3-3h-7v10h10V3Zm-2,5h-6V2h5c.551,0,1,.449,1,1v5ZM0,19c0,1.654,1.346,3,3,3h7v-10H0v7Zm2-5h6v6H3c-.551,0-1-.449-1-1v-5Zm21.979,8.564l-2.812-2.812c.524-.791.833-1.736.833-2.753,0-2.757-2.243-5-5-5s-5,2.243-5,5,2.243,5,5,5c1.017,0,1.962-.309,2.753-.833l2.812,2.812,1.414-1.414Zm-6.979-2.564c-1.654,0-3-1.346-3-3s1.346-3,3-3,3,1.346,3,3-1.346,3-3,3Z"/>
+                    </svg>
+                    <div class="card-info">
+                        <h1 id="total-categorias">0</h1>
+                        <p>Categorias</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" id="inventario__alerta-stock">
+                <div class="titulo-alerta">
+                    <img src="../../images/svg-hackaton/Vector (8).svg" class="icono" alt="">
+                    <p>Insumos con stock bajo</p>
+                </div>
+                <div id="inventario__alerta-stock__insumos">
+                </div>
+            </div>
+            
+            <ul class="inventario__categorias">
+                <li class="btnCategoria seleccionado" data-categoria="todos">Todos</li>
+                <li class="btnCategoria" data-categoria="Fertilizante">Fertilizantes</li>
+                <li class="btnCategoria" data-categoria="Insecticida">Insecticidas</li>
+                <li class="btnCategoria" data-categoria="Injerto">Injertos</li>
+                <li class="btnCategoria" data-categoria="Herramienta">Herramientas</li>
+                <li class="btnCategoria" data-categoria="Otro">Otros</li>
+            </ul>
+            
+            <div id="inventario__insumos">
+            </div>
+            
+        </main>
+        
+        <div id="nuevo-insumo">
+            <form id="formNuevoInsumo">
+                <div>
+                    <h2>Nuevo Insumo</h2>
+                    <p class="sub-gris">Registrar insumo en el inventario</p>
+                </div>
+                <div class="form-group">
+                    <label>Nombre*</label>
+                    <input type="text" id="inputNombre" placeholder="EJ: TRIPLE 15" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <div class="select" id="selectCategoria">
+                            <button type="button" class="select__boton">
+                                <span class="select__texto"></span>
+                                <img class="select__icono" src="../../images/svg-hackaton/Arrow-Drop-Down.svg" alt="">
+                            </button>
+                            <div class="select__menu">
+                                <button type="button" class="select__opcion" data-value="Fertilizante">
+                                    Fertilizante
+                                </button>
+                                
+                                <button type="button" class="select__opcion" data-value="Insecticida">
+                                    Insecticida
+                                </button>
+                                
+                                <button type="button" class="select__opcion" data-value="Injerto">
+                                    Injerto
+                                </button>
+                                
+                                <button type="button" class="select__opcion" data-value="Herramienta">
+                                    Herramienta
+                                </button>
+                                
+                                <button type="button" class="select__opcion" data-value="Otro">
+                                    Otro
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Cultivo*</label>
+                        <input type="text" id="inputCultivo" placeholder="General" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cantidad*</label>
+                        <input type="number" id="inputCantidad" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Unidad*</label>
+                        <div class="select" id="selectUnidad">
+                            <button  type="button" class="select__boton">
+                                <span class="select__texto"></span>
+                                <img class="select__icono" src="../../images/svg-hackaton/Arrow-Drop-Down.svg" alt="">
+                            </button>
+                            <div class="select__menu">
+                                <button type="button" class="select__opcion" data-value="Kg">
+                                    Kg
+                                </button>
+                                
+                                <button type="button" class="select__opcion" data-value="Litros">
+                                    Litros
+                                </button>
+                                
+                                <button type="button" class="select__opcion" data-value="Unidades">
+                                    Unidades
+                                </button>
+                                
+                                <button type="button" class="select__opcion" data-value="Bolsas">
+                                    Bolsas
+                                </button>
+                                
+                                <button type="button" class="select__opcion" data-value="Gramos">
+                                    Gramos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock minimo*</label>
+                        <input type="number" id="inputStockMin" min="0" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha caducidad</label>
+                        <input type="date" id="inputCaducidad">
+                    </div>
+                    <div class="form-group">
+                        <label>Finca</label>
+                        <div class="select" id="selectFinca">
+                            <button type="button" class="select__boton">
+                                <span class="select__texto"></span>
+                                <img class="select__icono" src="../../images/svg-hackaton/Arrow-Drop-Down.svg" alt="">
+                            </button>
+                            <div class="select__menu">
+                                <button type="button" class="select__opcion" data-value="">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="inputDescripcion" placeholder="Descripcion..........." rows="4"></textarea>
+                </div>
+                <div class="form-row">
+                    <button type="button" class="row" id="btnCancelar">Cancelar</button>
+                    <button type="submit" class="row" id="btnGuardar">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+        <script src="../javascript/sidebar.js"></script>
+        <script src="../javascript/inventario.js"></script>
+    </body>
+    </html>
