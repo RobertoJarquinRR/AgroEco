@@ -1,0 +1,470 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Boldonse&family=Iosevka+Charon:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+:root{
+    --font-secundary: 'Iosevka Charon', monospace;
+    --font-weight-primary: 600;
+    
+    --gris-oscuro: #2C2C2C;
+    --gris-claro:#758A93;
+    --fondo: #EEEEEE;
+     --verde-oscuro: #1D634F;
+
+    --verde-claro: #2FA084;
+    --verde-claro-fondo: #D1FAE5;
+    --azul: #2F55D8;
+    --azul-fondo: #DBEAFE;
+    --amarillo: #F59E0B;
+    --amarillo-fondo: #FFFBEB;
+    --rojo: #EF4946;
+    --rojo-fondo: #FBD1D1;
+    --celeste: #0eb0eb;
+    --celeste-fondo: #e4fbff;
+    --morado: #9d46ef;
+    --morado-fondo: #f2e9fc;
+}
+*{
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins';  
+    list-style: none;  
+    text-decoration: none;
+}
+body{
+    background-color: var(--fondo); 
+}
+.contenedor{
+    display: grid;
+    grid-template-columns: 250px 1fr;
+}
+aside{
+    display:flex;
+    flex-direction: column;
+    max-width: 250px;
+    min-height: 100vh;
+    padding:20px;   
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: start;
+    /*Color de fondo del sidebar*/
+    background-color: #1D634F;
+    box-sizing: border-box
+}
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;     
+}
+.logo{
+    overflow:visible;
+    display: flex;
+    align-items: center;
+    gap:12px;
+    margin-bottom: 20px;
+}
+.logo-text{
+    text-align: center;
+    font-family: var(--font-secundary);
+    font-size: 28px;
+    font-weight: 700;
+    color: #EDEDED;
+}
+.sidebar ul{
+    display:flex;
+    flex-direction: column;
+    height: 100%;
+    margin:0;
+    padding:0;
+}
+.sidebar ul li a{
+    display:grid;
+    grid-template-columns: 40px 1fr;
+    gap :10px;
+    padding:10px 20px;
+    align-items: center;  
+    margin-top:10px; 
+    color:#EDEDED;
+    font-size:14px;
+    font-weight: var(--font-weight-primary);
+    border-radius: 12px; 
+    cursor:default;
+    transition:all 0.3s ease-in-out;   
+}
+.sidebar ul li a:hover{    
+    background-color: rgba(255, 255, 255, 0.08);
+}
+.sidebar ul li a.active{
+    background-color: #2FA084;    
+}
+/*logout style*/
+.sidebar_2{
+    margin-top: auto;
+}
+.txtlogout{
+    color: #BC6661;
+}
+/* texto */
+h1{
+    font-size: 2rem;
+    color: var(--gris-oscuro);
+    font-weight: 600;
+}
+.sub-gris{
+    color: var(--gris-claro);
+    font-weight: 500;
+}
+p{
+    font-size: 1rem;
+}
+
+.titulo-alerta{
+   display: flex;
+   gap: 1rem;
+}
+.titulo-alerta p{
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--amarillo);
+}
+
+#inventario__insumos p{
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+#inventario__insumos .insumo-nombre{
+    font-size: 0.9rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    color: #4A4A4A;
+    font-weight: 500;
+}
+.nuevo-insumo__content h2 {
+    font-size: 1.4rem;
+    color: var(--gris-oscuro);
+}
+/* botones */
+/* boton de nuevo insumo */
+.inventario button{
+    background-color: var(--verde-claro);
+    align-self: flex-end;
+    width: 20%;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.7rem;
+    border: none;
+    cursor: pointer;
+    transition:all 0.2s ease-in-out;
+}
+.inventario button:hover{
+    background-color: var(--verde-oscuro);
+}
+/* botones de la ventana de nuevo insumo */
+#btnCancelar {
+    width: 100%;
+    padding: 0.8rem;
+    background-color:#989898 ;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+#btnCancelar:hover{
+    background-color: var(--rojo);
+}
+
+#btnGuardar {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: var(--verde-claro);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+#btnGuardar:hover { 
+    background-color: var(--verde-oscuro); 
+}
+/* boton para elminar insumo */
+.eliminar-insumo{
+    width: 1.3rem;
+    align-self: flex-start;
+    margin-left: auto;
+    fill: currentColor;
+    transition:all 0.1s ease-in-out;
+    cursor: pointer;
+    color: var(--gris-claro);
+    padding: 0.5rem;
+    border-radius: 100%;
+}
+.eliminar-insumo:hover{
+    color: var(--rojo);
+    background-color: var(--rojo-fondo);
+}
+
+/* inventario */
+.inventario{
+    margin: 1.5rem 7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.card{
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    background-color: white;
+    padding: 1rem 1.5rem;
+    border: 0.1rem #D6D8D7 solid;
+    border-radius: 0.5rem;
+}
+.icono{
+    width: 2rem;
+    fill: currentColor;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+/* total de isumos, stock bajo y categorias */
+.inventario__resumen{
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+}
+.inventario__resumen .card{
+    width: 100%;
+}
+.icono-total{
+    color: var(--verde-claro);
+    background-color: var(--verde-claro-fondo)
+}
+.icono-stock{
+    color: var(--amarillo);
+    background-color: var(--amarillo-fondo);
+}
+.icono-categorias{
+    color: var(--azul);
+    background-color: var(--azul-fondo);
+}
+/* alerta de stock bajo*/
+#inventario__alerta-stock{
+    display: none;
+    background-color: var(--amarillo-fondo);
+    flex-direction: column;
+    align-items: start;
+    border-radius: 1rem;
+}
+#inventario__alerta-stock .icono{
+    padding: 0;
+}
+/* contenedor */
+#inventario__alerta-stock__insumos{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+/* insumo con stock bajo */
+.alerta-stock-dato{
+    background-color: white;
+    padding: 0.5rem 1rem;
+    border: 0.1rem var(--amarillo) solid;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+/* categorias */
+.inventario__categorias{
+    display: flex;
+    gap: 2rem;
+}
+.inventario__categorias li{
+    background-color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gris-claro);
+    cursor: pointer;
+    transition:all 0.1s ease-in-out;
+}
+.inventario__categorias li:hover{
+    background-color: #e6eae9;
+}
+.inventario__categorias .seleccionado{
+    background-color: var(--verde-claro);
+    color: white;
+}
+.inventario__categorias .seleccionado:hover{
+    background-color: var(--verde-claro);
+}
+
+/* insumos */
+/* contenedor */
+#inventario__insumos{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+/* insumo */
+.card-info__cont{
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.stock-bajo{
+    border: 0.1rem var(--amarillo) solid;
+    background-color:#f7f3f0;
+}
+/* etiquetas */
+.insumo-categoria{
+    padding: 0.3rem 0.7rem;
+    border-radius: 1rem;
+}
+.fertilizante .icono, .fertilizante .insumo-categoria{
+    color: var(--azul);
+    background-color: var(--azul-fondo);
+}
+.insecticida .icono, .insecticida .insumo-categoria{
+    color: var(--rojo);
+    background-color: var(--rojo-fondo);
+}
+.injerto .icono, .injerto .insumo-categoria{
+    color: var(--verde-claro);
+    background-color: var(--verde-claro-fondo);
+}
+.herramientas .icono, .herramienta .insumo-categoria{
+    color: var(--celeste);
+    background-color: var(--celeste-fondo);
+}
+.otro .icono, .otro .insumo-categoria{
+    color: var(--morado);
+    background-color: var(--morado-fondo);
+}
+.insumo-alerta{
+    display: none;
+    border: 0.1rem var(--amarillo) solid;
+    color: var(--amarillo);
+    background-color: var(--amarillo-fondo);
+    padding: 0.3rem 0.7rem;
+    border-radius: 1rem;
+}
+.stock-bajo .insumo-alerta{
+    display: block;
+}
+
+/* ventana de nuevo insumo */
+#nuevo-insumo {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(25, 25, 25, 0.85);
+}
+#formNuevoInsumo{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: var(--fondo);
+    padding: 1.8rem;
+    border-radius: 0.8rem;
+    width: 90%;
+    max-width: 31rem;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.form-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+.form-row {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+}
+.form-group input, .form-group textarea{
+    background-color: white;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.4rem;
+    outline: none;
+}
+.form-group input:focus, .form-group textarea:focus {
+    border-color: var(--verde-claro);
+}
+
+/* dropdown menu */
+.select{
+    position:relative;  
+}
+.form-group .select__boton{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.4rem;
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    width: 100%;
+}
+.select__icono{
+    transition:.2s;
+}
+.select.abierto .select__icono{
+    transform:rotate(180deg);
+}
+.select.abierto .select__boton{
+    border-color: var(--verde-claro);
+}
+.select__menu{
+    position: absolute;
+    top: calc(100% + .35rem);
+    left: 0;
+    width: 100%;
+    display: none;
+    flex-direction: column;
+    background: white;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.4rem;
+    overflow: hidden;
+    box-shadow:0 .5rem 1rem rgba(0,0,0,.12);
+    z-index:100;
+}
+.abierto .select__menu{
+    display:flex;
+}
+.select__opcion{
+    padding:.8rem 1rem;
+    background:none;
+    border:none;
+    text-align:left;
+    cursor:pointer;
+    transition:.15s;
+}
+.select__opcion:hover{
+    background:#dedfe2;
+}
+.select__opcion.seleccionado{
+    background: var(--verde-claro);
+    color: white;
+    font-weight:600;
+}
+
