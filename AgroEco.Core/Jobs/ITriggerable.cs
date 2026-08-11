@@ -4,9 +4,8 @@ using System.Text;
 
 namespace AgroEco.Core.Jobs
 {
-    public interface IJobAction
+    public interface ITriggerable
     {
-
-        Task<Result> Execute();
+        Task<Result> Ontrigger();
     }
 }

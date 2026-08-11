@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Jobs
+namespace AgroEco.Core.Jobs.Actions
 {
-    public enum Jobs
-    {
-        DateTimer
+    public class Regar 
+    {   
+        
 
     }
 }

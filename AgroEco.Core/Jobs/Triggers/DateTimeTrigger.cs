@@ -4,23 +4,20 @@ using System.Text;
 
 namespace AgroEco.Core.Jobs.Triggers
 {
-    public class DateTimeTrigger: ITrigger
+    public class DateTimeTrigger : Trigger
     {
 
-        public event Func<Task>? OnTriggerFired;
+        public DateTimeTrigger(string name, TriggersType type) :
+        base( name, type)
+        {
+        
 
-        public DateTimeTrigger(){
-            
         }
-        public async Task probar(){
-
+        public override async Task<Result> InitTrigger()
+        {
             await Task.Delay(3000);
-            if (OnTriggerFired != null)
-            {
-                
-                await OnTriggerFired.Invoke();
-            }
+            await this.ExecuteTriggerables();
+            return Result.CreateSuccess("trigger iniciado");
         }
-
     }
 }

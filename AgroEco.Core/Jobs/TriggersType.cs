@@ -4,9 +4,9 @@ using System.Text;
 
 namespace AgroEco.Core.Jobs
 {
-    public enum Jobs
+    public enum TriggersType
     {
-        DateTimer
+        prueba
 
     }
 }
