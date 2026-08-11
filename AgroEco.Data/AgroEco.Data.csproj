@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Triggers\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

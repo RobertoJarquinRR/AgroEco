@@ -1,6 +1,10 @@
-﻿using AgroEco.Data;
+﻿using AgroEco.Core.Interfaces;
+using AgroEco.Core.Jobs;
+using AgroEco.Data;
+using AgroEco.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace AgroEco.UI
 {
@@ -23,6 +27,8 @@ namespace AgroEco.UI
             });
 
             services.AddScoped<MainWindow>();
+            services.AddScoped<JobRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork<DataContext>>();
 
             return services.BuildServiceProvider();
         }
