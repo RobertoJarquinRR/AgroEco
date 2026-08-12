@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     
+    updateSidebar();
+    
     const DB_PLAGAS = [
         {
             nombre: "Roya del Café",

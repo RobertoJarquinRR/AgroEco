@@ -112,6 +112,10 @@ aside {
 .sidebar ul li a:hover {
     background-color: rgba(255, 255, 255, 0.12);
 }
+/*broo XD se te habia olviddo eso */
+.sidebar ul li a.active{
+    background-color: #2FA084;   
+}
 
 .sidebar_2 {
     margin-top: auto;

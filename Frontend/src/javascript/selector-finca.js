@@ -1,5 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
-    
+document.addEventListener("DOMContentLoaded", () => {    
     // --- 1. LÓGICA DE ELIMINAR FINCAS ---
     const contenedorFincas = document.querySelector(".boxes");
 

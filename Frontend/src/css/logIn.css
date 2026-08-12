@@ -73,6 +73,9 @@ input::placeholder{
     cursor: pointer;
     transition:all 0.2s ease-in-out;
 }
+.boton__texto{
+    color: white;
+}
 .boton:hover{
     background-color: var(--verde-claro-hover);
 }

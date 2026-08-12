@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eco Agro - Control de Plagas</title>
-    <link rel="stylesheet" href="../css/style_plagas.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="../javascript/plagas.js" defer></script>
+    <link rel="stylesheet" href="/src/css/style_plagas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">    
 </head>
 <body>
     <div class="app-container">
@@ -17,17 +16,17 @@
                     <span id="agroeco" class="logo-text">AgroEco</span>
                 </div>
                 <ul>
-                    <div class="sb_1">
-                        <li><a href="#"><img class="icon" src="../../images/svg-hackaton/objects-column 1.svg" alt="Dashboard" width="25" height="25"> <span id="home">DashBoard</span></a></li>
-                        <li><a href="#"><img class="icon" src="../../images/svg-hackaton/signal-stream 1.svg" alt="GestorTareas" width="25" height="25"> <span id="tareas">Tareas</span></a></li>
-                        <li><a href="#"><img class="icon" src="../../images/svg-hackaton/Vector.svg" alt="Sensores" width="25" height="25"> <span id="sensores">Sensores</span></a></li>
-                        <li><a href="#"><img class="icon" src="../../images/svg-hackaton/Group 141.svg" alt="Plagas" width="25" height="25"> <span id="plagas">Plagas</span></a></li>
-                        <li><a href="#"><img class="icon" src="../../images/svg-hackaton/Vector (1).svg" alt="Imagen" width="25" height="25"> <span id="educacion">Educacion</span></a></li>
-                        <li><a href="#"><img class="icon" src="../../images/svg-hackaton/Vector (2).svg" alt="Bodega" width="25" height="25"> <span id="Bodega">Bodega</span></a></li>
-                        <li><a href="#"><img class="icon" src="../../images/svg-hackaton/Vector (3).svg" alt="Finanza" width="25" height="25"> <span id="finanza">Finanza</span></a></li>
+                   <div class="sb_1">
+                        <li><a href="/src/html/dasboard.html"><img class = "icon"src = "/images/svg-hackaton/objects-column 1.svg" alt="Dashboard" width = "25px" height = "25px"> <span id = "home">DashBoard</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/signal-stream 1.svg" alt="GestorTareas" width = "25px" height = "25px"> <span id = "tareas">Tareas</span></a></li>
+                        <li><a href="/src/html/modulo-sensores.html" ><img class = "icon"src = "/images/svg-hackaton/Vector.svg" alt="Sensores" width = "25px" height = "25px"> <span id = "sensores">Sensores</span></a></li>
+                        <li><a href="/src/html/modulo-plagas.html"><img class = "icon"src = "/images/svg-hackaton/Group 141.svg" alt="Plagas" width = "25px" height = "25px"> <span id = "plagas">Plagas</span></a></li>
+                        <li><a href="/src/html/modulo-educacion.html" ><img class = "icon"src = "/images/svg-hackaton/Vector (1).svg" alt="Imagen" width = "25px" height = "25px"> <span id = "educacion">Educacion</span></a></li>
+                        <li><a href="/src/html/inventario.html" ><img class = "icon"src = "/images/svg-hackaton/Vector (2).svg" alt="Bodega" width = "25px" height = "25px"> <span id = "Bodega">Inventario</span></a></li>
+                        <li><a href="/src/html/finanzas-modulo.html"><img class = "icon"src = "/images/svg-hackaton/Vector (3).svg" alt="Finanza" width = "25px" height = "25px"> <span id = "finanza">Finanza</span></a></li>
                     </div>
                     <div class="sidebar_2">
-                        <li><a href="../../index.html"><img class="icon logout" src="../../images/svg-hackaton/vector (4).svg" alt="Log Out" width="15" height="auto"> <span class="txtlogout" id="logout">Log Out</span></a></li>
+                        <li><a href="/index.html"><img class="icon logout" src="../../images/svg-hackaton/vector (4).svg" alt="Log Out" width="15" height="auto"> <span class="txtlogout" id="logout">Log Out</span></a></li>
                     </div>
                 </ul>
             </nav>
@@ -142,5 +141,9 @@
             </div>
         </main>
     </div>
+    <!-- el js bro y el js? no lo tenias conectado xd te puse ese script con ese se actualiza el side bar-->   
+    <script src="/src/javascript/sidebar.js"></script>
+    <script>updateSidebar();</script>
+    <script src="/src/javascript/plagas.js" defer></script>
 </body>
 </html>
