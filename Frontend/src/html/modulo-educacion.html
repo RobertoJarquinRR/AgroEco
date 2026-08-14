@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro-Eco</title>
+    <link rel="stylesheet" href="../css/style-educacion.css">
+    <script src="../javascript/educacion.js" defer></script>
+</head>
+<body>
+        <div class="app-container">
+            <aside>
+                <nav class="sidebar">
+                <div class="logo">
+                    <img src="../../images/svg-hackaton/Logo.svg" class="logo-svg" alt="Logo AgroEco" width="70" height="auto">
+                    <span id="agroeco" class="logo-text">AgroEco</span>
+                </div>
+                <ul>
+                    <div class="sb_1">
+                        <li><a href="/src/html/dasboard.html"><img class = "icon"src = "/images/svg-hackaton/objects-column 1.svg" alt="Dashboard" width = "25px" height = "25px"> <span id = "home">DashBoard</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/signal-stream 1.svg" alt="GestorTareas" width = "25px" height = "25px"> <span id = "tareas">Tareas</span></a></li>
+                        <li><a href="/src/html/modulo-sensores.html" ><img class = "icon"src = "/images/svg-hackaton/Vector.svg" alt="Sensores" width = "25px" height = "25px"> <span id = "sensores">Sensores</span></a></li>
+                        <li><a href="/src/html/modulo-plagas.html"><img class = "icon"src = "/images/svg-hackaton/Group 141.svg" alt="Plagas" width = "25px" height = "25px"> <span id = "plagas">Plagas</span></a></li>
+                        <li><a href="/src/html/modulo-educacion.html" ><img class = "icon"src = "/images/svg-hackaton/Vector (1).svg" alt="Imagen" width = "25px" height = "25px"> <span id = "educacion">Educacion</span></a></li>
+                        <li><a href="/src/html/inventario.html" ><img class = "icon"src = "/images/svg-hackaton/Vector (2).svg" alt="Bodega" width = "25px" height = "25px"> <span id = "Bodega">Inventario</span></a></li>
+                        <li><a href="/src/html/finanzas-modulo.html"><img class = "icon"src = "/images/svg-hackaton/Vector (3).svg" alt="Finanza" width = "25px" height = "25px"> <span id = "finanza">Finanza</span></a></li>
+                    </div>
+                    <div class="sidebar_2">
+                        <li><a href="/index.html"><img class="icon logout" src="../../images/svg-hackaton/vector (4).svg" alt="Log Out" width="20" height="20"> <span class="txtlogout" id="logout">Log Out</span></a></li>
+                    </div>
+                </ul>
+                </nav>
+            </aside>
+
+
+        <main class="main-content">
+            <header class="main-header">
+                <img src="../../images/svg-hackaton/graduation-cap.svg" alt="Educación" class="icon-svg header-icon">
+                <div class="header-text">
+                    <h1>Educación</h1>
+                    <p>Guías agronómicas</p>
+                </div>
+            </header>
+
+            <nav class="sub-nav">
+                <button class="nav-btn active" data-target="ciclo-cultivo"><img src="../../images/svg-hackaton/rotate-right.svg" alt="Ciclo del cultivo" class="icon-svg"> Ciclo del cultivo</button>
+                <button class="nav-btn" data-target="guias-poda"><img src="../../images/svg-hackaton/leaf.svg" alt="Guías de poda" class="icon-svg"> Guías de poda</button>
+                <button class="nav-btn" data-target="bioinsumos"><img src="../../images/svg-hackaton/seedling.svg" alt="Bioinsumos" class="icon-svg"> Bioinsumos</button>
+            </nav>
+
+            <section id="ciclo-cultivo" class="tab-content active">
+                <div class="filters-row">
+                    <button class="filter-btn active"><img src="../../images/svg-hackaton/avocado-svgrepo-com.svg" alt="Café" class="icon-svg"> Café</button>
+                    <button class="filter-btn"><img src="../../images/svg-hackaton/seedling.svg" alt="Aguacate" class="icon-svg"> Aguacate</button>
+                </div>
+
+                <div class="stepper-box">
+                    <div class="stepper-horizontal">
+                        <div class="step active">
+                            <img src="../../images/svg-hackaton/seedling.svg" alt="Germinación" class="icon-svg step-icon">
+                            <span class="step-label">Germinación</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step">
+                            <img src="../../images/svg-hackaton/leaf.svg" alt="Crecimiento" class="icon-svg step-icon">
+                            <span class="step-label">Crecimiento</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step">
+                            <img src="../../images/svg-hackaton/stats.svg" alt="Producción" class="icon-svg step-icon">
+                            <span class="step-label">Producción</span>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step">
+                            <img src="../../images/svg-hackaton/seedling.svg" alt="Cosecha" class="icon-svg step-icon">
+                            <span class="step-label">Cosecha</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header">
+                        <img src="../../images/svg-hackaton/seedling.svg" alt="Germinación" class="icon-svg section-icon-large">
+                        <div class="header-title-group">
+                            <h2>Germinación</h2>
+                            <p class="subtitle">[Duración de la etapa]</p>
+                        </div>
+                    </div>
+                    <p class="card-description">[descripción de la etapa]</p>
+                    <p class="section-title-small">Insumos recomendados</p>
+                    <div class="vertical-timeline-box">
+                        <div class="timeline-step">
+                            <div class="timeline-line active"></div>
+                            <span class="timeline-label active">Día 0</span>
+                            <div class="timeline-content">
+                                <p class="insumo-name">[Insumo]</p>
+                                <p class="insumo-dosis">[dosis]</p>
+                            </div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-line"></div>
+                            <span class="timeline-label">Día 7</span>
+                            <div class="timeline-content">
+                                <p class="insumo-name">[Insumo]</p>
+                                <p class="insumo-dosis">[dosis]</p>
+                            </div>
+                        </div>
+                        <div class="timeline-step">
+                            <div class="timeline-line"></div>
+                            <span class="timeline-label">Día 15</span>
+                            <div class="timeline-content">
+                                <p class="insumo-name">[Insumo]</p>
+                                <p class="insumo-dosis">[dosis]</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="guias-poda" class="tab-content">
+                <div class="info-banner orange">
+                    <img src="../../images/svg-hackaton/alerta1.svg" alt="Alerta" class="icon-svg banner-icon">
+                    <div>
+                        <p class="banner-title">Humedad alta.</p>
+                        <p class="banner-subtitle">[Información de la alerta]</p>
+                    </div>
+                </div>
+
+                <div class="info-card calculator-card">
+                    <div class="card-header simple">
+                        <img src="../../images/svg-hackaton/stats.svg" alt="Calculadora" class="icon-svg section-icon-medium">
+                        <h2>Calculadora de altura máxima</h2>
+                    </div>
+                    <p class="formula-text">Altura máx = -10% + distancia de siembra</p>
+                    <div class="calculator-controls">
+                        <div class="input-group">
+                            <label>Distancia entre plantas</label>
+                            <input type="range" min="0" max="10" value="5">
+                            <span class="range-value">? m</span>
+                        </div>
+                        <div class="result-box">
+                            <p class="result-label">Distancia ? x ? m</p>
+                            <p class="result-value">4.9 m</p>
+                            <p class="result-sub-label">altura máxima</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filters-row small">
+                    <button class="filter-btn-outline active"><img src="../../images/svg-hackaton/leaf.svg" alt="Formación" class="icon-svg"> Formación</button>
+                    <button class="filter-btn-outline"><img src="../../images/svg-hackaton/pen-clip.svg" alt="Mantenimiento" class="icon-svg"> Mantenimiento</button>
+                    <button class="filter-btn-outline"><img src="../../images/svg-hackaton/seedling.svg" alt="Sanitaria" class="icon-svg"> Sanitaria</button>
+                    <button class="filter-btn-outline"><img src="../../images/svg-hackaton/rotate-reverse.svg" alt="Recepa / zoca" class="icon-svg"> Recepa / zoca</button>
+                </div>
+
+                <div class="info-card poda-card">
+                    <div class="card-header poda">
+                        <img src="../../images/svg-hackaton/leaf.svg" alt="Poda" class="icon-svg section-icon-large poda-icon">
+                        <div class="header-title-group">
+                            <h2>Poda de formación</h2>
+                            <p class="subtitle">[edad del cultivo]</p>
+                        </div>
+                    </div>
+                    <p class="card-description poda"><b>Objetivo:</b> [objetivo del tipo de poda]</p>
+                    <p class="section-title-small poda">Procedimiento</p>
+                    <ol class="procedure-list">
+                        <li>[paso 1]</li>
+                        <li>[paso 2]</li>
+                        <li>[paso 3]</li>
+                    </ol>
+                    <div class="justification-box">
+                        <p class="justification-title">Justificación agronómica</p>
+                        <p class="justification-text">[justificación]</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="bioinsumos" class="tab-content">
+                <div class="filters-row wrap">
+                    <button class="filter-btn small active">Todos</button>
+                    <button class="filter-btn small">JADAM</button>
+                    <button class="filter-btn small">FPJ</button>
+                    <button class="filter-btn small">Extractos</button>
+                    <button class="filter-btn small">Cobertura</button>
+                </div>
+
+                <div class="bioinsumo-accordion">
+                    <div class="accordion-item closed">
+                        <div class="accordion-header">
+                            <div class="header-left">
+                                <span class="bioinsumo-title">[Nombre del bioinsumo]</span>
+                                <span class="tag orange">[Categoría]</span>
+                            </div>
+                            <p class="accordion-subtitle">[descripción del bioinsumo]</p>
+                            <img src="../../images/svg-hackaton/angle-small-right.svg" alt="Expandir" class="icon-svg accordion-arrow">
+                        </div>
+                        <div class="accordion-content">
+                        </div>
+                    </div>
+
+                    <div class="accordion-item open">
+                        <div class="accordion-header">
+                            <div class="header-left">
+                                <span class="bioinsumo-title">[Nombre del bioinsumo]</span>
+                                <span class="tag green">[Categoría]</span>
+                            </div>
+                            <p class="accordion-subtitle">[descripción del bioinsumo]</p>
+                            <img src="../../images/svg-hackaton/angle-small-left.svg" alt="Colapsar" class="icon-svg accordion-arrow">
+                        </div>
+                        <div class="accordion-content">
+                            <p class="inner-title">Ingredientes</p>
+                            <div class="ingredients-list">
+                                <span>[Ingrediente]</span>
+                                <span>[Cantidad]</span>
+                                <span>[Ingrediente]</span>
+                                <span>[Cantidad]</span>
+                                <span>[Ingrediente]</span>
+                                <span>[Cantidad]</span>
+                                <span>[Ingrediente]</span>
+                                <span>[Cantidad]</span>
+                            </div>
+                            <p class="inner-title">Proceso</p>
+                            <ol class="procedure-list accordion">
+                                <li>[paso 1]</li>
+                                <li>[paso 2]</li>
+                                <li>[paso 3]</li>
+                            </ol>
+                            <div class="info-pills">
+                                <div class="pill orange">
+                                    <img src="../../images/svg-hackaton/calendar.svg" alt="Tiempo" class="icon-svg">
+                                    <div>
+                                        <span>Tiempo</span>
+                                        <span class="pill-value">[Tiempo]</span>
+                                    </div>
+                                </div>
+                                <div class="pill green">
+                                    <img src="../../images/svg-hackaton/leaf.svg" alt="Dosis" class="icon-svg">
+                                    <div>
+                                        <span>Dosis</span>
+                                        <span class="pill-value">[dosis]</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- el js-->
+    
+    <script src="/src/javascript/sidebar.js"></script>
+    <script>updateSidebar();</script>
+
+</body>
+</html>

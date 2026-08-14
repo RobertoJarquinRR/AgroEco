@@ -16,7 +16,7 @@ function updateSidebar(selector = '.sidebar ul li a') {
     btnClicked.forEach(btn => {
         //comprobar si el href del boton es igual a la pagina actual
         const href = btn.getAttribute('href');
-        //los hice sin {} para que sea mas legible lo es para mi xd tunai que se pueda hacerlo lo mismo que en c#
+        //los hice sin {} para que sea mas legible lo es para mi xd tuani que se pueda hacerlo lo mismo que en c#
         if(href=== currentPage) btn.classList.add('active');
         else btn.classList.remove('active');
 

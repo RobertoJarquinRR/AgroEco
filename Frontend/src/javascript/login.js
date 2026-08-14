@@ -23,7 +23,10 @@ const alerta = document.getElementById("alerta"); //alerta
 const alertaMensaje = document.getElementById("alerta-mensaje"); //mensaje que se mostrara en la alerta
 
 btnLogin?.addEventListener("click", () => {
-    //obtener correo, tipo: string
+    //ojo esto es de prueba un bypass
+    location.assign("/src/html/selector-fincas.html");
+
+    /* //obtener correo, tipo: string
     const correo = correoInput ? correoInput.value : "";
     // obtener contraseña, tipo: string
     const password = passwordInput ? passwordInput.value : "";
@@ -56,7 +59,7 @@ btnLogin?.addEventListener("click", () => {
     }
 
     // enviar datos a C#
-    const win = /** @type {any} */ (window);
+    const win = /** @type {any} */  /*(window);
     if (win.chrome && win.chrome.webview) {
         win.chrome.webview.postMessage({
             type: "login",
@@ -65,7 +68,8 @@ btnLogin?.addEventListener("click", () => {
                 password
             }
         });
-    }
+    } 
+    */
 });
 
 //-recuperar contraseña-

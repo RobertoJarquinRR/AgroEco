@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
-    "types": ["vite/client"],
-    "checkJs": true
-  }
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "checkJs": true,
+    "jsx": "react-jsx",
+    "types": ["vite/client"]
+  },
+  "include": ["src/**/*"]
 }

@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+    //aqui te puse eso para que se actualice el side bar bro ya con eso ya lo arregle era solo llamarla xd
+    updateSidebar();
     // --- Referencias al modal ---
     const btnOpenModal = document.querySelector("#addInfo");
     const modal = /** @type {HTMLDialogElement} */ (document.getElementById("showDialogNewReg"));

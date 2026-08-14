@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Agro - Control de Plagas</title>
+    <link rel="stylesheet" href="/src/css/style_plagas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">    
+</head>
+<body>
+    <div class="app-container">
+        <aside>
+            <nav class="sidebar">
+                <div class="logo">
+                    <img src="../../images/svg-hackaton/Logo.svg" class="logo-svg" alt="Logo AgroEco" width="70" height="auto">
+                    <span id="agroeco" class="logo-text">AgroEco</span>
+                </div>
+                <ul>
+                   <div class="sb_1">
+                        <li><a href="/src/html/dasboard.html"><img class = "icon"src = "/images/svg-hackaton/objects-column 1.svg" alt="Dashboard" width = "25px" height = "25px"> <span id = "home">DashBoard</span></a></li>
+                        <li><a href="#"><img class = "icon"src = "/images/svg-hackaton/signal-stream 1.svg" alt="GestorTareas" width = "25px" height = "25px"> <span id = "tareas">Tareas</span></a></li>
+                        <li><a href="/src/html/modulo-sensores.html" ><img class = "icon"src = "/images/svg-hackaton/Vector.svg" alt="Sensores" width = "25px" height = "25px"> <span id = "sensores">Sensores</span></a></li>
+                        <li><a href="/src/html/modulo-plagas.html"><img class = "icon"src = "/images/svg-hackaton/Group 141.svg" alt="Plagas" width = "25px" height = "25px"> <span id = "plagas">Plagas</span></a></li>
+                        <li><a href="/src/html/modulo-educacion.html" ><img class = "icon"src = "/images/svg-hackaton/Vector (1).svg" alt="Imagen" width = "25px" height = "25px"> <span id = "educacion">Educacion</span></a></li>
+                        <li><a href="/src/html/inventario.html" ><img class = "icon"src = "/images/svg-hackaton/Vector (2).svg" alt="Bodega" width = "25px" height = "25px"> <span id = "Bodega">Inventario</span></a></li>
+                        <li><a href="/src/html/finanzas-modulo.html"><img class = "icon"src = "/images/svg-hackaton/Vector (3).svg" alt="Finanza" width = "25px" height = "25px"> <span id = "finanza">Finanza</span></a></li>
+                    </div>
+                    <div class="sidebar_2">
+                        <li><a href="/index.html"><img class="icon logout" src="../../images/svg-hackaton/vector (4).svg" alt="Log Out" width="15" height="auto"> <span class="txtlogout" id="logout">Log Out</span></a></li>
+                    </div>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-title">
+                    <h2>Control de Plagas e Infecciones</h2>
+                    <p>Búsqueda de fitopatologías, diagnóstico y asignación de tareas de mitigación</p>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+                <div class="left-column">
+                    <div class="card-search">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="pest-search" placeholder="Buscar plaga (ej. Roya, Broca, Arañita...)" autocomplete="off">
+                            <ul class="search-results" id="search-results"></ul>
+                        </div>
+                        <div class="quick-tags">
+                            <span>Café y Aguacate:</span>
+                            <button class="tag-btn" data-name="Roya del Café">Roya</button>
+                            <button class="tag-btn" data-name="Broca del Café">Broca</button>
+                            <button class="tag-btn" data-name="Pulgón del Café">Pulgón</button>
+                            <button class="tag-btn" data-name="Minador de la Hoja del Café">Minador</button>
+                            <button class="tag-btn" data-name="Arañita Roja del Aguacate">Arañita Roja</button>
+                            <button class="tag-btn" data-name="Barrenador del Hueso del Aguacate">Barrenador</button>
+                            <button class="tag-btn" data-name="Trips del Aguacate">Trips</button>
+                            <button class="tag-btn" data-name="Cochinilla Harinosa">Cochinilla</button>
+                        </div>
+                    </div>
+
+                    <div class="card-pest-info scrollable-pest-card" id="pest-info-card">
+                        <div class="pest-info-header">
+                            <div class="pest-title-block">
+                                <span class="badge-danger" id="pest-risk">Alto Riesgo</span>
+                                <h3 id="pest-name">Roya del Café</h3>
+                                <em id="pest-scientific">Hemileia vastatrix</em>
+                            </div>
+                            <div class="pest-avatar">
+                                <i class="fa-solid fa-bug-slash"></i>
+                            </div>
+                        </div>
+
+                        <div class="pest-description">
+                            <h4>Descripción de la plaga</h4>
+                            <p id="pest-desc">Hongo que ataca las hojas del cafeto provocando la caída prematura de las mismas, lo que reduce drásticamente la capacidad fotosintética de la planta y la cosecha final.</p>
+                        </div>
+
+                        <div class="pest-identification">
+                            <h3 class="section-sub-title">Cómo identificar la plaga</h3>
+                            <p id="pest-how-to-id">Busca manchas amarillas o naranjas con un polvillo en el envés de las hojas.</p>
+                        </div>
+
+                        <div class="pest-steps">
+                            <h4>Pasos de diagnóstico</h4>
+                            <ul id="pest-steps-id" class="steps-list-styled">
+                                <li>Revisar el envés de las hojas maduras.</li>
+                                <li>Identificar lesiones cloróticas circulares.</li>
+                                <li>Confirmar la presencia de polvo uredospórico anaranjado.</li>
+                            </ul>
+                        </div>
+
+                        <div class="pest-treatment">
+                            <h4>Tratamiento sugerido y formulación (20 Litros)</h4>
+                            <div id="pest-treatment-steps">
+                                <p><strong>Fórmula:</strong> Fungicida cúprico al 50% PM</p>
+                                <p><strong>Dosis por bomba de 20 litros:</strong> 60 gramos</p>
+                                <p><strong>Frecuencia de aplicación:</strong> Cada 30 días en época lluviosa.</p>
+                            </div>
+                        </div>
+
+                        <div class="task-action-box">
+                            <button class="btn-start-task" id="btn-action">
+                                <i class="fa-solid fa-circle-play"></i> Iniciar Tarea de Mitigación
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <div class="card-active-tasks">
+                        <div class="tasks-header">
+                            <h3>Tareas de Control Activas</h3>
+                            <span class="task-count" id="task-counter">2 Activas</span>
+                        </div>
+                        <div class="tasks-list" id="active-tasks-container">
+                            <div class="task-item">
+                                <div class="task-status-dot pending"></div>
+                                <div class="task-details">
+                                    <h4>Aplicación de Cobre</h4>
+                                    <p class="task-sub">Roya del Café · <strong>Lote General</strong></p>
+                                    <span class="task-date">Iniciada hoy</span>
+                                </div>
+                                <button class="btn-complete-task" onclick="completarTarea(this)"><i class="fa-solid fa-check"></i></button>
+                            </div>
+
+                            <div class="task-item">
+                                <div class="task-status-dot pending"></div>
+                                <div class="task-details">
+                                    <h4>Poda Sanitaria</h4>
+                                    <p class="task-sub">Broca del Café · <strong>Lote General</strong></p>
+                                    <span class="task-date">Hace 1 día</span>
+                                </div>
+                                <button class="btn-complete-task" onclick="completarTarea(this)"><i class="fa-solid fa-check"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- el js bro y el js? no lo tenias conectado xd te puse ese script con ese se actualiza el side bar-->   
+    <script src="/src/javascript/sidebar.js"></script>
+    <script>updateSidebar();</script>
+    <script src="/src/javascript/plagas.js" defer></script>
+</body>
+</html>
