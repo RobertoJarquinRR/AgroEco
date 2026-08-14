@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Jobs\Job.IdentifyList.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Jobs\Job.IdentifyList.cs" />
   </ItemGroup>
 
 </Project>
