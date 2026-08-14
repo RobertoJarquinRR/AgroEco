@@ -96,10 +96,4 @@ Agro-Eco utiliza dispositivos Arduino para recopilar información mediante senso
 
 Esta documentación será ampliada conforme se incorporen nuevas funcionalidades y configuraciones al proyecto.
 
-## Autores
-
-*Información de los desarrolladores pendiente de agregar.*
-
-## Licencia
-
-*Información de licencia pendiente de agregar.*﻿
+﻿
