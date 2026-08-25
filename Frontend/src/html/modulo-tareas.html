@@ -38,36 +38,105 @@
                 <div class="text">
                     <div class="join">
                         <h1>Gestor De Tareas</h1>
-                        <p>tareas registradas</p>
+                        <p>Tareas Registradas</p>
                     </div>
                     <button id="makeTarea">Crear Tarea</button>             
                 </div>
+                <!--EL warining -->
+                <div id="warn-cont" class="warn">
+                    <div class="cont-warn">
+                        <img src="/images/svg-hackaton/Vector (8).svg" width="30px" height="30px" alt="alerta">
+                        <p>Tienes <span id="tareasAVencer">0</span> tareas que vencen esta semana</p>                        
+                    </div>
+                    <p id="irAlerta">→</p>
+                </div>
+                <!--  Cards-->
                 <div class="cards">
                     <div class="card">
                         <!--total-->
+                        <span id="total-tareas">0</span>
+                        <p>Total</p>
 
                     </div>
                     <div class="card">
                         <!--criticas-->
+                        <span id="pendientes">0</span>
+                        <p>Pendientes</p>
+
+                    </div>
+                    <div class="card">
+                        <!-- En Progreso-->                        
+                        <span id="en-progreso">0</span>
+                        <p>En Progreso</p>
+
+                    </div>
+                    <div class="card">
+                       <!--por vencer-->
+                       <span id="por-vencer">0</span>
+                       <p>Por Vencer</p>
 
                     </div>
                     <div class="card">
                         <!--vencidas-->
+                        <span id="vencidas">0</span>
+                        <p>Vencidas</p>
 
                     </div>
                     <div class="card">
-                        <!-- En Progreso-->
-                    </div>
-                    <div class="card">
-                        <!--hechas-->
-
+                        <!--completadas-->
+                        <span id="completadas">0</span>
+                        <p>Completadas</p>
                     </div>
                 </div>
 
+                <!-- GRID DE TAREAS LISTA-->
+                 <div class="listadeTareas">
 
+                 </div>
             </div>
         </main>
     </div>
+    <!-- LOS MODALES-->
+    <dialog id="dialog-n-tarea">
+        <div class="dialog-cont">            
+            <h1>Nueva tarea</h1>
+            <label >¿Qué hay que hacer?<br>
+                <input type="text" id="name-tarea" placeholder="EJ: Regar cultivo de ..." required>
+            </label>
+            <label >Descripcion:<br>
+                <input type="text" id="desc-tarea" placeholder="Detalles de la tarea ..." required>
+            </label>
+            <label >Responsable<br>
+                <input type="text" id="respo-tarea" placeholder="EJ: Juan Marcos" required>
+            </label>            
+            <label >Prioridad<br>
+                <select id="inputPrioridad">
+                    <option value="baja">Baja</option>
+                    <option value="media">Media</option>
+                    <option value="alta">Alta</option>
+                </select>
+            </label>
+            <label>Fecha límite *
+                <input type="date" id="inputFecha" required>
+            </label>
+            
+            <label>Estado Inicial<br>
+                <select id="estado-inicial">
+                    <option value="progreso">En progreso</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="completada">Completada</option>
+
+                </select>
+            </label>
+
+            <div class="join">
+                <button>Cancelar</button>
+                <button>Guardar tarea</button>
+            </div>
+        </div>
+
+
+    </dialog>
 
     <!--el js -->
     <script src="/src/javascript/sidebar.js"></script>

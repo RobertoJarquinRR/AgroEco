@@ -97,3 +97,174 @@ aside{
 .txtlogout{
     color: #BC6661;
 }
+/* ---------------------------- */
+/*     Contenido principal      */
+/* ---------------------------- */
+
+.cont{
+    width: 95%;    
+    margin-left:25px;
+    margin-top:30px;
+    display:flex;
+    flex-direction: column;
+    gap:30px;
+}
+.text{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.join{display: flex; flex-direction: column;}
+.join h1{
+    color:var(--color-text-primary);
+    font-size:32px;
+    font-weight: 700;
+}
+.join p {
+    color: var(--color-text-secundary);
+    font-size: 16px;
+}
+#makeTarea{
+    border:none;
+    padding:10px 20px;
+    border-radius:8px;
+    background-color: #2FA084;
+    color:#FFFFFF;
+    font-size: 14px;
+    font-weight: 400;    
+    cursor:pointer
+}
+#makeTarea:active{
+    animation: updown 0.4s ease-in-out;
+}
+@keyframes updown 
+{
+    0%{transform: translateY(2px);}
+    100%{ transform: translateY(-2px);}
+}
+.warn{
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding:12px 20px;    
+    border-radius: 12px;
+    background-color:transparent;
+    border: 2px solid #EFAC70;
+}
+.cont-warn{
+    color:var(--color-text-secundary);
+    font-weight: 500;
+    display: flex;  
+    align-items: center;
+    gap:20px; 
+}
+#irAlerta{font-size: 24px; cursor: pointer; color:var(--color-text-secundary);}
+
+/* ahora las cards */
+.cards{
+    display: grid;
+    grid-template-columns:repeat(6 , 1fr);
+    gap:10px;
+}
+.card{
+    padding: 18px;
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    transition: all 0.3s ease-in-out;
+    border: 2px solid #e1dfdf;
+}
+.card:hover{
+    border-color: #c6c6c6;
+}
+/*color de cada card el p */
+#total-tareas ,#pendientes , #en-progreso ,#por-vencer ,#vencidas , #completadas {font-size: 32px; font-weight: 600;}
+#total-tareas {color:#2C2C2C;}
+#pendientes{color:#4A6FA5;}
+#en-progreso{color:#e0a800;}
+#por-vencer{color:#e67e22;}
+#vencidas{color:#C0392B;}
+#completadas{color:#276A2A;}
+
+.card p{
+    color:var(--color-text-secundary);
+    font-weight: 500;
+}
+dialog{
+    border:none;
+    border-radius:16px;
+    padding:0;
+    width:480px;
+    max-width:90vw;
+}
+
+dialog::backdrop{
+    background:rgba(0,0,0,0.45);
+}
+
+.dialog-cont{
+    padding:32px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+
+.dialog-cont h1{
+    font-size:22px;
+    font-weight:700;
+    color:var(--color-text-primary);
+}
+
+.dialog-cont label{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    font-size:14px;
+    font-weight:600;
+    color:var(--color-text-primary);
+}
+
+.dialog-cont input,
+.dialog-cont select{
+    border:1px solid #D9D9D9;
+    border-radius:8px;
+    padding:10px 12px;
+    font-family:var(--font-primary);
+    font-size:14px;
+    font-weight:400;
+    color:var(--color-text-primary);
+    width:100%;
+    margin-top:4px;
+}
+
+.dialog-cont input:focus,
+.dialog-cont select:focus{
+    outline:none;
+    border-color:#2FA084;
+}
+
+.dialog-cont .join{
+    display:flex;
+    gap:12px;
+    margin-top:8px;
+}
+
+.dialog-cont .join button{
+    flex:1;
+    border:none;
+    border-radius:8px;
+    padding:12px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.dialog-cont .join button:first-child{
+    background:#EEEEEE;
+    color:var(--color-text-primary);
+}
+
+.dialog-cont .join button:last-child{
+    background:#2FA084;
+    color:#FFFFFF;
+}
