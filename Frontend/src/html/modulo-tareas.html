@@ -50,39 +50,34 @@
                     </div>
                     <p id="irAlerta">→</p>
                 </div>
-                <!--  Cards-->
+                <!-- Cards (Filtros) -->
                 <div class="cards">
-                    <div class="card">
+                    <div class="card card-filtro" data-filtro="todas" style="border: 2px solid #2C2C2C; cursor: pointer;">
                         <!--total-->
                         <span id="total-tareas">0</span>
                         <p>Total</p>
-
                     </div>
-                    <div class="card">
+                    <div class="card card-filtro" data-filtro="pendiente" style="cursor: pointer;">
                         <!--criticas-->
                         <span id="pendientes">0</span>
                         <p>Pendientes</p>
-
                     </div>
-                    <div class="card">
+                    <div class="card card-filtro" data-filtro="progreso" style="cursor: pointer;">
                         <!-- En Progreso-->                        
                         <span id="en-progreso">0</span>
                         <p>En Progreso</p>
-
                     </div>
-                    <div class="card">
+                    <div class="card card-filtro" data-filtro="porVencer" style="cursor: pointer;">
                        <!--por vencer-->
                        <span id="por-vencer">0</span>
                        <p>Por Vencer</p>
-
                     </div>
-                    <div class="card">
+                    <div class="card card-filtro" data-filtro="vencida" style="cursor: pointer;">
                         <!--vencidas-->
                         <span id="vencidas">0</span>
                         <p>Vencidas</p>
-
                     </div>
-                    <div class="card">
+                    <div class="card card-filtro" data-filtro="completada" style="cursor: pointer;">
                         <!--completadas-->
                         <span id="completadas">0</span>
                         <p>Completadas</p>
@@ -134,12 +129,11 @@
                 <button>Guardar tarea</button>
             </div>
         </div>
-
-
     </dialog>
 
     <!--el js -->
     <script src="/src/javascript/sidebar.js"></script>
     <script> updateSidebar()</script>
+    <script src="/src/javascript/tareas.js"></script>
 </body>
 </html>

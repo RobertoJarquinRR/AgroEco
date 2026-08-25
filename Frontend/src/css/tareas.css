@@ -190,16 +190,22 @@ aside{
     color:var(--color-text-secundary);
     font-weight: 500;
 }
-dialog{
-    border:none;
-    border-radius:16px;
-    padding:0;
-    width:480px;
-    max-width:90vw;
+dialog {
+    border: none;
+    border-radius: 16px;
+    padding: 0;
+    width: 480px;
+    max-width: 90vw;
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-dialog::backdrop{
-    background:rgba(0,0,0,0.45);
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.3);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
 }
 
 .dialog-cont{
@@ -267,4 +273,117 @@ dialog::backdrop{
 .dialog-cont .join button:last-child{
     background:#2FA084;
     color:#FFFFFF;
+}
+.listadeTareas {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.tarea-card {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #E1DFDF;
+    border-left: 6px solid #2FA084;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.tarea-card:hover {
+    border-color: #C6C6C6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.tarea-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.tarea-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.tarea-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.tarea-desc {
+    font-size: 14px;
+    color: var(--color-text-secundary);
+    line-height: 1.5;
+}
+
+.tarea-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--color-text-secundary);
+}
+
+.tarea-prioridad {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+.tarea-acciones {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    border-top: 1px solid #EEEEEE;
+    padding-top: 12px;
+}
+
+.tarea-acciones button {
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-completar {
+    background-color: #E1F0E1;
+    color: #276A2A;
+}
+
+.btn-completar:hover {
+    background-color: #d0e7d0;
+}
+
+.btn-editar {
+    background-color: #EEEEEE;
+    color: var(--color-text-primary);
+}
+
+.btn-editar:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-eliminar {
+    background-color: #FBE0DE;
+    color: #C0392B;
+}
+
+.btn-eliminar:hover {
+    background-color: #f7cecb;
 }
