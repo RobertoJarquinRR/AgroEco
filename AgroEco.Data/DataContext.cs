@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Triggers;
+using AgroEco.Core.Jobs.Triggers.Implementations;
 using AgroEco.Core.Jobs.Actions;
+using AgroEco.Core.Jobs.Actions.Implementations;
 
 namespace AgroEco.Data
 {
@@ -9,7 +11,7 @@ namespace AgroEco.Data
     {
         // DbSet para cada entidad principal de la base de datos
         public DbSet<Job> Jobs { get; set; }
-        public DbSet<AgroEco.Core.Jobs.Action> Actions { get; set; }
+        public DbSet<AgroEco.Core.Jobs.Actions.Action> Actions { get; set; }
         public DbSet<Trigger> Triggers { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
@@ -54,7 +56,7 @@ namespace AgroEco.Data
             //////////////////////////////////////////////////////////////////////////
 
             // Mapeo de Actions
-            modelBuilder.Entity<AgroEco.Core.Jobs.Action>(entity =>
+            modelBuilder.Entity<AgroEco.Core.Jobs.Actions.Action>(entity =>
             {
                 entity.ToTable("Actions");
                 entity.HasKey(a => a.Id);
@@ -86,8 +88,7 @@ namespace AgroEco.Data
                 entity.Property(t => t.Name)
                       .HasMaxLength(100);
 
-                entity.Property(t => t.Type)
-                      .HasConversion<string>();
+                
 
             });
 

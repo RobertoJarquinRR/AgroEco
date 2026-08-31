@@ -20,7 +20,7 @@ namespace AgroEco.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Action", b =>
+            modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Action", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,7 +82,7 @@ namespace AgroEco.Data.Migrations
                     b.ToTable("Jobs", (string)null);
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Trigger", b =>
+            modelBuilder.Entity("AgroEco.Core.Jobs.Triggers.Trigger", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,21 +103,21 @@ namespace AgroEco.Data.Migrations
                     b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Actions.actionTest", b =>
+            modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Implementations.actionTest", b =>
                 {
-                    b.HasBaseType("AgroEco.Core.Jobs.Action");
+                    b.HasBaseType("AgroEco.Core.Jobs.Actions.Action");
 
                     b.ToTable("ActionTests", (string)null);
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Triggers.DateTimeTrigger", b =>
+            modelBuilder.Entity("AgroEco.Core.Jobs.Triggers.Implementations.DateTimeTrigger", b =>
                 {
-                    b.HasBaseType("AgroEco.Core.Jobs.Trigger");
+                    b.HasBaseType("AgroEco.Core.Jobs.Triggers.Trigger");
 
                     b.ToTable("DateTimeTrigger", (string)null);
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Action", b =>
+            modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Action", b =>
                 {
                     b.HasOne("AgroEco.Core.Jobs.Job", null)
                         .WithMany("Action")
@@ -128,7 +128,7 @@ namespace AgroEco.Data.Migrations
 
             modelBuilder.Entity("AgroEco.Core.Jobs.Job", b =>
                 {
-                    b.HasOne("AgroEco.Core.Jobs.Trigger", "Trigger")
+                    b.HasOne("AgroEco.Core.Jobs.Triggers.Trigger", "Trigger")
                         .WithMany()
                         .HasForeignKey("TriggerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -137,20 +137,20 @@ namespace AgroEco.Data.Migrations
                     b.Navigation("Trigger");
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Actions.actionTest", b =>
+            modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Implementations.actionTest", b =>
                 {
-                    b.HasOne("AgroEco.Core.Jobs.Action", null)
+                    b.HasOne("AgroEco.Core.Jobs.Actions.Action", null)
                         .WithOne()
-                        .HasForeignKey("AgroEco.Core.Jobs.Actions.actionTest", "Id")
+                        .HasForeignKey("AgroEco.Core.Jobs.Actions.Implementations.actionTest", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Triggers.DateTimeTrigger", b =>
+            modelBuilder.Entity("AgroEco.Core.Jobs.Triggers.Implementations.DateTimeTrigger", b =>
                 {
-                    b.HasOne("AgroEco.Core.Jobs.Trigger", null)
+                    b.HasOne("AgroEco.Core.Jobs.Triggers.Trigger", null)
                         .WithOne()
-                        .HasForeignKey("AgroEco.Core.Jobs.Triggers.DateTimeTrigger", "Id")
+                        .HasForeignKey("AgroEco.Core.Jobs.Triggers.Implementations.DateTimeTrigger", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
