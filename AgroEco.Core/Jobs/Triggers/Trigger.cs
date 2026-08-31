@@ -1,25 +1,25 @@
 ﻿using AgroEco.Core.Interfaces;
+using AgroEco.Core.Jobs.Actions;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Jobs
+namespace AgroEco.Core.Jobs.Triggers
 {
     public abstract class Trigger :IEntity
     {
         protected List<ITriggerable> _Triggerables = new();
-
         public int Id { get; private set; }
-        public string? Name { get; private set; }
-        public TriggersType Type { get; private set; }
 
-        protected Trigger(string name,TriggersType type  ){
+        public string? Name { get; private set; }
+
+        protected Trigger(string name ){
             if(string.IsNullOrEmpty(name)){
                 return;
             }
             ;
             Name = name;
-            Type = type;
+            
         }
 
         public void AttachReceiver(ITriggerable triggerable)

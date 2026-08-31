@@ -1,4 +1,6 @@
 ﻿using AgroEco.Core.Interfaces;
+using AgroEco.Core.Jobs.Actions;
+using Action = AgroEco.Core.Jobs.Actions.Action;
 using AgroEco.Core.Jobs.Triggers;
 using System.Security.Cryptography;
 

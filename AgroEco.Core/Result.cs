@@ -3,6 +3,7 @@ namespace AgroEco.Core
 {
     public class Result
     {
+        
         public bool Success {  get; private set; }
 
         public string? Message { get; private set; }
