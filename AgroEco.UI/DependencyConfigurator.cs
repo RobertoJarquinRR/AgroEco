@@ -1,4 +1,5 @@
-﻿using AgroEco.Core.Interfaces;
+﻿using AgroEco.Core;
+using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
@@ -27,8 +28,11 @@ namespace AgroEco.UI
             });
 
             services.AddScoped<MainWindow>();
-            services.AddScoped<JobRepository>();
-            services.AddScoped<IUnitOfWork, UnitOfWork<DataContext>>();
+            services.AddDataServices();
+            services.AddCoreServices();
+
+
+            
 
             return services.BuildServiceProvider();
         }
