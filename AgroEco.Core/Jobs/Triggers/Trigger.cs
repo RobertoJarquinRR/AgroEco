@@ -8,7 +8,7 @@ namespace AgroEco.Core.Jobs.Triggers
 {
     public abstract class Trigger :IEntity
     {
-        protected List<ITriggerable> _Triggerables = new();
+        protected List<ITriggerable> _Triggerables = new List<ITriggerable>();
         public int Id { get; private set; }
 
         public string? Name { get; private set; }
@@ -30,7 +30,7 @@ namespace AgroEco.Core.Jobs.Triggers
         protected async Task<List<Result>> ExecuteTriggerables(){
             List<Result> result = new();
             if(_Triggerables == null || _Triggerables.Count == 0){
-                result.Add(Result.CreateFailure("There not job to execute"));
+                result.Add(Result.CreateFailure("No jobs attached to trigger to execute"));
                 return result;
             }     
             foreach(ITriggerable T in _Triggerables){
