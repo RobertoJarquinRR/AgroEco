@@ -1,25 +1,25 @@
 ﻿using AgroEco.Core.Interfaces;
+using AgroEco.Core.Jobs.Actions;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Jobs
+namespace AgroEco.Core.Jobs.Triggers
 {
     public abstract class Trigger :IEntity
     {
-        protected List<ITriggerable> _Triggerables = new();
-
+        protected List<ITriggerable> _Triggerables = new List<ITriggerable>();
         public int Id { get; private set; }
-        public string? Name { get; private set; }
-        public TriggersType Type { get; private set; }
 
-        protected Trigger(string name,TriggersType type  ){
+        public string? Name { get; private set; }
+
+        protected Trigger(string name ){
             if(string.IsNullOrEmpty(name)){
                 return;
             }
             ;
             Name = name;
-            Type = type;
+            
         }
 
         public void AttachReceiver(ITriggerable triggerable)
@@ -30,7 +30,7 @@ namespace AgroEco.Core.Jobs
         protected async Task<List<Result>> ExecuteTriggerables(){
             List<Result> result = new();
             if(_Triggerables == null || _Triggerables.Count == 0){
-                result.Add(Result.CreateFailure("There not job to execute"));
+                result.Add(Result.CreateFailure("No jobs attached to trigger to execute"));
                 return result;
             }     
             foreach(ITriggerable T in _Triggerables){

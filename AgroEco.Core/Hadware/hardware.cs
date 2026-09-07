@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Jobs.Actions
+namespace AgroEco.Core.Hadware
 {
-    public class Regar 
-    {   
-        
+    internal class Hardware
+    {
+
+       
+
+
 
     }
 }

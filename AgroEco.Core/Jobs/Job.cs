@@ -1,5 +1,8 @@
 ﻿using AgroEco.Core.Interfaces;
+using AgroEco.Core.Jobs.Actions;
+using Action = AgroEco.Core.Jobs.Actions.Action;
 using AgroEco.Core.Jobs.Triggers;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace AgroEco.Core.Jobs
@@ -42,6 +45,7 @@ namespace AgroEco.Core.Jobs
         private Job() {
             Name = null!;
             Trigger = null!;
+            Trigger.AttachReceiver(this);
         }
 
         public static async Task<Result<Job>> CreateJob(
@@ -49,7 +53,7 @@ namespace AgroEco.Core.Jobs
         string? description,
         Status status,
         int? priority,
-        DateTime? date,
+       
         List<Action>action,
         Trigger trigger)
         {
@@ -58,7 +62,7 @@ namespace AgroEco.Core.Jobs
             {
                 return Result<Job>.CreateFailure("Name can't be empty");
             }
-            Job t = new( name, status, description, priority, date, action, trigger);
+            Job t = new( name, status, description, priority, DateTime.Now, action, trigger);
 
             if (status == Status.Running)
             {
@@ -90,7 +94,16 @@ namespace AgroEco.Core.Jobs
             }
             ChangeStatus(Status.Succeeded);
 
-            return Result.CreateSuccess($"Job {Name} executes successfully");
+            var mensajes = result
+                .Select(r => r.Message)
+                .Where(m => !string.IsNullOrEmpty(m));
+            string resumenAcciones = string.Join("; ", mensajes);
+
+            bool fallos = result.Any(r => !r.Success);
+            if (fallos)
+                return Result.CreateFailure($"Job '{Name}' completed with errors: {resumenAcciones}");
+
+            return Result.CreateSuccess($"Job '{Name}' executed successfully: {resumenAcciones}");
         }
 
         public void ChangeStatus(Status status)
@@ -98,7 +111,15 @@ namespace AgroEco.Core.Jobs
             Status = status;
         }
 
-      
+        public Result Rehydrate(){
+
+
+            Trigger.AttachReceiver(this);
+            return Result.CreateSuccess($"attached job {Name} with trigger {Trigger.Name}");
+        }
+
+
+
     }
 
 }
