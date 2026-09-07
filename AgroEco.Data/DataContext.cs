@@ -2,7 +2,6 @@
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Triggers;
 using AgroEco.Core.Jobs.Triggers.Implementations;
-using AgroEco.Core.Jobs.Actions;
 using AgroEco.Core.Jobs.Actions.Implementations;
 
 namespace AgroEco.Data

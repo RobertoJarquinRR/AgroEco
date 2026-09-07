@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Text;
 
-namespace AgroEco.Core.Jobs.UseCase
+namespace AgroEco.Core.Jobs.Persistence
 {
     public class CreateJob
     {
@@ -31,26 +31,26 @@ namespace AgroEco.Core.Jobs.UseCase
 
             if (!result.Success)
             {
-                return Result.CreateFailure(result.Message ?? "Can't create the jobs");
+                return Result.CreateFailure($"Could not create job: {result.Message}");
             }
 
             bool exists = result.Value.Any(j => string.Equals(j.Name.Trim(), name.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (exists)
             {
-                return Result.CreateFailure("This job already exists");
+                return Result.CreateFailure($"A job with name '{name}' already exists");
             }
 
-            Result<Job> createtask = await Job.CreateJob(name, description, Status.Created, priority, date, action, trigger);
+            Result<Job> createtask = await Job.CreateJob(name, description, Status.Created, priority,  action, trigger);
 
             if (!createtask.Success)
             {
-                return Result.CreateFailure(createtask.Message ?? "Can't create the jobs");
+                return Result.CreateFailure($"Error creating job '{name}': {createtask.Message}");
             }
 
             await _repository.AddAsync(createtask.Value);
 
-            return Result.CreateSuccess();
+            return Result.CreateSuccess($"Job '{name}' created successfully");
         }
     }
 }
