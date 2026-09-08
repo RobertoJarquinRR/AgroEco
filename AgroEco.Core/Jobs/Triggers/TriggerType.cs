@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Jobs
+namespace AgroEco.Core.Jobs.Triggers
 {
-    public enum Jobs
+    public enum TriggerType
     {
         DateTimer
-
     }
 }

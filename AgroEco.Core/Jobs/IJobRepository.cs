@@ -4,8 +4,8 @@ using System.Text;
 
 namespace AgroEco.Core.Jobs
 {
-    public interface IJobRepository<T>
+    public interface IJobRepository
     {
-          Task<Job> GetJobWithDetailsAsync(int id);
+        Task<List<Job>> GetRunningJobsAsync();
     }
 }

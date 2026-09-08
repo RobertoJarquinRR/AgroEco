@@ -8,11 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Jobs\Job.IdentifyList.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Jobs\Job.IdentifyList.cs" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
   </ItemGroup>
 
 </Project>
