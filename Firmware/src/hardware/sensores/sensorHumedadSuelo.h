@@ -1,6 +1,7 @@
 #pragma once 
+#include "Isensor.h"
 
-class sensorHumedadSuelo{
+class sensorHumedadSuelo : public Isensor {
     public:
     int pinSensorHumedadSuelo;
     int valorMin;
@@ -13,6 +14,9 @@ class sensorHumedadSuelo{
     aqui lo que hare sera un funcion llama a la otra una lee 
     la otra lo convierte a porcentaje
     */
-   int leerHumedad();
+   int Read();
+   void Calibrar();
+   int GetStatus(); //  0 = desconectado, 1 = conectado,
+
    int convertidorPorcentaje(int valor);
 };
