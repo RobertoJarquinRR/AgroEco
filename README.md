@@ -21,6 +21,7 @@ AgroEco recopila datos del campo mediante sensores de hardware conectados a disp
 *(capturas de pantalla de la interfaz — dashboard, gestor de tareas ,sensores)*
 # *Login*
 <img width="1647" height="832" alt="image" src="https://github.com/user-attachments/assets/14f55f30-7159-45a2-9639-826a98178a49" />
+
 # *Selector de Fincas*
 <img width="1908" height="855" alt="image" src="https://github.com/user-attachments/assets/3e300686-0987-4438-82f4-e8b506c1502f" />
 
