@@ -30,17 +30,71 @@
 			"top": 210,
 			"left": 10,
 			"attrs": {}
+		},
+		{
+			"type": "wokwi-ds18b20",
+			"id": "soilTemp1",
+			"top": 60,
+			"left": 260,
+			"attrs": {}
+		},
+		{
+			"type": "wokwi-resistor",
+			"id": "pullup1",
+			"top": 40,
+			"left": 300,
+			"attrs": { "value": "4.7k" }
+		},
+		{
+			"type": "wokwi-resistor",
+			"id": "pullupDht1",
+			"top": 30,
+			"left": 150,
+			"attrs": { "value": "10k" }
+		},
+		{
+			"type": "wokwi-relay-module",
+			"id": "relay1",
+			"top": 160,
+			"left": 260,
+			"attrs": {}
+		},
+		{
+			"type": "wokwi-photoresistive-sensor",
+			"id": "light1",
+			"top": 210,
+			"left": 260,
+			"attrs": {}
 		}
 	],
 	"connections": [
 		["dht1:VCC", "esp1:3V3", "red", []],
 		["dht1:GND", "esp1:GND.1", "black", []],
-		["dht1:SDA", "esp1:D4", "blue", []],
+		["dht1:SDA", "esp1:4", "blue", []],
+		["dht1:SDA", "pullupDht1:1", "blue", []],
+		["pullupDht1:2", "esp1:3V3", "red", []],
+
 		["soilSim1:VCC", "esp1:3V3", "red", []],
 		["soilSim1:GND", "esp1:GND.1", "black", []],
-		["soilSim1:SIG", "esp1:D34", "green", []],
+		["soilSim1:SIG", "esp1:34", "green", []],
+
 		["alarm1:2", "esp1:GND.1", "black", []],
-		["alarm1:1", "esp1:D26", "yellow", []],
+		["alarm1:1", "esp1:26", "yellow", []],
+
+		["soilTemp1:VCC", "esp1:3V3", "red", []],
+		["soilTemp1:GND", "esp1:GND.1", "black", []],
+		["soilTemp1:DQ", "esp1:32", "blue", []],
+		["soilTemp1:DQ", "pullup1:1", "blue", []],
+		["pullup1:2", "esp1:3V3", "red", []],
+
+		["relay1:VCC", "esp1:3V3", "red", []],
+		["relay1:GND", "esp1:GND.1", "black", []],
+		["relay1:IN", "esp1:27", "yellow", []],
+
+		["light1:VCC", "esp1:3V3", "red", []],
+		["light1:GND", "esp1:GND.1", "black", []],
+		["light1:AOUT", "esp1:35", "green", []],
+
 		["esp1:TX", "$serialMonitor:RX", "", []],
 		["esp1:RX", "$serialMonitor:TX", "", []]
 	],
@@ -48,6 +102,6 @@
 	"serialMonitor": {
 		"display": "terminal",
 		"newline": "lf",
-		"convertEol": false
+		"convertEol": true
 	}
 }

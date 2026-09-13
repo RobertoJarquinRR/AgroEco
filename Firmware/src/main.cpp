@@ -1,45 +1,50 @@
+#include <Arduino.h>
 #include <DHT.h>
+#include <chrono>
+#include <queue>
+#include "registrer.h"
 
-#define DHTPIN 4
-#define DHTTYPE DHT22
-#define SOIL_PIN 34
-
-DHT dht(DHTPIN, DHTTYPE);
+DHT sensor(4, DHT22);
 
 void setup()
 {
-  // Inicializamos el puerto serial a 115200 baudios
   Serial.begin(115200);
-
-  // Mensaje de control para confirmar que el puerto serial responde
-  Serial.println("--- Sistema Iniciado Correctamente ---");
-
-  dht.begin();
-
-  Serial.begin(115200);
-  delay(1000);
-  Serial.println("BOOT_OK");
+  sensor.begin();
 }
+
+bool conected = false;
+
+std::queue<std::string> Stack;
 
 void loop()
 {
-  float temp = dht.readTemperature();
-  float hum = dht.readHumidity();
-  int soilRaw = analogRead(SOIL_PIN);
 
-  if (isnan(temp) || isnan(hum))
+  while (conected == true)
   {
-    Serial.println("ERROR,sensor_read_failed");
-  }
-  else
-  {
-    Serial.print("DATA,");
-    Serial.print(temp);
-    Serial.print(",");
-    Serial.print(hum);
-    Serial.print(",");
-    Serial.println(soilRaw);
-  }
+    Serial.println("canYouconectect?");
+    delay(400);
+    if (Serial.available() > 0)
+    {
+      conected = true;
+      char answer = Serial.read();
 
-  delay(2000);
+      if (answer == 'y')
+      {
+        conected = true;
+      }
+    }
+  }
+  delay(800);
+  float temperatura = sensor.readTemperature();
+  float humedad = sensor.readHumidity();
+
+  registrer mi;
+  Serial.printf(mi.hola.c_str());
+  mi.SendContent("hola");
+
+  while(!mi.DataQueue.empty()){
+    std::string result = mi.DataQueue.front();
+
+    Serial.println(result.c_str());
+  }
 }

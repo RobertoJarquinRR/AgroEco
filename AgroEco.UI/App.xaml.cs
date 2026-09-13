@@ -23,7 +23,7 @@ namespace AgroEco.UI
 
                 database.Database.OpenConnection();
                 database.Database.CloseConnection();
-                database.Database.Migrate();
+                
 
 
             }
