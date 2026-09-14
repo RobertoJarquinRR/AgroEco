@@ -1,3 +1,4 @@
+#pragma once
 #include "Isensor.h"
 #include <DHT.h> //libreria de arduino pa leer los datos del sensor temp
 
