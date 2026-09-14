@@ -123,10 +123,4 @@ AgroEco utiliza dispositivos Arduino para recopilar información mediante sensor
 
 **En desarrollo — Hackathon Nicaragua KRONOX 2026.**
 
-## Autores
 
-*Equipo AgroEco — [agregar nombres del equipo antes de la entrega final]*
-
-## Licencia
-
-*Pendiente de definir.*
