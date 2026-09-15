@@ -19,6 +19,12 @@ int sensorTempAmbiente::Read()
 //calibrar otra ves no sirve porque el propio sensor lo hace solo 
 void sensorTempAmbiente::Calibrar() {}
 
+//el nombre del sensor para identificarlo
+String sensorTempAmbiente::GetName()
+{
+    return "TemperaturaAmbiente";
+}
+
 //verificador del estado del sensor
 int sensorTempAmbiente::GetStatus()
 {

@@ -24,6 +24,11 @@ int sensorHumedadAmbiente::GetStatus()
     }
     else return 1; //conectadoooo y funcional
 }
+//ES COMO EL ID PERO MEJOR MAS LEGIBLE NO QUIERO RMPERME LA CABEZA LEYENDO 0 ,1,2,3, EN IDS XD
+String sensorHumedadAmbiente::GetName()
+{
+    return "HumedadAmbiente";
+}
 
 
 //inicia el sensor de humedad ambiente

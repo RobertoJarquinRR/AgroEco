@@ -14,9 +14,11 @@ class sensorHumedadSuelo : public Isensor {
     aqui lo que hare sera un funcion llama a la otra una lee 
     la otra lo convierte a porcentaje
     */
+   void Iniciar();
    int Read();
    void Calibrar();
    int GetStatus(); //  0 = desconectado, 1 = conectado,
+   String GetName();
 
    int convertidorPorcentaje(int valor);
 };

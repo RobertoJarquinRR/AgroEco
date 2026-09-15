@@ -15,7 +15,7 @@ class sensorHumedadAmbiente : public Isensor {
     int Read(); //lee la humedad del ambiente (aire)
     void Calibrar();
     int GetStatus(); //  0 = desconectado, 1 = conectado,
-
+    String GetName();
     
 
 };

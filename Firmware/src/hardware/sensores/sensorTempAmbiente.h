@@ -16,5 +16,6 @@ class sensorTempAmbiente : public Isensor {
     void Calibrar(); //estara vacio el sensor de temperatura se calibra solo
     int Read();
     int GetStatus(); //  0 = desconectado, 1 = conectado,
+    String GetName();
 
 };
