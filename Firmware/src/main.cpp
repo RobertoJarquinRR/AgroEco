@@ -18,7 +18,7 @@ sensorLuz senLuz(35,0,4095);
 
 Isensor* sensores[] = {&sensorHSuelo , &sensorHumedadAmb,&sensorTempAmb, &senLuz};
 
-int cantidadSensores = 3;
+int cantidadSensores = 4;
 
 
 void setup()
