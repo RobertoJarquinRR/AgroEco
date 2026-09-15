@@ -11,7 +11,8 @@ int sensorLuz::Read()
     return Convertidor(valorDeLuz);
 }
 //no lo uso porque nah xd
-void sensorLuz::Calibrar(){  }
+void sensorLuz::Iniciar(){}
+void sensorLuz::Calibrar(){}
 
 //conversor a %
 int sensorLuz::Convertidor(int valor)
