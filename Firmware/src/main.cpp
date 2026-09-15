@@ -7,6 +7,7 @@
 #include "hardware/sensores/sensorHumedadAmbiente.h"
 #include "hardware/sensores/sensorTempAmbiente.h"
 #include "hardware/sensores/sensorLuz.h"
+#include "hardware/sensores/sensorTempSuelo.h"
 
 using namespace std;
 
@@ -15,10 +16,11 @@ sensorHumedadAmbiente sensorHumedadAmb(4);
 sensorHumedadSuelo sensorHSuelo(34,300, 4095);
 sensorTempAmbiente sensorTempAmb(4);
 sensorLuz senLuz(35,0,4095);
+sensorTempSuelo tempSuelo(32);
 
-Isensor* sensores[] = {&sensorHSuelo , &sensorHumedadAmb,&sensorTempAmb, &senLuz};
+Isensor* sensores[] = {&sensorHSuelo , &sensorHumedadAmb,&sensorTempAmb, &senLuz , &tempSuelo};
 
-int cantidadSensores = 4;
+int cantidadSensores = 5;
 
 
 void setup()
