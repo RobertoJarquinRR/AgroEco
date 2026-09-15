@@ -8,6 +8,7 @@
 #include "hardware/sensores/sensorTempAmbiente.h"
 #include "hardware/sensores/sensorLuz.h"
 #include "hardware/sensores/sensorTempSuelo.h"
+#include "hardware/actuadores/actuadorRiego.h"
 
 using namespace std;
 
@@ -17,6 +18,9 @@ sensorHumedadSuelo sensorHSuelo(34,300, 4095);
 sensorTempAmbiente sensorTempAmb(4);
 sensorLuz senLuz(35,0,4095);
 sensorTempSuelo tempSuelo(32);
+
+//actuadores
+actuadorRiego riego(27);
 
 Isensor* sensores[] = {&sensorHSuelo , &sensorHumedadAmb,&sensorTempAmb, &senLuz , &tempSuelo};
 
@@ -31,6 +35,9 @@ void setup()
   sensorHumedadAmb.Iniciar();
   sensorTempAmb.Iniciar();
   tempSuelo.Iniciar();
+
+  //inicio el actuador pero ojo la configuracion no es que va a arrancar 
+  riego.IniciarA();//basicamente le hago saber que en el pin 27 va a mandar senal para activarse o no eso se vera en el c#
 
 
 }
