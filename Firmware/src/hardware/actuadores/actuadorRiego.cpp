@@ -3,6 +3,7 @@
 actuadorRiego::actuadorRiego(int pin)
 {
     pinRele = pin;
+    estaActivo = false;
 }
 
 void actuadorRiego::IniciarA()
