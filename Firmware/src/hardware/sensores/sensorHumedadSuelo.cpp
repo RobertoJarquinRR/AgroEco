@@ -33,3 +33,10 @@ int sensorHumedadSuelo::GetStatus()
     return 0 ; //esta o danado o no leyendo corretamente
     else return 1;
 }
+
+//name con el que es conocido
+String sensorHumedadSuelo::GetName()
+{
+    return "HumedadSuelo";
+}
+void sensorHumedadSuelo::Iniciar(){}

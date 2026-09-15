@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 
 public class Registry<TKey, TValue> where TValue : class
+where TKey : notnull
 {
     private readonly ConcurrentDictionary<TKey, TValue> _items = new();
 
