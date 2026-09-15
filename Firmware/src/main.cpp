@@ -30,6 +30,7 @@ void setup()
   //inicio solo estos el de humedad suelo no necesita eso
   sensorHumedadAmb.Iniciar();
   sensorTempAmb.Iniciar();
+  tempSuelo.Iniciar();
 
 
 }
