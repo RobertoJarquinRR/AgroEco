@@ -71,6 +71,10 @@ void loop()
   //revisalo aver como lo ves roberto
   for (int i = 0; i < cantidadSensores; i++)
   {
+
+    //temporral prueba 
+    Serial.println("ejecutando sensor:");
+    Serial.println(i);
     if(sensores[i]->GetStatus() == 1) //XD que raro para acceder a propiedades eso  -> y no . xD
     {
       int valor = sensores[i]->Read();
@@ -84,7 +88,7 @@ void loop()
     else 
     {
       String sensorName = sensores[i]->GetName();
-      String mensaje = sensorName + ", Error";
+      String mensaje = sensorName + ", Error al tratar de conectarlo";
       mi.SendContent(string(mensaje.c_str()));
     }
   }
@@ -94,5 +98,7 @@ void loop()
     string result = mi.DataQueue.front();
 
     Serial.println(result.c_str());
+    mi.DataQueue.pop();
+    delay(2000);
   }
 }

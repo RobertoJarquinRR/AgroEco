@@ -29,7 +29,7 @@ void sensorHumedadSuelo::Calibrar()
 int sensorHumedadSuelo::GetStatus()
 {
     int valorCrudo = analogRead(pinSensorHumedadSuelo);
-    if(valorCrudo == 0 || valorCrudo == 4095) //aqui es eso porque usamos un ADC de 12 bits y si esta en 0 o 4095 es que no esta leyendo correctamente
+    if(valorCrudo == 0 || valorCrudo == 1023) //aqui es eso porque usamos un ADC de 12 bits y si esta en 0 o 4095 es que no esta leyendo correctamente
     return 0 ; //esta o danado o no leyendo corretamente
     else return 1;
 }
