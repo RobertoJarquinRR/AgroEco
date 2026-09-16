@@ -9,5 +9,5 @@ registrer::registrer(){
 
 };
 void registrer::SendContent(string content){
-    DataQueue.push("@{" +content+ " }*");  
+    DataQueue.push("@{"+content+"}*");  
 };
