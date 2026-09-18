@@ -8,7 +8,7 @@ namespace AgroEco.Core.Jobs.Triggers
 {
     public abstract class Trigger :IEntity
     {
-        protected List<ITriggerable> _Triggerables = new List<ITriggerable>();
+        public List<ITriggerable> Triggerables { get; private set; } = new List<ITriggerable>();
         public int Id { get; private set; }
 
         public string? Name { get; private set; }
@@ -24,19 +24,32 @@ namespace AgroEco.Core.Jobs.Triggers
 
         public void AttachReceiver(ITriggerable triggerable)
         {
-            _Triggerables.Add(triggerable);    
+            Triggerables.Add(triggerable);    
         }
 
         protected async Task<List<Result>> ExecuteTriggerables(){
             List<Result> result = new();
-            if(_Triggerables == null || _Triggerables.Count == 0){
+       
+
+            if (Triggerables == null || Triggerables.Count == 0){
                 result.Add(Result.CreateFailure("No jobs attached to trigger to execute"));
                 return result;
-            }     
-            foreach(ITriggerable T in _Triggerables){
-                result.Add(await T.Ontrigger());
-                
             }
+            var executionTasks = Triggerables.Select(async t =>
+            {
+                try
+                {
+                    return await t.OnTrigger();
+                }
+                catch (Exception ex)
+                {
+                    return Result.CreateFailure($"Trigger failed with exception: {ex.Message}");
+                }
+            }).ToArray();
+
+            Result[] resolvedResults = await Task.WhenAll(executionTasks);
+
+            result.AddRange(resolvedResults);
             return result;
 
         }
@@ -46,3 +59,5 @@ namespace AgroEco.Core.Jobs.Triggers
 
     }
 }
+
+

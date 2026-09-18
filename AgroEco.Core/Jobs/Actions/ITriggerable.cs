@@ -6,6 +6,6 @@ namespace AgroEco.Core.Jobs.Actions
 {
     public interface ITriggerable
     {
-        Task<Result> Ontrigger();
+        Task<Result> OnTrigger();
     }
 }

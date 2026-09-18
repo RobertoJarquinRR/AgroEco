@@ -3,6 +3,7 @@ using System;
 using AgroEco.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgroEco.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260916215216_AddFechaToDateTimeTrigger")]
+    partial class AddFechaToDateTimeTrigger
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
@@ -107,7 +110,7 @@ namespace AgroEco.Data.Migrations
                 {
                     b.HasBaseType("AgroEco.Core.Jobs.Triggers.Trigger");
 
-                    b.Property<DateTime>("Fecha")
+                    b.Property<DateTime>("_fecha")
                         .HasColumnType("TEXT");
 
                     b.ToTable("DateTimeTrigger", (string)null);

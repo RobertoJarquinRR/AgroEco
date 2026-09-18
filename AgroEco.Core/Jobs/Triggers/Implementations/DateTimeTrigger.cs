@@ -1,52 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace AgroEco.Core.Jobs.Triggers.Implementations
 {
     public class DateTimeTrigger : Trigger
     {
+        public DateTimeOffset TargetTime { get; set; }
+        public bool IsActive { get; set; }
 
-        public DateTime _fecha { get; set; }
-
-        public DateTimeTrigger(string name, DateTime fecha):
-        base( name)
+        public DateTimeTrigger(string name, DateTimeOffset targetTime) : base(name)
         {
-        
+            TargetTime = targetTime;
+        }
 
+        private TimeSpan CalculateAdaptiveInterval(TimeSpan remaining)
+        {
+            if (remaining.TotalDays > 30) return TimeSpan.FromDays(1);
+            if (remaining.TotalDays > 1) return TimeSpan.FromHours(1);
+            if (remaining.TotalHours > 1) return TimeSpan.FromMinutes(1);
+            if (remaining.TotalMinutes > 1) return TimeSpan.FromSeconds(10);
+            return TimeSpan.FromSeconds(1);
         }
 
         public override async Task<Result> InitTrigger()
         {
-            bool ya = false;
-            while(ya == false)
+           
+            if (DateTimeOffset.UtcNow >= TargetTime)
             {
-                
-                await Task.Delay(4000);
-                ya = estiempo();
-                if(ya == true){
-                    var triggerResults = await this.ExecuteTriggerables();
-                    var mensajes = triggerResults
-                        .Select(r => r.Message)
-                        .Where(m => !string.IsNullOrEmpty(m));
-                    string resumen = string.Join("; ", mensajes);
-
-                    bool todoExitoso = triggerResults.All(r => r.Success);
-                    if (!todoExitoso)
-                        return Result.CreateFailure($"Trigger '{Name}' executed with errors: {resumen}");
-
-                    return Result.CreateSuccess($"Trigger '{Name}' executed - {resumen}");
-                }
-
+                return Result.CreateFailure("The target time has already passed. Trigger cannot be initialized.");
             }
-            return Result.CreateSuccess($"Trigger '{Name}' started, waiting for time condition");
-        }
 
-        public bool estiempo(){
-        
-            return true;
-        }
+            try
+            {
+                while (true)
+                {
+                    DateTimeOffset now = DateTimeOffset.UtcNow;
 
+                   
+                    if (now >= TargetTime)
+                    {
+                        List<Result> batchResults = await ExecuteTriggerables();
+
+                        if (batchResults.Any(r => !r.Success))
+                        {
+                            return Result.CreateFailure("One or more triggers failed during execution.");
+                        }
+
+                        return Result.CreateSuccess();
+                    }
+
+                    TimeSpan remaining = TargetTime - now;
+                    TimeSpan waitInterval = CalculateAdaptiveInterval(remaining);
+
+                    Console.WriteLine($"Approximate time remaining: {remaining.Days} days, {remaining.Hours} hours. Next check in: {waitInterval.TotalSeconds} seconds.");
+
+                    await Task.Delay(waitInterval);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                return Result.CreateFailure("The operation was canceled.");
+            }
+            catch (Exception ex)
+            {
+                return Result.CreateFailure($"Timer exited unexpectedly: {ex.Message}");
+            }
+        }
     }
 }

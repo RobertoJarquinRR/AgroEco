@@ -87,13 +87,17 @@ namespace AgroEco.Data
                 entity.Property(t => t.Name)
                       .HasMaxLength(100);
 
-                
+                entity.Ignore(t => t.Triggerables);
 
             });
 
 
             modelBuilder.Entity<DateTimeTrigger>(entity =>{
                 entity.ToTable("DateTimeTrigger");
+
+                entity.Property(t => t.TargetTime);
+                
+  
             });
             /////////////////////////////////////////////////////////////////////////////////
         }
