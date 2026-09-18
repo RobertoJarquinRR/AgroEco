@@ -1,11 +1,13 @@
 #include "registrer.h"
 #include <string>
-std::queue<std::string> registrer::DataQueue;
+
+using namespace std;
+queue<string> registrer::DataQueue;
 
 
 registrer::registrer(){
 
 };
-void registrer::SendContent(std::string content){
+void registrer::SendContent(string content){
     DataQueue.push("@{"+content+"}*");  
 };
