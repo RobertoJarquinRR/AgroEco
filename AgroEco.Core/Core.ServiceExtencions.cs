@@ -21,7 +21,7 @@ namespace AgroEco.Core
             services.AddScoped<GetByIdJob>();
             services.AddScoped<GetRunningJobs>();
             services.AddScoped<DeleteJob>();
-
+            services.AddScoped<GetByIdJobWithDetails>();
             //Trigger persistence
             services.AddScoped<CreateTrigger>();
             services.AddScoped<DeleteTrigger>();
@@ -33,6 +33,8 @@ namespace AgroEco.Core
             services.AddScoped<DeleteAction>();
             services.AddScoped<GetAllAction>();
             services.AddScoped<GetByIdAction>();
+
+            services.AddSingleton<JobEngine>();
 
             
 

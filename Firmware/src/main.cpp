@@ -49,7 +49,7 @@ queue<string> Stack;
 void loop()
 {
 
-  while (conected == true)
+  while (conected == false)
   {
     Serial.println("canYouconectect?");
     delay(400);
@@ -96,9 +96,11 @@ void loop()
 
   while(!mi.DataQueue.empty()){
     string result = mi.DataQueue.front();
-
+    
     Serial.println(result.c_str());
     mi.DataQueue.pop();
     delay(2000);
   }
+
+  
 }

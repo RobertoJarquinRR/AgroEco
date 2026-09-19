@@ -23,7 +23,6 @@ namespace AgroEco.Core.Jobs.Persistence
         public async Task<Result> HandleAsync(string name,
     string? description,
     int? priority,
-    DateTime? date,
     List<Action> action,
     Trigger trigger)
         {

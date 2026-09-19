@@ -1,7 +1,5 @@
 ﻿using AgroEco.Core.Jobs;
-using AgroEco.Data;
 using Microsoft.EntityFrameworkCore;
-
 namespace AgroEco.Data.Repositories
 {
     public class JobRepository : RepositoryBase<Job, DataContext> ,IJobRepository
@@ -22,6 +20,16 @@ namespace AgroEco.Data.Repositories
             .Include(j => j.Trigger)
             .Include(j => j.Action)
             .ToListAsync();
+        }
+
+        public async Task<Job?> GetByIdWithDetailsAsync(int id, CancellationToken ct = default)
+        {
+            IQueryable<Job> query = _dbSet;
+
+            query = query.Include(j => j.Trigger)
+            .Include(j => j.Action);
+
+            return await query.FirstOrDefaultAsync(j => j.Id == id, ct);
         }
     }
 }

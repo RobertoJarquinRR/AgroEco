@@ -45,7 +45,6 @@ namespace AgroEco.Core.Jobs
         private Job() {
             Name = null!;
             Trigger = null!;
-            Trigger.AttachReceiver(this);
         }
 
         public static async Task<Result<Job>> CreateJob(
@@ -66,13 +65,13 @@ namespace AgroEco.Core.Jobs
 
             if (status == Status.Running)
             {
-                await t.Ontrigger();
+                await t.OnTrigger();
             }
 
             return Result<Job>.CreateSuccess(t, "job create successfully");
 
         }
-        public async Task<Result> Ontrigger()
+        public async Task<Result> OnTrigger()
         {   
             
             Console.WriteLine("Ejecutando el Job...");
@@ -112,9 +111,18 @@ namespace AgroEco.Core.Jobs
         }
 
         public Result Rehydrate(){
+            
+            try{
+                if(Trigger == null)
+                {
+                    return Result.CreateSuccess($"Can't attached job with trigger");
 
-
-            Trigger.AttachReceiver(this);
+                }
+                Trigger.AttachReceiver(this);
+            }
+            catch { 
+            
+            }
             return Result.CreateSuccess($"attached job {Name} with trigger {Trigger.Name}");
         }
 
