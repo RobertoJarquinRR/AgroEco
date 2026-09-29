@@ -21,14 +21,29 @@ namespace AgroEco.Core.Jobs.Actions
 
         public abstract Task<Result> Execute();
 
-        public void ChangeStatus(Status status)
+        public Result ChangeStatus(Status status)
         {
+            if (!IsValidTransition(Status, status))
+            {
+                return Result.CreateFailure(
+                    $"Action '{Name}' cannot transition from {Status} to {status}.");
+            }
 
             Status = status;
-
-           
+            return Result.CreateSuccess();
         }
 
+        private static bool IsValidTransition(Status current, Status next)
+        {
+            return current switch
+            {
+                Status.Created => next is Status.Enqueued or Status.Running or Status.Canceled,
+                Status.Enqueued => next is Status.Running or Status.Canceled,
+                Status.Running => next is Status.Succeeded or Status.Faulted or Status.Canceled,
+                Status.Succeeded or Status.Faulted or Status.Canceled => false,
+                _ => false
+            };
+        }
 
     }
 }

@@ -8,10 +8,12 @@ namespace AgroEco.Core.Jobs.Triggers.Persistence
     public class DeleteTrigger
     {
         private readonly IRepository<Trigger> _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteTrigger(IRepository<Trigger> repository)
+        public DeleteTrigger(IRepository<Trigger> repository, IUnitOfWork unitOfWork)
         {
             _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result> HandleAsync(int id)
@@ -23,6 +25,7 @@ namespace AgroEco.Core.Jobs.Triggers.Persistence
             }
 
             await _repository.DeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
 
             return Result.CreateSuccess($"Trigger '{trigger.Name}' deleted successfully");
         }

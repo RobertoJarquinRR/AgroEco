@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace AgroEco.Core.Hadware;
+namespace AgroEco.Core.Hardware;
 
 public sealed record HardwareMessage(
     string Type,

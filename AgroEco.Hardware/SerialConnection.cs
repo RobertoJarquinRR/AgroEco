@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.IO.Ports;
 using System.Text;
 using System.Text.Json;
-using HardwareMessage = AgroEco.Core.Hadware.HardwareMessage;
-using HardwareMessageReceivedEventArgs = AgroEco.Core.Hadware.HardwareMessageReceivedEventArgs;
+using HardwareMessage = AgroEco.Core.Hardware.HardwareMessage;
+using HardwareMessageReceivedEventArgs = AgroEco.Core.Hardware.HardwareMessageReceivedEventArgs;
 
 namespace AgroEco.Hardware;
 

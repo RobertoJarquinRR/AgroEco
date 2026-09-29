@@ -58,10 +58,10 @@ namespace AgroEco.Core.Jobs
 
                 var (rehydrateResult, triggerResult) = await RebuildInMemoryState(result.Value);
 
-                string mensajeDetalle = string.Join("; ", new[] { result.Message, rehydrateResult.Message, triggerResult.Message }
+                string detailMessage = string.Join("; ", new[] { result.Message, rehydrateResult.Message, triggerResult.Message }
                     .Where(m => !string.IsNullOrEmpty(m)));
 
-                return Result.CreateSuccess($"Job '{result.Value.Name}' running: {mensajeDetalle}");
+                return Result.CreateSuccess($"Job '{result.Value.Name}' running: {detailMessage}");
             }
             catch (Exception ex)
             {

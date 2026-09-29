@@ -21,12 +21,12 @@ namespace AgroEco.Core.Jobs
 
         public DateTime? Date { get; private set; }
 
-        public List<Action> Action { get; private set; } = new();
+        public List<Action> Actions { get; private set; } = new();
 
         public Trigger Trigger { get; private set; }
 
 
-        public List<Result> result = new();
+        public List<Result> Results { get; private set; } = new();
      
         Job(string name, Status status,string? description, int? priority, DateTime? date, List<Action> action, Trigger trigger)
         {
@@ -36,7 +36,7 @@ namespace AgroEco.Core.Jobs
             Description = description;
             Priority = priority;
             Date = date;
-            Action = action;
+            Actions = action;
             Trigger = trigger;
             Trigger.AttachReceiver(this);
         }
@@ -53,7 +53,7 @@ namespace AgroEco.Core.Jobs
         Status status,
         int? priority,
        
-        List<Action>action,
+        List<Action> actions,
         Trigger trigger)
         {
       
@@ -61,7 +61,7 @@ namespace AgroEco.Core.Jobs
             {
                 return Result<Job>.CreateFailure("Name can't be empty");
             }
-            Job t = new( name, status, description, priority, DateTime.Now, action, trigger);
+            Job t = new(name, status, description, priority, DateTime.Now, actions, trigger);
 
             if (status == Status.Running)
             {
@@ -81,33 +81,75 @@ namespace AgroEco.Core.Jobs
                 return Result.CreateSuccess($"Job {Name} executes successfully");
             }
 
-            foreach(Action action in Action){
+            Result runningResult = ChangeStatus(Status.Running);
+            if (!runningResult.Success)
+            {
+                return runningResult;
+            }
+
+            foreach (Action action in Actions)
+            {
                 if(action.Status == Status.Succeeded || action.Status == Status.Canceled)
                 {
                     continue;
                 }
-                result.Add(await action.Execute());
+                Result startResult = action.ChangeStatus(Status.Running);
+                if (!startResult.Success)
+                {
+                    Results.Add(startResult);
+                    continue;
+                }
 
-                action.ChangeStatus(Status.Running);
-                
+                Result actionResult;
+                try
+                {
+                    actionResult = await action.Execute();
+                }
+                catch (Exception exception)
+                {
+                    actionResult = Result.CreateFailure(
+                        $"Action '{action.Name}' failed with an exception.",
+                        exception);
+                }
+
+                Results.Add(actionResult);
+                action.ChangeStatus(
+                    actionResult.Success ? Status.Succeeded : Status.Faulted);
             }
-            ChangeStatus(Status.Succeeded);
+            Result completionResult = ChangeStatus(Status.Succeeded);
+            if (!completionResult.Success)
+            {
+                return completionResult;
+            }
 
-            var mensajes = result
+            var messages = Results
                 .Select(r => r.Message)
                 .Where(m => !string.IsNullOrEmpty(m));
-            string resumenAcciones = string.Join("; ", mensajes);
+            string actionSummary = string.Join("; ", messages);
 
-            bool fallos = result.Any(r => !r.Success);
-            if (fallos)
-                return Result.CreateFailure($"Job '{Name}' completed with errors: {resumenAcciones}");
-
-            return Result.CreateSuccess($"Job '{Name}' executed successfully: {resumenAcciones}");
+            return Result.CreateSuccess(
+                $"Job '{Name}' executed successfully. Action results: {actionSummary}");
         }
 
-        public void ChangeStatus(Status status)
+        public Result ChangeStatus(Status status)
         {
+            bool validTransition = Status switch
+            {
+                Status.Created => status is Status.Enqueued or Status.Running or Status.Canceled,
+                Status.Enqueued => status is Status.Running or Status.Canceled,
+                Status.Running => status is Status.Succeeded or Status.Faulted or Status.Canceled,
+                Status.Succeeded or Status.Faulted or Status.Canceled => false,
+                _ => false
+            };
+
+            if (!validTransition)
+            {
+                return Result.CreateFailure(
+                    $"Job '{Name}' cannot transition from {Status} to {status}.");
+            }
+
             Status = status;
+            return Result.CreateSuccess();
         }
 
         public Result Rehydrate(){
@@ -131,4 +173,3 @@ namespace AgroEco.Core.Jobs
     }
 
 }
-

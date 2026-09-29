@@ -1,4 +1,4 @@
-namespace AgroEco.Core.Hadware;
+namespace AgroEco.Core.Hardware;
 
 public sealed class HardwareMessageReceivedEventArgs(HardwareMessage message) : EventArgs
 {

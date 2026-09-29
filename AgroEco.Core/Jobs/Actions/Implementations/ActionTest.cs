@@ -4,18 +4,19 @@ using System.Text;
 
 namespace AgroEco.Core.Jobs.Actions.Implementations
 {
-    public class actionTest : Action
+    public class ActionTest : Action
     {
 
-        public actionTest( string name, Status status) : base(name)
+        public ActionTest(string name, Status status) : base(name)
         {
         }
 
        
-        public override async Task<Result> Execute()
+        public override Task<Result> Execute()
         {
             Console.WriteLine("ejecutando la accion");
-            return Result.CreateSuccess("tarea de practica");
+            return Task.FromResult(
+                Result.CreateSuccess("tarea de practica"));
         }
 
         

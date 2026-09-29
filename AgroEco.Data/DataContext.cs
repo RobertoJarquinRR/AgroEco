@@ -40,7 +40,7 @@ namespace AgroEco.Data
                       .HasConversion<string>();
 
 
-                entity.HasMany(j => j.Action)
+                entity.HasMany(j => j.Actions)
                       .WithOne()
                       .HasForeignKey(j => j.JobId);
 
@@ -50,7 +50,7 @@ namespace AgroEco.Data
                       .HasForeignKey("TriggerId");
 
 
-                entity.Ignore(j => j.result);
+                entity.Ignore(j => j.Results);
             });
             //////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +68,7 @@ namespace AgroEco.Data
                       .HasConversion<string>();
             });
 
-            modelBuilder.Entity<actionTest>(entity =>
+            modelBuilder.Entity<ActionTest>(entity =>
             {
                 entity.ToTable("ActionTests");
 

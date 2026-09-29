@@ -28,12 +28,12 @@ namespace AgroEco.Core.Jobs.Triggers
         }
 
         protected async Task<List<Result>> ExecuteTriggerables(){
-            List<Result> result = new();
+            List<Result> results = new();
        
 
             if (Triggerables == null || Triggerables.Count == 0){
-                result.Add(Result.CreateFailure("No jobs attached to trigger to execute"));
-                return result;
+                results.Add(Result.CreateFailure("No jobs attached to trigger to execute"));
+                return results;
             }
             var executionTasks = Triggerables.Select(async t =>
             {
@@ -49,8 +49,8 @@ namespace AgroEco.Core.Jobs.Triggers
 
             Result[] resolvedResults = await Task.WhenAll(executionTasks);
 
-            result.AddRange(resolvedResults);
-            return result;
+            results.AddRange(resolvedResults);
+            return results;
 
         }
 
@@ -59,5 +59,4 @@ namespace AgroEco.Core.Jobs.Triggers
 
     }
 }
-
 

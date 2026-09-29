@@ -1,4 +1,4 @@
-﻿using AgroEco.Core.Hadware;
+using AgroEco.Core.Hardware;
 
 namespace AgroEco.Core.Interfaces
 {
