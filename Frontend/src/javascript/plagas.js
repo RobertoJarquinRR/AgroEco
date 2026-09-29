@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     ];
 
-    const MAX_TAREAS = 10;
+    const MAX_TAREAS = 6;
 
     const searchInput = document.getElementById("pest-search");
     const resultsContainer = document.getElementById("search-results");
@@ -313,6 +313,61 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 250);
         });
     }
+    //funcion para mostrar un mensaje de finalización de tarea
+/**
+ * 
+ * @param {any} mensaje
+ */
+
+    function mostrarMensajeFinalizacion(mensaje) {
+        const toast = document.createElement("div");
+        toast.textContent = mensaje;
+        toast.style.cssText= `
+        position: fixed;
+            bottom: 20px; 
+            right: 20px;
+            background-color: #2ec4b6;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            font-weight: bold;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+
+        `;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = "0";
+            setTimeout(() => {
+                toast.remove();
+            }, 300);        
+        },2500);
+    }
+    if (tasksContainer) {
+        tasksContainer.addEventListener("click", (e)=> {
+            const clickTarget = /** @type {HTMLElement} */ (e.target);
+            if (!clickTarget) return;
+            const btn = clickTarget.closest(".btn-complete-task");
+            if (!btn) return;
+
+            const item = btn.parentElement;
+            if (!item) return;
+
+            const tituloTarea = item.querySelector("h4")?.textContent || "Tarea";
+
+            item.style.transform = "scale(0.9)";
+            item.style.opacity = "0";
+
+            setTimeout(() => {
+                item.remove();
+                actualizarContador();
+                //y finalmente se muestra el mensaje de finalización de tarea
+                mostrarMensajeFinalizacion(`¡${tituloTarea} completada!`);
+            }, 250);
+        });
+    }
 
     function actualizarContador() {
         const total = tasksContainer ? tasksContainer.querySelectorAll(".task-item").length : 0;
@@ -340,5 +395,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
         winObj.chrome.webview.postMessage({ type: "ready_plagas" });
     }
-
 });
