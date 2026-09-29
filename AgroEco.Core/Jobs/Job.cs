@@ -1,9 +1,8 @@
-﻿using AgroEco.Core.Interfaces;
+using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs.Actions;
+using AgroEco.Core.Triggers;
 using Action = AgroEco.Core.Jobs.Actions.Action;
-using AgroEco.Core.Jobs.Triggers;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace AgroEco.Core.Jobs
 {
@@ -38,7 +37,6 @@ namespace AgroEco.Core.Jobs
             Date = date;
             Actions = action;
             Trigger = trigger;
-            Trigger.AttachReceiver(this);
         }
 
         // contructor privado para el orm
@@ -157,15 +155,18 @@ namespace AgroEco.Core.Jobs
             try{
                 if(Trigger == null)
                 {
-                    return Result.CreateSuccess($"Can't attached job with trigger");
+                    return Result.CreateFailure(
+                        $"Job '{Name}' has no trigger definition.");
 
                 }
-                Trigger.AttachReceiver(this);
+                return Result.CreateSuccess($"Job '{Name}' rehydrated successfully.");
             }
-            catch { 
-            
+            catch (Exception exception)
+            {
+                return Result.CreateFailure(
+                    $"Job '{Name}' could not be rehydrated.",
+                    exception);
             }
-            return Result.CreateSuccess($"attached job {Name} with trigger {Trigger.Name}");
         }
 
 

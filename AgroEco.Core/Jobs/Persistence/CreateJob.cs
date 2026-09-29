@@ -1,7 +1,7 @@
 ﻿using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs.Actions;
 using Action = AgroEco.Core.Jobs.Actions.Action;
-using AgroEco.Core.Jobs.Triggers;
+using AgroEco.Core.Triggers;
 using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;

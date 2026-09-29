@@ -1,4 +1,4 @@
-﻿using AgroEco.Core.Jobs.Actions;
+﻿using AgroEco.Core.Triggers;
 using System;
 using System.Collections.Generic;
 using System.Text;

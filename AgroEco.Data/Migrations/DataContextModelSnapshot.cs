@@ -79,7 +79,7 @@ namespace AgroEco.Data.Migrations
                     b.ToTable("Jobs", (string)null);
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Triggers.Trigger", b =>
+            modelBuilder.Entity("AgroEco.Core.Triggers.Trigger", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,9 +103,9 @@ namespace AgroEco.Data.Migrations
                     b.ToTable("ActionTests", (string)null);
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Triggers.Implementations.DateTimeTrigger", b =>
+            modelBuilder.Entity("AgroEco.Core.Triggers.Implementations.DateTimeTrigger", b =>
                 {
-                    b.HasBaseType("AgroEco.Core.Jobs.Triggers.Trigger");
+                    b.HasBaseType("AgroEco.Core.Triggers.Trigger");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
@@ -127,7 +127,7 @@ namespace AgroEco.Data.Migrations
 
             modelBuilder.Entity("AgroEco.Core.Jobs.Job", b =>
                 {
-                    b.HasOne("AgroEco.Core.Jobs.Triggers.Trigger", "Trigger")
+                    b.HasOne("AgroEco.Core.Triggers.Trigger", "Trigger")
                         .WithMany()
                         .HasForeignKey("TriggerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -145,11 +145,11 @@ namespace AgroEco.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Triggers.Implementations.DateTimeTrigger", b =>
+            modelBuilder.Entity("AgroEco.Core.Triggers.Implementations.DateTimeTrigger", b =>
                 {
-                    b.HasOne("AgroEco.Core.Jobs.Triggers.Trigger", null)
+                    b.HasOne("AgroEco.Core.Triggers.Trigger", null)
                         .WithOne()
-                        .HasForeignKey("AgroEco.Core.Jobs.Triggers.Implementations.DateTimeTrigger", "Id")
+                        .HasForeignKey("AgroEco.Core.Triggers.Implementations.DateTimeTrigger", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

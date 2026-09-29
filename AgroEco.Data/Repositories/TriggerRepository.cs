@@ -1,5 +1,5 @@
 ﻿using AgroEco.Core.Jobs;
-using AgroEco.Core.Jobs.Triggers;
+using AgroEco.Core.Triggers;
 using AgroEco.Data;
 
 namespace AgroEco.Data.Repositories

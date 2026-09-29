@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AgroEco.Core.Jobs.Persistence;
+using AgroEco.Core.Triggers;
 
 namespace AgroEco.Core.Jobs
 {
@@ -7,16 +8,16 @@ namespace AgroEco.Core.Jobs
     {
         private readonly GetRunningJobs _getRunningJobs;
         private readonly GetByIdJobWithDetails _getByIdJob;
+        private readonly TriggerEngine _triggerEngine;
 
-
-        private readonly Registry<int, Job> registry = new();
-
-        public JobEngine(GetRunningJobs getRunningJobs, GetByIdJobWithDetails getByIdJob)
+        public JobEngine(
+            GetRunningJobs getRunningJobs,
+            GetByIdJobWithDetails getByIdJob,
+            TriggerEngine triggerEngine)
         {
             _getRunningJobs = getRunningJobs;
             _getByIdJob = getByIdJob;
-
-           
+            _triggerEngine = triggerEngine;
 
         }
 
@@ -71,9 +72,23 @@ namespace AgroEco.Core.Jobs
 
         private async Task<(Result rehydrateResult, Result triggerResult)> RebuildInMemoryState(Job job)
         {
-            var rehydrateResult = job.Rehydrate();
-            registry.Register(job.Id, job);
-            var triggerResult = await job.Trigger.InitTrigger();
+            Result rehydrateResult = job.Rehydrate();
+            if (!rehydrateResult.Success)
+            {
+                return (rehydrateResult, Result.CreateFailure(
+                    "Trigger subscription was not started."));
+            }
+
+            Result subscribeResult = await _triggerEngine.SubscribeAsync(
+                job.Trigger.Id,
+                job);
+
+            if (!subscribeResult.Success)
+            {
+                return (rehydrateResult, subscribeResult);
+            }
+
+            Result triggerResult = await _triggerEngine.StartAsync(job.Trigger.Id);
 
             return (rehydrateResult, triggerResult);
         }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using AgroEco.Core.Jobs;
-using AgroEco.Core.Jobs.Triggers;
-using AgroEco.Core.Jobs.Triggers.Implementations;
+using AgroEco.Core.Triggers;
+using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Actions.Implementations;
 
 namespace AgroEco.Data
@@ -86,8 +86,6 @@ namespace AgroEco.Data
 
                 entity.Property(t => t.Name)
                       .HasMaxLength(100);
-
-                entity.Ignore(t => t.Triggerables);
 
             });
 

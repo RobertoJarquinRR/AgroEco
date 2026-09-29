@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AgroEco.Core.Jobs.Triggers.Implementations
+namespace AgroEco.Core.Triggers.Implementations
 {
     public class DateTimeTrigger : Trigger
     {
@@ -56,7 +56,7 @@ namespace AgroEco.Core.Jobs.Triggers.Implementations
 
                     Console.WriteLine($"Approximate time remaining: {remaining.Days} days, {remaining.Hours} hours. Next check in: {waitInterval.TotalSeconds} seconds.");
 
-                    await Task.Delay(waitInterval);
+                    await Task.Delay(waitInterval, ExecutionToken);
                 }
             }
             catch (OperationCanceledException)
