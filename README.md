@@ -111,7 +111,7 @@ git clone https://github.com/RobertoJarquinRR/AgroEco.git
 ```
 
 ### 2. Abrir el proyecto
-Abrir la solución con Visual Studio 2022.
+Abrir la solución con `Visual Studio 2026`.
 
 > Los pasos adicionales de configuración e instalación de dependencias serán agregados conforme el proyecto avance.
 
