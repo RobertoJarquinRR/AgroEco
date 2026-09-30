@@ -129,13 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --obtener datos--
     const Win = /** @type {any} */ (window);
     if (Win.chrome && win.chrome.webview) {
-
-    Win.chrome.webview.addEventListener(
-        "message",
+    Win.chrome.webview.addEventListener("message",
         (/** @type {MessageEvent} */ event) => {
-
             const { type, payload } = event.data;
-
             switch (type) {
                 case "datosEtapa":
                     mostrarDatosEtapa(payload);
@@ -178,9 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
             }
         });
-        Win.chrome.webview.postMessage({
-            type: "ready"
-        });
+        Win.chrome.webview.postMessage({type: "ready"});
     }
 
     let idCultivo = 1;
@@ -567,6 +561,7 @@ function mostrarDetalleBioinsumo(datos, card){
     valorRango.addEventListener("input", () => {
         if (valorRango.value !== ""){
             distancia = Number(valorRango.value)
+            rango.value = String(distancia);
             lbDist.forEach(dist => {
                 dist.textContent = String(distancia);
             });
