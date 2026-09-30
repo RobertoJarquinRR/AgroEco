@@ -1,6 +1,6 @@
 # AgroEco
 
-Sistema de monitoreo y gestión agrícola que funciona **100% sin conexión a internet**, diseñado para productores de café y aguacate en zonas rurales de Nicaragua. Conecta sensores, tareas, inventario y finanzas en un solo sistema — no son módulos sueltos, es un ecosistema.
+Sistema de monitoreo y gestión agrícola que funciona **100% sin conexión a internet**, diseñado para productores en zonas rurales de Nicaragua. Conecta sensores, tareas, inventario y finanzas en un solo sistema — no son módulos sueltos, es un ecosistema.
 
 ## El problema
 
