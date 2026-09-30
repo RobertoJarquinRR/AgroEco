@@ -124,13 +124,6 @@ aside {
     color: #bc6661;
 }
 
-.icon {
-    width: 25px;
-    height: 25px;
-    filter: brightness(0) invert(1);
-    object-fit: contain;
-}
-
 .main-content {
     flex-grow: 1;
     padding: 30px;

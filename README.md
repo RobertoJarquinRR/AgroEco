@@ -1,6 +1,6 @@
 # AgroEco
 
-Sistema de monitoreo y gestión agrícola que funciona **100% sin conexión a internet**, diseñado para productores de café y aguacate en zonas rurales de Nicaragua. Conecta sensores, tareas, inventario y finanzas en un solo sistema — no son módulos sueltos, es un ecosistema.
+Sistema de monitoreo y gestión agrícola que funciona **100% sin conexión a internet**, diseñado para productores en zonas rurales de Nicaragua. Conecta sensores, tareas, inventario y finanzas en un solo sistema — no son módulos sueltos, es un ecosistema.
 
 ## El problema
 
@@ -111,7 +111,7 @@ git clone https://github.com/RobertoJarquinRR/AgroEco.git
 ```
 
 ### 2. Abrir el proyecto
-Abrir la solución con Visual Studio 2022.
+Abrir la solución con `Visual Studio 2026`.
 
 > Los pasos adicionales de configuración e instalación de dependencias serán agregados conforme el proyecto avance.
 
