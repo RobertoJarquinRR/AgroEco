@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Hadware
+namespace AgroEco.Core.Triggers
 {
-    internal class Hardware
+    public enum TriggerType
     {
-
-       
-
-
-
+        DateTimer
     }
 }

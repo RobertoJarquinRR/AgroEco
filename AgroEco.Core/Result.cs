@@ -4,27 +4,27 @@ namespace AgroEco.Core
     public class Result
     {
         
-        public bool Success {  get; private set; }
+        public virtual bool Success { get; private set; }
 
         public string? Message { get; private set; }
 
         public Exception? Exception { get; private set; }
 
-        protected Result( bool success, string? message, Exception? e)
+        protected Result(bool success, string? message, Exception? exception)
         {
             Success = success;
             Message = message;
-            Exception = e; 
+            Exception = exception;
         }
        
-        public static Result CreateSuccess(string? mensaje = null)
+        public static Result CreateSuccess(string? message = null)
         {
-            return new Result(true, mensaje,null);
+            return new Result(true, message, null);
         }       
 
-        public static Result CreateFailure(string? mensaje, Exception? exception = null)
+        public static Result CreateFailure(string? message, Exception? exception = null)
         {
-            return new Result(false, mensaje, exception);
+            return new Result(false, message, exception);
         }
 
     }

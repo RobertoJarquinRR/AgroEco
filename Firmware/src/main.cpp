@@ -13,6 +13,9 @@
 using namespace std;
 
 //variablesxd
+//textofijo para mandar mensajes
+const String jsonTypeRead = "reading";
+const String jsonTypeFailed = "fault";
 sensorHumedadAmbiente sensorHumedadAmb(4);
 sensorHumedadSuelo sensorHSuelo(34,300, 4095);
 sensorTempAmbiente sensorTempAmb(4);
@@ -79,17 +82,19 @@ void loop()
     {
       int valor = sensores[i]->Read();
       String sensorName = sensores[i]->GetName();
-      String mensaje = sensorName + "," + String(valor);
+
+      String json = "{\"type\": \"" + jsonTypeRead + "\" , \"componentId\": \"" + sensorName + "\" , \"value\": " + valor + "}" ;
+      
       //lo convierto porque use el String de arduino :'0
-      mi.SendContent(string(mensaje.c_str()));
+      mi.SendContent(string(json.c_str()));
 
       
     }
     else 
     {
       String sensorName = sensores[i]->GetName();
-      String mensaje = sensorName + ", Error al tratar de conectarlo";
-      mi.SendContent(string(mensaje.c_str()));
+      String json = "{\"type\": \"" + jsonTypeFailed + "\" , \"componentId\": \"" + sensorName + "\" , \"error\": \"el sensor no se pudo conectar o esta defectuoso\"}";
+      mi.SendContent(string(json.c_str()));
     }
   }
   //nota elimine un codigo que era de prueba supongo era un hola xd

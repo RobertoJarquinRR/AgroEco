@@ -1,0 +1,71 @@
+{
+  "modulo": "Educación",
+  "subtitulo": "Guías agronómicas",
+  "secciones": [
+    "Ciclo del cultivo",
+    "Guías de poda",
+    "Bioinsumos"
+  ],
+  "cultivos": [
+    "Café",
+    "Aguacate"
+  ],
+  "guias_de_poda": {
+    "descripcion": "Recomendaciones y tips técnicos para la poda según el tipo de cultivo y la etapa de desarrollo.",
+    "cultivos": {
+      "cafe": {
+        "tipos_de_poda": [
+          {
+            "tipo": "Poda de Formación",
+            "objetivo": "Establecer la estructura principal del cafeto en etapas tempranas.",
+            "fase_aplicacion": "Crecimiento",
+            "tips": [
+              "Realizar desmoche o deshije para favorecer el desarrollo de ramas productivas.",
+              "Desinfectar las herramientas de corte antes y después de cada planta."
+            ]
+          },
+          {
+            "tipo": "Poda de Mantenimiento / Deshije",
+            "objetivo": "Eliminar chupones, ramas secas o enfermas para mejorar la ventilación e iluminación.",
+            "fase_aplicacion": "Producción / Post-cosecha",
+            "tips": [
+              "Cortar chupones salientes del tronco principal a ras de tallo.",
+              "Retirar ramas bajeras o muertas para prevenir el ataque de hongos."
+            ]
+          },
+          {
+            "tipo": "Poda de Renovación / Zoqueo",
+            "objetivo": "Rejuvenecer el tejido productivo del lote agotado.",
+            "fase_aplicacion": "Post-cosecha",
+            "tips": [
+              "Realizar el corte en bisel (en diagonal) a 30-40 cm del suelo.",
+              "Aplicar pasta cicatrizante o biocontrolador sobre la herida del corte."
+            ]
+          }
+        ]
+      },
+      "aguacate": {
+        "tipos_de_poda": [
+          {
+            "tipo": "Poda de Formación",
+            "objetivo": "Definir un eje central o estructura en copa balanceada.",
+            "fase_aplicacion": "Crecimiento",
+            "tips": [
+              "Despuntar el brote apical para incentivar la ramificación lateral.",
+              "Manejar la altura del árbol para facilitar las labores de cosecha."
+            ]
+          },
+          {
+            "tipo": "Poda Sanitaria y de Aireación",
+            "objetivo": "Aumentar la entrada de luz solar y flujo de aire al interior de la copa.",
+            "fase_aplicacion": "Producción",
+            "tips": [
+              "Eliminar ramas cruzadas, quebradas o atacadas por plagas/enfermedades.",
+              "Pintar o proteger las ramas gruesas expuestas al sol directo para evitar quemaduras."
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

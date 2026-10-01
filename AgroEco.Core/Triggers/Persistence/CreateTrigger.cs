@@ -3,17 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Jobs.Triggers.Persistence
+namespace AgroEco.Core.Triggers.Persistence
 {
     public class CreateTrigger
     {
         private readonly IRepository<Trigger> _repository;
         private readonly GetAllTrigger _getAll;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateTrigger(IRepository<Trigger> repository, GetAllTrigger getAll)
+        public CreateTrigger(
+            IRepository<Trigger> repository,
+            GetAllTrigger getAll,
+            IUnitOfWork unitOfWork)
         {
             _repository = repository;
             _getAll = getAll;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result> HandleAsync(Trigger trigger)
@@ -38,6 +43,7 @@ namespace AgroEco.Core.Jobs.Triggers.Persistence
             }
 
             await _repository.AddAsync(trigger);
+            await _unitOfWork.SaveChangesAsync();
 
             return Result.CreateSuccess($"Trigger '{trigger.Name}' created successfully");
         }

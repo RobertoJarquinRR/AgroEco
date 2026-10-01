@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using AgroEco.Core.Jobs;
-using AgroEco.Core.Jobs.Triggers;
-using AgroEco.Core.Jobs.Triggers.Implementations;
+using AgroEco.Core.Triggers;
+using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Actions.Implementations;
 
 namespace AgroEco.Data
@@ -40,7 +40,7 @@ namespace AgroEco.Data
                       .HasConversion<string>();
 
 
-                entity.HasMany(j => j.Action)
+                entity.HasMany(j => j.Actions)
                       .WithOne()
                       .HasForeignKey(j => j.JobId);
 
@@ -50,7 +50,7 @@ namespace AgroEco.Data
                       .HasForeignKey("TriggerId");
 
 
-                entity.Ignore(j => j.result);
+                entity.Ignore(j => j.Results);
             });
             //////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +68,7 @@ namespace AgroEco.Data
                       .HasConversion<string>();
             });
 
-            modelBuilder.Entity<actionTest>(entity =>
+            modelBuilder.Entity<ActionTest>(entity =>
             {
                 entity.ToTable("ActionTests");
 
@@ -86,8 +86,6 @@ namespace AgroEco.Data
 
                 entity.Property(t => t.Name)
                       .HasMaxLength(100);
-
-                entity.Ignore(t => t.Triggerables);
 
             });
 
