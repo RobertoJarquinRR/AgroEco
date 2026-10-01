@@ -2,7 +2,7 @@
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Actions;
 using Action = AgroEco.Core.Jobs.Actions.Action;
-using AgroEco.Core.Jobs.Triggers;
+using AgroEco.Core.Triggers;
 using AgroEco.Data.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Hadware
+namespace AgroEco.Core.Hardware
 {
     public interface IActivable
     {
-        Task<Result> activar();
+        Task<Result> Activate();
     }
 }

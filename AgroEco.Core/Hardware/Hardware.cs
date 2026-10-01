@@ -2,9 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Jobs.Triggers
+namespace AgroEco.Core.Hardware
 {
-    internal class TriggerFactory
+    internal class Hardware
     {
+
+       
+
+
+
     }
 }

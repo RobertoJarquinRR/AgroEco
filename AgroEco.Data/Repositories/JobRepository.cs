@@ -18,7 +18,7 @@ namespace AgroEco.Data.Repositories
             return await _context.Jobs
             .Where(j => j.Status == Status.Running)
             .Include(j => j.Trigger)
-            .Include(j => j.Action)
+            .Include(j => j.Actions)
             .ToListAsync();
         }
 
@@ -27,7 +27,7 @@ namespace AgroEco.Data.Repositories
             IQueryable<Job> query = _dbSet;
 
             query = query.Include(j => j.Trigger)
-            .Include(j => j.Action);
+            .Include(j => j.Actions);
 
             return await query.FirstOrDefaultAsync(j => j.Id == id, ct);
         }

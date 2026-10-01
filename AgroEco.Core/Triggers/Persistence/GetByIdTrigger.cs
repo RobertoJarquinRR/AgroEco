@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Jobs.Triggers.Persistence
+namespace AgroEco.Core.Triggers.Persistence
 {
     public class GetByIdTrigger
     {
@@ -14,9 +14,11 @@ namespace AgroEco.Core.Jobs.Triggers.Persistence
             _repository = repository;
         }
 
-        public async Task<Result<Trigger>> HandleAsync(int id)
+        public async Task<Result<Trigger>> HandleAsync(
+            int id,
+            CancellationToken cancellationToken = default)
         {
-            var result = await _repository.GetByIdAsync(id);
+            var result = await _repository.GetByIdAsync(id, cancellationToken);
             if (result == null)
             {
                 return Result<Trigger>.CreateFailure("Trigger not found");

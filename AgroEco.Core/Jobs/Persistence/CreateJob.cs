@@ -1,7 +1,7 @@
 ﻿using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs.Actions;
 using Action = AgroEco.Core.Jobs.Actions.Action;
-using AgroEco.Core.Jobs.Triggers;
+using AgroEco.Core.Triggers;
 using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
@@ -13,11 +13,16 @@ namespace AgroEco.Core.Jobs.Persistence
     {
         private readonly IRepository<Job> _repository;
         private readonly GetAllJob _getall;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateJob(IRepository<Job> repository, GetAllJob getall){
+        public CreateJob(
+            IRepository<Job> repository,
+            GetAllJob getall,
+            IUnitOfWork unitOfWork)
+        {
             _repository = repository;
             _getall = getall;
-
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result> HandleAsync(string name,
@@ -48,6 +53,7 @@ namespace AgroEco.Core.Jobs.Persistence
             }
 
             await _repository.AddAsync(createtask.Value);
+            await _unitOfWork.SaveChangesAsync();
 
             return Result.CreateSuccess($"Job '{name}' created successfully");
         }

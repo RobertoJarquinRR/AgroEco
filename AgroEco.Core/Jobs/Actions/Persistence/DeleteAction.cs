@@ -8,10 +8,12 @@ namespace AgroEco.Core.Jobs.Actions.Persistence
     public class DeleteAction
     {
         private readonly IRepository<Action> _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteAction(IRepository<Action> repository)
+        public DeleteAction(IRepository<Action> repository, IUnitOfWork unitOfWork)
         {
             _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result> HandleAsync(int id)
@@ -23,6 +25,7 @@ namespace AgroEco.Core.Jobs.Actions.Persistence
             }
 
             await _repository.DeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
 
             return Result.CreateSuccess($"Action '{action.Name}' deleted successfully");
         }

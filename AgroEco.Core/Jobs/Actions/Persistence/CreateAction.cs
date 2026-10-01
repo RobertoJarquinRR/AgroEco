@@ -9,11 +9,16 @@ namespace AgroEco.Core.Jobs.Actions.Persistence
     {
         private readonly IRepository<Action> _repository;
         private readonly GetAllAction _getAll;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CreateAction(IRepository<Action> repository, GetAllAction getAll)
+        public CreateAction(
+            IRepository<Action> repository,
+            GetAllAction getAll,
+            IUnitOfWork unitOfWork)
         {
             _repository = repository;
             _getAll = getAll;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result> HandleAsync(Action action)
@@ -38,6 +43,7 @@ namespace AgroEco.Core.Jobs.Actions.Persistence
             }
 
             await _repository.AddAsync(action);
+            await _unitOfWork.SaveChangesAsync();
 
             return Result.CreateSuccess($"Action '{action.Name}' created successfully");
         }

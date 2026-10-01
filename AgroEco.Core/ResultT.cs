@@ -6,7 +6,7 @@ namespace AgroEco.Core
     public class Result<T> : Result
     {
         [MemberNotNullWhen(true, nameof(Value))]
-        public new bool Success => base.Success;
+        public override bool Success => base.Success;
         public T? Value { get; }
 
         private Result(bool success, T? value, string? message, Exception? exception)

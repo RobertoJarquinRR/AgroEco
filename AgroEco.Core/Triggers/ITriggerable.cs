@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.Core.Jobs.Actions
+namespace AgroEco.Core.Triggers
 {
     public interface ITriggerable
     {
