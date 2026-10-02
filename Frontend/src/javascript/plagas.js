@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /** @type {any[]} */
     let plagas = [];
-    
+    let idPlaga = 1;
     const winObj = /** @type {any} */ (window);
     if (winObj.chrome && winObj.chrome.webview) {
         winObj.chrome.webview.addEventListener("message", (/** @type {any} */ event) => {
@@ -41,13 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         winObj.chrome.webview.postMessage({ type: "ready_plagas" });
+        winObj.chrome.webview.postMessage({ type: "obtenerDetallesPlaga", payload: 1});
     }
-
+    
     const MAX_TAREAS = 6;
 
     const searchInput = document.getElementById("pest-search");
     const resultsContainer = document.getElementById("search-results");
-    const quickBtns = document.querySelectorAll(".tag-btn");
     
     const labelRisk = document.getElementById("pest-risk");
     const labelName = document.getElementById("pest-name");
@@ -83,9 +83,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     const li = document.createElement("li");
                     li.textContent = plaga.nombre;
                     li.addEventListener("click", () => {
+                        idPlaga = plaga.id;
                         winObj.chrome.webview.postMessage({
                             type: "obtenerDetallesPlaga",
-                            payload: plaga.id
+                            payload: idPlaga
                         });
                         if (searchInput instanceof HTMLInputElement) searchInput.value = plaga.nombre;
                         resultsContainer.style.display = "none";
@@ -111,8 +112,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 const boton = document.createElement("button");
                 
                 boton.className = "tag-btn";
-                boton.dataset.name = String(plaga.id);
                 boton.textContent = plaga.nombre;
+
+                boton.addEventListener("click", () => {
+                    idPlaga = plaga.id;
+                    winObj.chrome.webview.postMessage({
+                        type: "obtenerDetallesPlaga",
+                        payload: idPlaga
+                    });
+                });
                 
                 contenedorTags.appendChild(boton);
             });
@@ -123,16 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (searchInput && resultsContainer && e.target !== searchInput) {
             resultsContainer.style.display = "none";
         }
-    });
-
-    quickBtns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const idPlaga = btn.getAttribute("data-name");
-            winObj.chrome.webview.postMessage({
-                type: "obtenerDetallesPlaga",
-                payload: idPlaga
-            });
-        });
     });
 
     /**
@@ -312,9 +310,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.classList.toggle("open");
 
                 if (card.classList.contains("open")) {
+                    idCultivo = cultivo.idCultivo;
                     winObj.chrome.webview.postMessage({
                         type: "obtenerDetallesCultivo",
-                        payload: cultivo.idCultivo
+                        payload: {
+                            idPlaga: idPlaga,
+                            idCultivo: cultivo.idCultivo
+                        }
                     });
                 }
             });
