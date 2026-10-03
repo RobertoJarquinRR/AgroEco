@@ -43,69 +43,53 @@ AgroEco recopila datos del campo mediante sensores de hardware conectados a disp
 ## Características
 
 **Monitoreo y alertas**
-- Recepción de datos en tiempo real desde sensores Arduino
+- Datos en tiempo real desde sensores Arduino
 - Monitoreo de temperatura y humedad
-- Detección automática de valores fuera de los parámetros establecidos
+- Detección automática de valores fuera de rango
 - Generación de alertas
 
 **Ecosistema conectado**
-- Generación automática de tareas a partir de alertas de sensores
-- Descuento automático de insumos en inventario al completar una tarea
-- Registro automático del gasto correspondiente en finanzas
+- Tareas generadas automáticamente desde alertas
+- Descuento de insumos al completar una tarea
+- Registro automático del gasto en finanzas
 
 **Gestión y reportes**
-- Registro y administración de cultivos y parcelas
+- Administración de cultivos y parcelas
 - Registro de usuarios y agricultores
-- Almacenamiento de datos históricos
-- Generación automática de informes con modelos predefinidos
-- Consulta de informes anteriores
-- Visualización de datos mediante gráficos
+- Historial de datos
+- Informes automáticos y consulta de anteriores
+- Visualización mediante gráficos
 
-## Sensores utilizados
+## Sensores
 
-### DHT22
-Sensor utilizado para obtener:
-- Temperatura ambiental
-- Humedad ambiental
+- **DHT22** — temperatura y humedad ambiental
+- **DS18B20** — temperatura
 
-### DS18B20
-Sensor utilizado para medir la temperatura.
+## Tecnologías
 
-## Tecnologías utilizadas
+**Lenguajes**
+- HTML · CSS · JavaScript · C# · C++ · WPF
 
-### Lenguajes y tecnologías
-- **HTML** — estructura de las interfaces
-- **CSS** — diseño y estilos de las interfaces
-- **JavaScript** — interacción y comportamiento de las interfaces
-- **C#** — lógica principal y procesamiento de la información
-- **C++** — programación de los dispositivos Arduino y manejo de datos de sensores
-- **WPF** — interfaz de la aplicación de escritorio
+**Dependencias**
+- `System.IO.Ports` — puertos seriales
+- `System.Reactive` — eventos y flujos de datos
 
-### Librerías y dependencias
-- `System.IO.Ports` — comunicación mediante puertos seriales
-- `System.Reactive` — manejo de eventos y flujos de datos
-
-### Herramientas
-- **Visual Studio 2022** — desarrollo principal del proyecto
-- **Visual Studio Code** — desarrollo y edición de código
-- **GitHub** — control de versiones y seguimiento del código fuente
-- **Trello** — organización y administración de tareas del proyecto
+**Herramientas**
+- Visual Studio 2022 · VS Code · GitHub · Trello
 
 ## Metodología
 
-El desarrollo de AgroEco se organizó con la metodología **Scrum**, apoyándose en Trello para gestionar tareas, dar seguimiento a los avances y controlar los plazos de entrega.
+Desarrollo con **Scrum**, usando Trello para tareas, avances y plazos.
 
 ## Requisitos
 
-- Una computadora
-- Dispositivo Arduino
+- Computadora
+- Arduino
 - Sensores DHT22 y DS18B20
-- Componentes de hardware necesarios para el sistema
+- Hardware complementario
 
 ## Instalación
 
-### 1. Descargar el proyecto
-Clonar el repositorio desde GitHub:
 ```
 git clone https://github.com/RobertoJarquinRR/AgroEco.git
 ```
