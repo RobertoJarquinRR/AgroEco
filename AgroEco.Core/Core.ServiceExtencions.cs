@@ -23,17 +23,20 @@ namespace AgroEco.Core
             services.AddScoped<GetRunningJobs>();
             services.AddScoped<DeleteJob>();
             services.AddScoped<GetByIdJobWithDetails>();
+            services.AddScoped<UpdateJob>();
             //Trigger persistence
             services.AddScoped<CreateTrigger>();
             services.AddScoped<DeleteTrigger>();
             services.AddScoped<GetAllTrigger>();
             services.AddScoped<GetByIdTrigger>();
+            services.AddScoped<UpdateTrigger>();
 
             //Action persistence
             services.AddScoped<CreateAction>();
             services.AddScoped<DeleteAction>();
             services.AddScoped<GetAllAction>();
             services.AddScoped<GetByIdAction>();
+            services.AddScoped<UpdateAction>();
 
             services.AddSingleton<JobEngine>();
             services.AddSingleton<TriggerEngine>();

@@ -61,6 +61,10 @@ namespace AgroEco.Core.Jobs
             }
             Job t = new(name, status, description, priority, DateTime.Now, actions, trigger);
 
+            if (status == Status.Running)
+            {
+                await t.OnTrigger();
+            }
 
             return Result<Job>.CreateSuccess(t, "job create successfully");
 
