@@ -1,4 +1,5 @@
-﻿using AgroEco.Core.Jobs;
+using AgroEco.Core;
+using AgroEco.Core.Jobs;
 using Microsoft.EntityFrameworkCore;
 namespace AgroEco.Data.Repositories
 {
@@ -9,8 +10,26 @@ namespace AgroEco.Data.Repositories
       
 
         protected override void ApplyChanges(Job existingEntity, Job newEntity)
-        {      
-            existingEntity.ChangeStatus(newEntity.Status);
+        {
+            Result detailsResult = existingEntity.UpdateDetails(
+                newEntity.Name,
+                newEntity.Description,
+                newEntity.Priority,
+                newEntity.Date);
+
+            if (!detailsResult.Success)
+            {
+                throw new InvalidOperationException(detailsResult.Message);
+            }
+
+            if (existingEntity.Status != newEntity.Status)
+            {
+                Result statusResult = existingEntity.ChangeStatus(newEntity.Status);
+                if (!statusResult.Success)
+                {
+                    throw new InvalidOperationException(statusResult.Message);
+                }
+            }
         }
 
         public async Task<List<Job>> GetRunningJobsAsync()

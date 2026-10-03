@@ -33,6 +33,17 @@ namespace AgroEco.Core.Triggers
             Name = name;
         }
 
+        public Result UpdateDetails(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return Result.CreateFailure("Trigger name can't be empty");
+            }
+
+            Name = name.Trim();
+            return Result.CreateSuccess();
+        }
+
         public Result Subscribe(ITriggerable triggerable)
         {
             ArgumentNullException.ThrowIfNull(triggerable);

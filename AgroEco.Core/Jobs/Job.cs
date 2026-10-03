@@ -61,14 +61,29 @@ namespace AgroEco.Core.Jobs
             }
             Job t = new(name, status, description, priority, DateTime.Now, actions, trigger);
 
-            if (status == Status.Running)
-            {
-                await t.OnTrigger();
-            }
 
             return Result<Job>.CreateSuccess(t, "job create successfully");
 
         }
+
+        public Result UpdateDetails(
+            string name,
+            string? description,
+            int? priority,
+            DateTime? date)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return Result.CreateFailure("Name can't be empty");
+            }
+
+            Name = name.Trim();
+            Description = description;
+            Priority = priority;
+            Date = date;
+            return Result.CreateSuccess();
+        }
+
         public async Task<Result> OnTrigger()
         {   
             
