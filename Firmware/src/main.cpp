@@ -12,14 +12,18 @@
 
 using namespace std;
 
+
 //variablesxd
+//variable de tiempos 
+long ultimaLectura = 0 ;
+
 //textofijo para mandar mensajes
 const String jsonTypeRead = "reading";
 const String jsonTypeFailed = "fault";
 sensorHumedadAmbiente sensorHumedadAmb(4);
 sensorHumedadSuelo sensorHSuelo(34,300, 4095);
 sensorTempAmbiente sensorTempAmb(4);
-sensorLuz senLuz(35,0,4095);
+sensorLuz senLuz(35,4095, 0);
 sensorTempSuelo tempSuelo(32);
 
 //actuadores
@@ -66,36 +70,40 @@ void loop()
         conected = true;
       }
     }
-  }
-  delay(800);
+  } 
  
-
   registrer mi;
+  unsigned long ahora = millis() ; 
   //revisalo aver como lo ves roberto
-  for (int i = 0; i < cantidadSensores; i++)
+  if(ahora  - ultimaLectura >= 3000)
   {
-
-    //temporral prueba 
-    Serial.println("ejecutando sensor:");
-    Serial.println(i);
-    if(sensores[i]->GetStatus() == 1) //XD que raro para acceder a propiedades eso  -> y no . xD
+    
+    for (int i = 0; i < cantidadSensores; i++)
     {
-      int valor = sensores[i]->Read();
-      String sensorName = sensores[i]->GetName();
+    
+      //temporral prueba 
+      Serial.println("ejecutando sensor:");
+      Serial.println(i);
+      if(sensores[i]->GetStatus() == 1) //XD que raro para acceder a propiedades eso  -> y no . xD
+      {
+        int valor = sensores[i]->Read();
+        String sensorName = sensores[i]->GetName();
 
-      String json = "{\"type\": \"" + jsonTypeRead + "\" , \"componentId\": \"" + sensorName + "\" , \"value\": " + valor + "}" ;
-      
-      //lo convierto porque use el String de arduino :'0
-      mi.SendContent(string(json.c_str()));
+        String json = "{\"type\": \"" + jsonTypeRead + "\" , \"componentId\": \"" + sensorName + "\" , \"value\": " + valor + "}" ;
+        
+        //lo convierto porque use el String de arduino :'0
+        mi.SendContent(string(json.c_str()));
 
-      
+        
+      }
+      else 
+      {
+        String sensorName = sensores[i]->GetName();
+        String json = "{\"type\": \"" + jsonTypeFailed + "\" , \"componentId\": \"" + sensorName + "\" , \"error\": \"el sensor no se pudo conectar o esta defectuoso\"}";
+        mi.SendContent(string(json.c_str()));
+      }
     }
-    else 
-    {
-      String sensorName = sensores[i]->GetName();
-      String json = "{\"type\": \"" + jsonTypeFailed + "\" , \"componentId\": \"" + sensorName + "\" , \"error\": \"el sensor no se pudo conectar o esta defectuoso\"}";
-      mi.SendContent(string(json.c_str()));
-    }
+    ultimaLectura = ahora;
   }
   //nota elimine un codigo que era de prueba supongo era un hola xd
 
@@ -104,7 +112,6 @@ void loop()
     
     Serial.println(result.c_str());
     mi.DataQueue.pop();
-    delay(2000);
   }
 
   
