@@ -1,0 +1,15 @@
+/* Iosevka Charon FONT */
+@import "@fontsource/iosevka-charon/400.css";
+@import "@fontsource/iosevka-charon/500.css";
+@import "@fontsource/iosevka-charon/600.css";
+@import "@fontsource/iosevka-charon/700.css";
+
+/*JetBrains Mono Font para la terminal */
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+
+/* poppins Font general del programa */
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
