@@ -17,6 +17,9 @@ importers:
       '@fontsource/poppins':
         specifier: ^5.3.0
         version: 5.3.0
+      '@fortawesome/fontawesome-free':
+        specifier: 6.4.0
+        version: 6.4.0
       chart.js:
         specifier: 4.5.1
         version: 4.5.1
@@ -44,6 +47,10 @@ packages:
 
   '@fontsource/poppins@5.3.0':
     resolution: {integrity: sha512-cms1nM7U6SN8epIV1WMVOV8VsA645aSm3wHfzIQnkk188U341ThbJGSl2Sv54V29gnDbT2arMPfLzvVIIVCceQ==}
+
+  '@fortawesome/fontawesome-free@6.4.0':
+    resolution: {integrity: sha512-0NyytTlPJwB/BF5LtRV8rrABDbe3TdTXqNB3PdZ+UUUZAEIrdOJdmABqKjt4AXwIoJNaRVVZEXxpNrqvE1GAYQ==}
+    engines: {node: '>=6'}
 
   '@kurkle/color@0.3.4':
     resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
@@ -352,6 +359,8 @@ snapshots:
   '@fontsource/jetbrains-mono@5.3.0': {}
 
   '@fontsource/poppins@5.3.0': {}
+
+  '@fortawesome/fontawesome-free@6.4.0': {}
 
   '@kurkle/color@0.3.4': {}
 
