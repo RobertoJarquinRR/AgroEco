@@ -81,6 +81,7 @@ namespace AgroEco.Data
             // Mapeo  Triggers
             modelBuilder.Entity<Trigger>(entity =>
             {
+                entity.UseTptMappingStrategy();
                 entity.ToTable("Triggers");
                 entity.HasKey(t => t.Id);
 

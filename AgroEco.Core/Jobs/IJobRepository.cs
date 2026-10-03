@@ -6,11 +6,11 @@ namespace AgroEco.Core.Jobs
 {
     public interface IJobRepository
     {
-        Task<List<Job>> GetRunningJobsAsync();
+        Task<List<Job>> GetRunningJobsAsync(
+            CancellationToken ct = default);
 
         Task<Job?> GetByIdWithDetailsAsync(
         int id,
         CancellationToken ct = default);
     }
 }
-

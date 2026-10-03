@@ -32,13 +32,15 @@ namespace AgroEco.Data.Repositories
             }
         }
 
-        public async Task<List<Job>> GetRunningJobsAsync()
+        public async Task<List<Job>> GetRunningJobsAsync(
+            CancellationToken ct = default)
         {
             return await _context.Jobs
             .Where(j => j.Status == Status.Running)
+            .AsNoTracking()
             .Include(j => j.Trigger)
             .Include(j => j.Actions)
-            .ToListAsync();
+            .ToListAsync(ct);
         }
 
         public async Task<Job?> GetByIdWithDetailsAsync(int id, CancellationToken ct = default)
