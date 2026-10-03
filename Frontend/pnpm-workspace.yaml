@@ -1,2 +1,2 @@
 allowBuilds:
-  '@fortawesome/fontawesome-free': set this to true or false
+  '@fortawesome/fontawesome-free': false
