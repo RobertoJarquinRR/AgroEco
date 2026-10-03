@@ -76,6 +76,19 @@ namespace AgroEco.UI
                     EnviarAlturaMaxima(distancia);
                 break;
 
+                case "ready_plagas":
+                    enviarPlagas();
+                    break;
+
+                case "obtenerDetallesPlaga":
+                    EnviarDatosPlaga(mensaje.Payload);
+                    EnviarCultivosPlaga(mensaje.Payload);
+                    break;
+
+                case "obtenerDetallesCultivo":
+                    EnviarDetallesCultivoPlaga(mensaje.Payload);
+                    break;
+
                 default:
                     System.Diagnostics.Debug.WriteLine($"Tipo de mensaje sin manejar: {mensaje.Type}");
                 break;
@@ -131,6 +144,185 @@ namespace AgroEco.UI
             //calculos de altura maxima basada en la distancia de siembra
             double alturaCalculada = Math.Round(distancia * 0.65,2);
             EnviarAJS("alturaMaxima", alturaCalculada);
+        }
+
+
+        //datos del json de plagas
+        private JsonDocument? CargarPlagasJson()
+        {
+            string rutaJson = Path.Combine(
+                AppContext.BaseDirectory,
+                "..",
+                "..",
+                "..",
+                "..",
+                "Frontend",
+                "public",
+                "data",
+                "plagas.json"
+            );
+
+            if (!File.Exists(rutaJson))
+            {
+                return null;
+            }
+
+            string json = File.ReadAllText(rutaJson);
+
+            return JsonDocument.Parse(json);
+        }
+
+        //enviar datos de modulo plagas
+        private void enviarPlagas()
+        {
+            using JsonDocument? documento = CargarPlagasJson();
+
+            if (documento == null)
+            {
+                EnviarAJS("cargar_plagas", Array.Empty<object>());
+                return;
+            }
+
+            var plagas = documento.RootElement
+                .EnumerateArray()
+                .Select(plaga => new
+                {
+                    id = plaga.GetProperty("id").GetInt32(),
+                    nombre = plaga.GetProperty("nombre").GetString(),
+                    cientifico = plaga.GetProperty("cientifico").GetString()
+                })
+                .ToList();
+
+            EnviarAJS("cargar_plagas", plagas);
+        }
+
+        private void EnviarDatosPlaga(JsonElement payload)
+        {
+            int idPlaga = payload.GetInt32();
+
+            using JsonDocument? documento = CargarPlagasJson();
+
+            if (documento == null)
+            {
+                EnviarAJS("cargar_detalles_plaga", Array.Empty<object>());
+                return;
+            }
+
+            JsonElement plagaEncontrada = documento.RootElement
+                .EnumerateArray()
+                .FirstOrDefault(plaga =>
+                    plaga.GetProperty("id").GetInt32() == idPlaga
+                );
+
+            if (plagaEncontrada.ValueKind == JsonValueKind.Undefined)
+            {
+                EnviarAJS("cargar_detalles_plaga", null);
+                return;
+            }
+
+            var datos = new
+            {
+                id = plagaEncontrada.GetProperty("id").GetInt32(),
+                nombre = plagaEncontrada.GetProperty("nombre").GetString(),
+                cientifico = plagaEncontrada.GetProperty("cientifico").GetString(),
+                riesgo = plagaEncontrada.GetProperty("riesgo").GetString(),
+                desc = plagaEncontrada.GetProperty("desc").GetString()
+            };
+
+            EnviarAJS("cargar_detalles_plaga", datos);
+        }
+
+        private void EnviarCultivosPlaga(JsonElement payload)
+        {
+            int idPlaga = payload.GetInt32();
+
+            using JsonDocument? documento = CargarPlagasJson();
+
+            if (documento == null)
+            {
+                EnviarAJS("cargar_cultivos", Array.Empty<object>());
+                return;
+            }
+
+            JsonElement plagaEncontrada = documento.RootElement
+                .EnumerateArray()
+                .FirstOrDefault(plaga =>
+                    plaga.GetProperty("id").GetInt32() == idPlaga
+                );
+
+            if (plagaEncontrada.ValueKind == JsonValueKind.Undefined)
+            {
+                EnviarAJS("cargar_cultivos", Array.Empty<object>());
+                return;
+            }
+
+            var cultivos = plagaEncontrada
+                .GetProperty("cultivos")
+                .EnumerateArray()
+                .Select(cultivo => new
+                {
+                    idCultivo = cultivo.GetProperty("idCultivo").GetInt32(),
+                    nombreCultivo = cultivo.GetProperty("nombreCultivo").GetString()
+                })
+                .ToList();
+
+            EnviarAJS("cargar_cultivos", cultivos);
+        }
+
+        private void EnviarDetallesCultivoPlaga(JsonElement payload)
+        {
+            int idPlaga = payload.GetProperty("idPlaga").GetInt32();
+            int idCultivo = payload.GetProperty("idCultivo").GetInt32();
+
+            using JsonDocument? documento = CargarPlagasJson();
+
+            if (documento == null)
+            {
+                EnviarAJS("cargar_detalles_cultivo", Array.Empty<object>());
+                return;
+            }
+
+            JsonElement plagaEncontrada = documento.RootElement
+                .EnumerateArray()
+                .FirstOrDefault(plaga =>
+                    plaga.GetProperty("id").GetInt32() == idPlaga
+                );
+
+            if (plagaEncontrada.ValueKind == JsonValueKind.Undefined)
+            {
+                EnviarAJS("cargar_detalles_cultivo", null);
+                return;
+            }
+
+            JsonElement cultivoEncontrado = plagaEncontrada
+                .GetProperty("cultivos")
+                .EnumerateArray()
+                .FirstOrDefault(cultivo =>
+                    cultivo.GetProperty("idCultivo").GetInt32() == idCultivo
+                );
+
+            if (cultivoEncontrado.ValueKind == JsonValueKind.Undefined)
+            {
+                EnviarAJS("cargar_detalles_cultivo", null);
+                return;
+            }
+
+            var datos = new
+            {
+                idCultivo = cultivoEncontrado.GetProperty("idCultivo").GetInt32(),
+                nombreCultivo = cultivoEncontrado.GetProperty("nombreCultivo").GetString(),
+                comoIdentificar = cultivoEncontrado.GetProperty("comoIdentificar").GetString(),
+                pasosIdentificacion = cultivoEncontrado
+                    .GetProperty("pasosIdentificacion")
+                    .EnumerateArray()
+                    .Select(paso => paso.GetString())
+                    .ToList(),
+                formulaTratamiento = cultivoEncontrado.GetProperty("formulaTratamiento").GetString(),
+                dosisPor20Litros = cultivoEncontrado.GetProperty("dosisPor20Litros").GetString(),
+                frecuenciaTratamiento = cultivoEncontrado.GetProperty("frecuenciaTratamiento").GetString()
+            };
+
+            EnviarAJS("cargar_detalles_cultivo", datos);
         }
 
         private void EnviarAJS(string type, object payload)
