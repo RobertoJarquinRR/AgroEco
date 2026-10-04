@@ -5,14 +5,17 @@ using System.Windows;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Data.Common;
+using AgroEco.UI.Mensajeros;
 
 namespace AgroEco.UI
 {
     public partial class MainWindow : Window
     {
+        private readonly MsgRouter _router;
         public MainWindow()
         {
             InitializeComponent();
+            _router = new MsgRouter(EnviarAJS);
             InitializeAsync();
         }
 
@@ -47,6 +50,7 @@ namespace AgroEco.UI
             {
                 return;
             }
+            if (_router.Enrutar(mensaje)) return;
 
             switch (mensaje.Type)
             {
@@ -325,23 +329,13 @@ namespace AgroEco.UI
             EnviarAJS("cargar_detalles_cultivo", datos);
         }
 
-        private void EnviarAJS(string type, object payload)
+        private void EnviarAJS(string type, object? payload)
         {
             var msg = new { type, payload };
             string json = JsonSerializer.Serialize(msg);
             webView.CoreWebView2.PostWebMessageAsJson(json);
         }
     }
-
-    //aqui la voy a poner ojo es de prueba despues e acomoda
-    public class Mensaje
-    {
-        
-        [JsonPropertyName("type")]
-        public string Type { get; set; } = string.Empty;
-        [JsonPropertyName("payload")]
-        public JsonElement Payload { get; set; }
-
-        
-    }
+   
+    
 }
