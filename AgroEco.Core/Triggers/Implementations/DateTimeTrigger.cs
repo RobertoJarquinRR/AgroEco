@@ -54,7 +54,6 @@ namespace AgroEco.Core.Triggers.Implementations
                     TimeSpan remaining = TargetTime - now;
                     TimeSpan waitInterval = CalculateAdaptiveInterval(remaining);
 
-                    Console.WriteLine($"Approximate time remaining: {remaining.Days} days, {remaining.Hours} hours. Next check in: {waitInterval.TotalSeconds} seconds.");
 
                     await Task.Delay(waitInterval, ExecutionToken);
                 }
