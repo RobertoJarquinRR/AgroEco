@@ -8,7 +8,7 @@ using AgroEco.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
-namespace jobs
+namespace AgroEco.Core.UnitTests
 {
     public class UnitTest1
     {
@@ -52,7 +52,7 @@ namespace jobs
                 null,
                 Status.Created,
                 null,
-                new List<AgroEco.Core.Jobs.Actions.Action>(),
+                new List<Jobs.Actions.Action>(),
                 trigger);
 
             Assert.True(result.Success);
@@ -109,7 +109,7 @@ namespace jobs
                     "description",
                     Status.Created,
                     1,
-                    new List<AgroEco.Core.Jobs.Actions.Action> { action },
+                    new List<Jobs.Actions.Action> { action },
                     trigger);
 
                 Assert.True(creation.Success);
