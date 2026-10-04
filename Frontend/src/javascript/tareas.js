@@ -13,7 +13,7 @@ const AgroBridge = (() => {
             console.warn(`[AgroBridge] WebView2 no disponible. Se intentó enviar: ${type}`, payload);
             return;
         }
-        window.chrome.webview.postMessage({ type, payload });
+        window.chrome.webview.postMessage({ screen: "tareas", type, payload });
     }
 
     function on(type, callback) {
