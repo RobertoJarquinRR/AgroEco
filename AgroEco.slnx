@@ -1,6 +1,11 @@
 <Solution>
-  <Project Path="AgroEco.Data/AgroEco.Data.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="AgroEco.Hardware.UnitTests/AgroEco.Hardware.UnitTests.csproj" Id="8761a0a9-1d2d-4f90-a0d1-7251f62393ad" />
+    <Project Path="Tests/AgroEco.Data.UnitTests/AgroEco.Data.UnitTests.csproj" Id="c35d5178-e765-4c0c-a1b6-aadbfde008b6" />
+    <Project Path="Tests/jobs/AgroEco.Core.UnitTests.csproj" Id="848cd9f6-eef9-4ffe-8eb0-ce5c7ad93954" />
+  </Folder>
   <Project Path="AgroEco.Core/AgroEco.Core.csproj" />
+  <Project Path="AgroEco.Data/AgroEco.Data.csproj" />
   <Project Path="AgroEco.Hardware/AgroEco.Hardware.csproj" />
   <Project Path="AgroEco.UI/AgroEco.UI.csproj" />
 </Solution>
