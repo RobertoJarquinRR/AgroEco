@@ -47,12 +47,6 @@ namespace AgroEco.Core.Triggers.Implementations
 
         public override async Task<Result> InitTrigger()
         {
-           
-            if (DateTimeOffset.UtcNow >= TargetTime)
-            {
-                return Result.CreateFailure("The target time has already passed. Trigger cannot be initialized.");
-            }
-
             try
             {
                 while (!ExecutionToken.IsCancellationRequested)

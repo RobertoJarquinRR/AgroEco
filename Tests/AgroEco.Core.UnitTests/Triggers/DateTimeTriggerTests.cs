@@ -1,6 +1,8 @@
 using AgroEco.Core;
 using AgroEco.Core.Triggers.Configuration;
+using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Implementations;
+using Moq;
 
 namespace AgroEco.Core.UnitTests.Triggers;
 
@@ -70,6 +72,27 @@ public sealed class DateTimeTriggerTests
         // Assert
         Assert.False(result.Success);
         Assert.Contains("future", result.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task InitTrigger_WhenTargetTimeHasJustPassed_ExecutesSubscribersImmediately()
+    {
+        // Arrange
+        DateTimeTrigger trigger = new(
+            "watering",
+            DateTimeOffset.UtcNow.AddMilliseconds(-1));
+        Mock<ITriggerable> triggerable = new();
+        triggerable
+            .Setup(value => value.OnTrigger())
+            .ReturnsAsync(Result.CreateSuccess());
+        trigger.Subscribe(triggerable.Object);
+
+        // Act
+        Result result = await trigger.InitTrigger();
+
+        // Assert
+        Assert.True(result.Success);
+        triggerable.Verify(value => value.OnTrigger(), Times.Once);
     }
 
 }
