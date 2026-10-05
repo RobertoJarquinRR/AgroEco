@@ -7,7 +7,7 @@ namespace AgroEco.Core.Jobs.Actions.Implementations
     public class ActionTest : Action
     {
 
-        public ActionTest(string name, Status status) : base(name)
+        public ActionTest(string name) : base(name)
         {
         }
 
