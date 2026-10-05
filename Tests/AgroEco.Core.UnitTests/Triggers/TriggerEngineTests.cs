@@ -221,6 +221,39 @@ public sealed class TriggerEngineTests
                 && result.Message!.Contains("Test trigger failure"));
     }
 
+    [Fact]
+    public async Task SubscribeAsync_AfterCompletedTrigger_CreatesFreshTrigger()
+    {
+        // Arrange
+        Mock<IRepository<Trigger>> repository = new();
+        DateTimeTrigger completedTrigger = new(
+            "Test trigger",
+            DateTimeOffset.UtcNow);
+        DateTimeTrigger freshTrigger = new(
+            "Test trigger",
+            DateTimeOffset.UtcNow.AddHours(1));
+        repository
+            .SetupSequence(value => value.GetByIdAsync(
+                7,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(completedTrigger)
+            .ReturnsAsync(freshTrigger);
+        using ServiceProvider provider = BuildProvider(repository.Object);
+        TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
+        await engine.SubscribeAsync(7, Mock.Of<ITriggerable>());
+        await engine.StartAsync(7);
+        await Task.Delay(100);
+
+        // Act
+        Result result = await engine.SubscribeAsync(7, Mock.Of<ITriggerable>());
+
+        // Assert
+        Assert.True(result.Success);
+        repository.Verify(
+            value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()),
+            Times.Exactly(2));
+    }
+
     private sealed class FailingTrigger : Trigger
     {
         public FailingTrigger(string name) : base(name)

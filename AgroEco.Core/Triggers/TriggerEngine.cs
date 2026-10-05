@@ -28,10 +28,10 @@ public sealed class TriggerEngine
             Trigger? registeredTrigger = _registry.Get(triggerId);
             if (registeredTrigger is not null)
             {
-                if ((registeredTrigger.RuntimeStatus is TriggerRuntimeStatus.Completed
-                    or TriggerRuntimeStatus.Stopped
-                    or TriggerRuntimeStatus.Faulted)
-                    && !registeredTrigger.HasTriggerables)
+                if (registeredTrigger.RuntimeStatus is TriggerRuntimeStatus.Completed
+                    or TriggerRuntimeStatus.Faulted
+                    || (registeredTrigger.RuntimeStatus == TriggerRuntimeStatus.Stopped
+                        && !registeredTrigger.HasTriggerables))
                 {
                     _registry.Unregister(triggerId);
                 }
