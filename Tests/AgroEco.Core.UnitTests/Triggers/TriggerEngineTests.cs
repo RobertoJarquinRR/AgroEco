@@ -1,4 +1,6 @@
 using AgroEco.Core.Interfaces;
+using AgroEco.Core.Jobs;
+using AgroEco.Core.Jobs.Actions.Implementations;
 using AgroEco.Core.Jobs.Persistence;
 using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Implementations;
@@ -114,6 +116,60 @@ public sealed class TriggerEngineTests
         Assert.Same(trigger, registeredResult.Value);
         repository.Verify(
             value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task StartAsync_WithDateTimeJob_CompletesJobAfterTargetTime()
+    {
+        // Arrange
+        Mock<IRepository<Trigger>> triggerRepository = new();
+        Mock<IRepository<Job>> jobRepository = new();
+        Mock<IUnitOfWork> unitOfWork = new();
+        DateTimeTrigger trigger = new(
+            "Test trigger",
+            DateTimeOffset.UtcNow.AddSeconds(1));
+        Result<Job> jobResult = await Job.CreateJob(
+            "Test job",
+            "Timer integration test",
+            Status.Created,
+            1,
+            [new NoOpAction("Test action")],
+            trigger);
+        Assert.True(jobResult.Success);
+        Job job = jobResult.Value!;
+        triggerRepository
+            .Setup(value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trigger);
+        jobRepository
+            .Setup(value => value.GetByIdAsync(
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(job);
+        TaskCompletionSource<Job> completion =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        using ServiceProvider provider = BuildProvider(
+            triggerRepository.Object,
+            jobRepository.Object,
+            unitOfWork.Object);
+        TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
+        engine.JobExecutionCompleted += completed => completion.TrySetResult(completed);
+        await engine.SubscribeAsync(7, job);
+
+        // Act
+        Result startResult = await engine.StartAsync(7);
+        Job completedJob = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        // Assert
+        Assert.True(startResult.Success);
+        Assert.Same(job, completedJob);
+        Assert.Equal(Status.Succeeded, job.Status);
+        Assert.Equal(Status.Succeeded, job.Actions.Single().Status);
+        jobRepository.Verify(
+            value => value.UpdateAsync(job, It.IsAny<CancellationToken>()),
+            Times.Once);
+        unitOfWork.Verify(
+            value => value.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
