@@ -111,9 +111,33 @@
                     <option value="alta">Alta</option>
                 </select>
             </label>
-            <label>Fecha límite *
-                <input type="date" id="inputFecha" required>
-            </label>
+            <section class="automation-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Trigger</h2>
+                        <p>Define cuándo se ejecutará la tarea.</p>
+                    </div>
+                    <button type="button" id="btn-cargar-triggers">Actualizar tipos</button>
+                </div>
+                <label>Tipo de trigger
+                    <select id="trigger-type"></select>
+                </label>
+                <div id="trigger-config" class="dynamic-fields"></div>
+            </section>
+
+            <section class="automation-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Action</h2>
+                        <p>Define qué hará la tarea.</p>
+                    </div>
+                    <button type="button" id="btn-cargar-actions">Actualizar tipos</button>
+                </div>
+                <label>Tipo de action
+                    <select id="action-type"></select>
+                </label>
+                <div id="action-config" class="dynamic-fields"></div>
+            </section>
             
             <label>Estado Inicial<br>
                 <select id="estado-inicial">

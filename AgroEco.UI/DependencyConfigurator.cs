@@ -1,7 +1,9 @@
 ﻿using AgroEco.Core;
 using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs;
+using AgroEco.Core.Jobs.Actions;
 using AgroEco.Core.Jobs.Persistence;
+using AgroEco.Core.Triggers;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
 using AgroEco.UI.Handlers;
@@ -40,10 +42,13 @@ namespace AgroEco.UI
                     sp.GetRequiredService<CreateJob>(),
                     sp.GetRequiredService<GetAllJob>(),
                     sp.GetRequiredService<GetRunningJobs>(),
-                    sp.GetRequiredService<GetByIdJob>(),
+                    sp.GetRequiredService<GetByIdJobWithDetails>(),
                     sp.GetRequiredService<UpdateJob>(),
                     sp.GetRequiredService<DeleteJob>(),
                     sp.GetRequiredService<JobEngine>(),
+                    sp.GetRequiredService<TriggerEngine>(),
+                    sp.GetRequiredService<ITriggerFactory>(),
+                    sp.GetRequiredService<IActionFactory>(),
                     logger);
             });
 

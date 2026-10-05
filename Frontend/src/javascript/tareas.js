@@ -56,6 +56,58 @@ const AgroBridge = (() => {
 // AQUI ESTA LA UNICA DECLARACION DE LA VARIABLE GLOBAL
 let tareasLocales = [];
 let filtroActual = 'todas';
+let triggerDescriptors = [];
+let actionDescriptors = [];
+let configuracionTareaEditando = null;
+
+function descriptorValue(descriptor, name) {
+    return descriptor[name] ?? descriptor[name[0].toUpperCase() + name.slice(1)];
+}
+
+function renderDynamicForm(container, descriptor, currentConfig = {}) {
+    container.innerHTML = '';
+    const fields = descriptorValue(descriptor, 'fields') || [];
+
+    fields.forEach(field => {
+        const name = descriptorValue(field, 'name');
+        const label = descriptorValue(field, 'label');
+        const inputType = descriptorValue(field, 'inputType') || 'text';
+        const required = descriptorValue(field, 'required');
+        const input = document.createElement('input');
+        input.type = inputType;
+        input.name = name;
+        input.dataset.configField = name;
+        input.required = required !== false;
+        input.value = currentConfig[name] ?? '';
+
+        const wrapper = document.createElement('label');
+        wrapper.textContent = label;
+        wrapper.appendChild(input);
+        container.appendChild(wrapper);
+    });
+}
+
+function renderDescriptorOptions(select, descriptors, container, config = {}) {
+    select.innerHTML = '';
+    descriptors.forEach(descriptor => {
+        const option = document.createElement('option');
+        option.value = descriptorValue(descriptor, 'typeId');
+        option.textContent = descriptorValue(descriptor, 'displayName');
+        select.appendChild(option);
+    });
+
+    const selected = descriptors.find(d =>
+        descriptorValue(d, 'typeId') === select.value);
+    if (selected) renderDynamicForm(container, selected, config);
+}
+
+function collectDynamicConfig(container) {
+    const config = {};
+    container.querySelectorAll('[data-config-field]').forEach(input => {
+        config[input.dataset.configField] = input.value;
+    });
+    return config;
+}
 
 const estadoConfig = {
     pendiente:  { label: 'Pendiente',   color: '#4A6FA5', bg: '#E3EAF3' },
@@ -89,23 +141,20 @@ function crearCardTarea(tarea) {
         </div>
         <p class="tarea-desc">${tarea.descripcion ?? ''}</p>
         <div class="tarea-meta">
-            <span>📅 <strong>Vence:</strong> ${tarea.fechaLimite}</span>
             <span>👤 <strong>Asignado:</strong> ${tarea.asignado}</span>
             <span class="tarea-prioridad" style="color:${prioridad.color}; background:${prioridad.bg}">
                 ${prioridad.label}
             </span>
         </div>
         <div class="tarea-acciones">
-            <button class="btn-completar">✓ Marcar Completada</button>
+            <button class="btn-ejecutar">▶ Ejecutar</button>
             <button class="btn-editar">✎ Editar</button>
             <button class="btn-eliminar">🗑 Eliminar</button>
         </div>
     `;
 
-    card.querySelector('.btn-completar').addEventListener('click', () => {
-        AgroBridge.send('actualizarEstadoTarea', { id: tarea.id, estado: 'completada' });
-        tarea.estado = 'completada';
-        renderizarTareas(tareasLocales);
+    card.querySelector('.btn-ejecutar').addEventListener('click', () => {
+        AgroBridge.send('ejecutarTarea', { id: tarea.id });
     });
 
     card.querySelector('.btn-editar').addEventListener('click', () => {
@@ -211,19 +260,66 @@ const btnGuardar = botonesDialog[1];
 
 let modoEdicion = false;
 let idTareaEditando = null;
+const triggerType = document.getElementById('trigger-type');
+const triggerConfig = document.getElementById('trigger-config');
+const actionType = document.getElementById('action-type');
+const actionConfig = document.getElementById('action-config');
+
+function solicitarTiposConfigurables() {
+    AgroBridge.send('obtenerTriggersDisponibles');
+    AgroBridge.send('obtenerActionsDisponibles');
+}
+
+function cargarTriggerDescriptors(descriptors) {
+    triggerDescriptors = Array.isArray(descriptors) ? descriptors : [];
+    renderDescriptorOptions(
+        triggerType,
+        triggerDescriptors,
+        triggerConfig,
+        configuracionTareaEditando?.triggerConfig || {});
+}
+
+function cargarActionDescriptors(descriptors) {
+    actionDescriptors = Array.isArray(descriptors) ? descriptors : [];
+    renderDescriptorOptions(
+        actionType,
+        actionDescriptors,
+        actionConfig,
+        configuracionTareaEditando?.actionConfig || {});
+}
+
+function configurarSelectoresDinamicos() {
+    triggerType.addEventListener('change', () => {
+        const descriptor = triggerDescriptors.find(d =>
+            descriptorValue(d, 'typeId') === triggerType.value);
+        if (descriptor) renderDynamicForm(triggerConfig, descriptor);
+    });
+    actionType.addEventListener('change', () => {
+        const descriptor = actionDescriptors.find(d =>
+            descriptorValue(d, 'typeId') === actionType.value);
+        if (descriptor) renderDynamicForm(actionConfig, descriptor);
+    });
+    document.getElementById('btn-cargar-triggers')
+        .addEventListener('click', solicitarTiposConfigurables);
+    document.getElementById('btn-cargar-actions')
+        .addEventListener('click', solicitarTiposConfigurables);
+}
 
 function abrirDialogCrear() {
     modoEdicion = false;
     idTareaEditando = null;
+    configuracionTareaEditando = null;
     dialogNuevaTarea.querySelector('h1').textContent = 'Nueva tarea';
     btnGuardar.textContent = 'Guardar tarea';
     limpiarCampos();
+    solicitarTiposConfigurables();
     dialogNuevaTarea.showModal();
 }
 
 function abrirDialogEditar(tarea) {
     modoEdicion = true;
     idTareaEditando = tarea.id;
+    configuracionTareaEditando = tarea;
     dialogNuevaTarea.querySelector('h1').textContent = 'Editar tarea';
     btnGuardar.textContent = 'Guardar cambios';
 
@@ -231,8 +327,8 @@ function abrirDialogEditar(tarea) {
     document.getElementById('desc-tarea').value = tarea.descripcion ?? '';
     document.getElementById('respo-tarea').value = tarea.asignado ?? '';
     document.getElementById('inputPrioridad').value = tarea.prioridad;
-    document.getElementById('inputFecha').value = tarea.fechaLimiteISO ?? tarea.fechaLimite;
     document.getElementById('estado-inicial').value = tarea.estado;
+    solicitarTiposConfigurables();
 
     dialogNuevaTarea.showModal();
 }
@@ -242,8 +338,10 @@ function limpiarCampos() {
     document.getElementById('desc-tarea').value = '';
     document.getElementById('respo-tarea').value = '';
     document.getElementById('inputPrioridad').value = 'baja';
-    document.getElementById('inputFecha').value = '';
     document.getElementById('estado-inicial').value = 'pendiente';
+    triggerConfig.innerHTML = '';
+    actionConfig.innerHTML = '';
+    configuracionTareaEditando = null;
 }
 
 function cerrarDialog() {
@@ -255,10 +353,17 @@ btnCancelar.addEventListener('click', cerrarDialog);
 
 btnGuardar.addEventListener('click', () => {
     const nombre = document.getElementById('name-tarea').value.trim();
-    const fechaLimite = document.getElementById('inputFecha').value;
 
-    if (!nombre || !fechaLimite) {
-        alert('Nombre y fecha límite son obligatorios.');
+    if (!nombre || !triggerType.value || !actionType.value) {
+        alert('Nombre, trigger y action son obligatorios.');
+        return;
+    }
+
+    const collectedTriggerConfig = collectDynamicConfig(triggerConfig);
+    const collectedActionConfig = collectDynamicConfig(actionConfig);
+    if (Object.values(collectedTriggerConfig).some(value => value === '') ||
+        Object.values(collectedActionConfig).some(value => value === '')) {
+        alert('Completa la configuración del trigger y la action.');
         return;
     }
 
@@ -267,8 +372,11 @@ btnGuardar.addEventListener('click', () => {
         descripcion: document.getElementById('desc-tarea').value,
         asignado: document.getElementById('respo-tarea').value,
         prioridad: document.getElementById('inputPrioridad').value,
-        fechaLimite: fechaLimite,
         estado: document.getElementById('estado-inicial').value,
+        triggerTypeId: triggerType.value,
+        triggerConfig: collectedTriggerConfig,
+        actionTypeId: actionType.value,
+        actionConfig: collectedActionConfig,
     };
 
     if (modoEdicion) {
@@ -294,7 +402,14 @@ btnGuardar.addEventListener('click', () => {
    ============================================================ */
 AgroBridge.send('obtenerTareas');
 AgroBridge.on('tareasCargadas', renderizarTareas);
+AgroBridge.on('triggersDisponibles', cargarTriggerDescriptors);
+AgroBridge.on('actionsDisponibles', cargarActionDescriptors);
+configurarSelectoresDinamicos();
 
 AgroBridge.on('tareaCreada', () => AgroBridge.send('obtenerTareas'));
 AgroBridge.on('tareaActualizada', () => AgroBridge.send('obtenerTareas'));
 AgroBridge.on('tareaEliminada', () => AgroBridge.send('obtenerTareas'));
+AgroBridge.on('tareaEjecutada', () => AgroBridge.send('obtenerTareas'));
+AgroBridge.on('tareaError', payload => {
+    alert(payload?.mensaje || 'No se pudo ejecutar la tarea.');
+});
