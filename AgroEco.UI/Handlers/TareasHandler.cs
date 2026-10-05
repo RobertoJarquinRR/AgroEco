@@ -55,6 +55,7 @@ namespace AgroEco.UI.Handlers
                 "obtenerTareas" => ObtenerTareasAsync(),
                 "crearTarea" => CrearTareaAsync(msg),
                 "actualizarTarea" => ActualizarTareaAsync(msg),
+                "actualizarEstadoTarea" => ActualizarEstadoTareaAsync(msg),
                 "eliminarTarea" => EliminarTareaAsync(msg),
                 "ejecutarTarea" => EjecutarTareaAsync(msg),
                 _ => Task.CompletedTask
@@ -232,6 +233,59 @@ namespace AgroEco.UI.Handlers
             }
         }
 
+        private async Task ActualizarEstadoTareaAsync(Mensaje msg)
+        {
+            try
+            {
+                var dto = msg.LeerPayload<ActualizarEstadoTareaDto>();
+                if (dto == null || dto.Id <= 0)
+                {
+                    _enviar("tareaError", new { mensaje = "ID inválido" });
+                    return;
+                }
+
+                var jobResult = await _getByIdJob.HandleAsync(dto.Id);
+                if (!jobResult.Success || jobResult.Value == null)
+                {
+                    _enviar("tareaError", new { mensaje = "Tarea no encontrada" });
+                    return;
+                }
+
+                var job = jobResult.Value;
+                var status = dto.Estado switch
+                {
+                    "completada" => Status.Succeeded,
+                    "progreso" => Status.Running,
+                    "pendiente" => Status.Enqueued,
+                    "cancelada" => Status.Canceled,
+                    _ => Status.Enqueued
+                };
+
+                var statusResult = job.ChangeStatus(status);
+                if (!statusResult.Success)
+                {
+                    _enviar("tareaError", new { mensaje = statusResult.Message });
+                    return;
+                }
+
+                var updateResult = await _updateJob.HandleAsync(job);
+                if (updateResult.Success)
+                {
+                    _enviar("tareaActualizada", new { mensaje = "Estado actualizado correctamente" });
+                    await ObtenerTareasAsync();
+                }
+                else
+                {
+                    _enviar("tareaError", new { mensaje = updateResult.Message });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error actualizando estado de tarea");
+                _enviar("tareaError", new { mensaje = ex.Message });
+            }
+        }
+
         private object MappearJobATarea(Job job, bool isRunning)
         {
             var estado = job.Status switch
@@ -285,5 +339,7 @@ namespace AgroEco.UI.Handlers
         private record EliminarTareaDto(int Id);
 
         private record EjecutarTareaDto(int Id);
+
+        private record ActualizarEstadoTareaDto(int Id, string Estado);
     }
 }

@@ -5,7 +5,6 @@ using AgroEco.Core.Jobs.Persistence;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
 using AgroEco.UI.Handlers;
-using AgroEco.UI.Mensajeros;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,7 +31,6 @@ namespace AgroEco.UI
             services.AddCoreServices();
 
             services.AddScoped<MainWindow>();
-            services.AddScoped<MsgRouter>();
 
             services.AddScoped<Func<Action<string, object>, TareasHandler>>(sp => enviar =>
             {
