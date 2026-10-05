@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows.Markup;
+using System.Text.Json.Serialization;
 
 namespace AgroEco.UI.Cultivos
 {
@@ -10,24 +10,21 @@ namespace AgroEco.UI.Cultivos
 
     public class CultivoAfectado
     {
+        [JsonPropertyName("idCultivo")]
         public int Id { get; set; }
+        //este no tiene pero por si acaso dejo nota este tiene diferencia de mayuscula en caso de error
         public string? NombreCultivo { get; set; }
+        [JsonPropertyName("comoIdentificar")]
         public string? ComoIdentificarPlaga { get; set; }
-        public List<string> PasosIdentificacion { get; set; } = new List<string>(); //lo crea lisrto para usar el list
-        public string? FormulaTratamiento { get; set; }
-        public string? DosisRecomendada { get; set; }
-        public string? FrecuenciaAplicacion { get; set; }
 
-        public CultivoAfectado(int id, string? nombreCultivo, string? comoIdentificarPlaga, List<string> pasosIdentificacion, string? formulaTratamiento, string? dosisRecomendada, string? frecuenciaAplicacion)
-        {
-            Id = id;
-            NombreCultivo = nombreCultivo;
-            ComoIdentificarPlaga = comoIdentificarPlaga;
-            PasosIdentificacion = pasosIdentificacion;
-            FormulaTratamiento = formulaTratamiento;
-            DosisRecomendada = dosisRecomendada;
-            FrecuenciaAplicacion = frecuenciaAplicacion;
-        }
+        public List<string> PasosIdentificacion { get; set; } = new List<string>(); //lo crea lisrto para usar el list
+
+        public string? FormulaTratamiento { get; set; }
+        [JsonPropertyName("dosisPor20Litros")]
+        public string? DosisRecomendada { get; set; }
+        [JsonPropertyName("frecuenciaTratamiento")]
+        public string? FrecuenciaAplicacion { get; set; }
+       
 
     }
 }

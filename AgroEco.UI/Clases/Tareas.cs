@@ -15,6 +15,6 @@ namespace AgroEco.UI.Clases
         public string? Estado { get; set; } //pendiente, en progreso, completada los demas estado como por vencer se calcularan en base a la fecha que vence
         public string Prioridad { get; set; } = "Baja"; //baja, media, alta 
         public string? Responsable { get; set; } //el que se encarga de la tarea
-
+       
     }
 }
