@@ -53,21 +53,26 @@ bool conected = false;
 
 queue<string> Stack;
 
+const String connectionChallenge = "ECOAGRO/1 CHALLENGE";
+const String connectionAccept = "ECOAGRO/1 ACCEPT";
+const String connectionReady = "ECOAGRO/1 READY";
+
 void loop()
 {
 
   while (conected == false)
   {
-    Serial.println("canYouconectect?");
+    Serial.println(connectionChallenge);
     delay(400);
     if (Serial.available() > 0)
     {
-      conected = true;
-      char answer = Serial.read();
+      String answer = Serial.readStringUntil('\n');
+      answer.trim();
 
-      if (answer == 'y')
+      if (answer == connectionAccept)
       {
         conected = true;
+        Serial.println(connectionReady);
       }
     }
   } 
