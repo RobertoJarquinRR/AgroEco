@@ -7,7 +7,7 @@ using System.Linq;
 namespace AgroEco.Core.Jobs
 {
     public class Job : ITriggerable, IEntity
-    {       
+    {
         public int Id { get; private set; }
 
         public string Name { get; private set; }
@@ -16,45 +16,49 @@ namespace AgroEco.Core.Jobs
 
         public int? Priority { get; private set; }
 
-        public Status Status { get; private set; } 
+        public Status Status { get; private set; }
 
         public DateTime? Date { get; private set; }
 
-        public List<Action> Actions { get; private set; } = new();
+        public List<Action> Actions { get; private set; } = [];
 
-        public Trigger Trigger { get; private set; }
+        public Trigger Trigger { get; private set; } = null!;
 
 
-        public List<Result> Results { get; private set; } = new();
-     
-        Job(string name, Status status,string? description, int? priority, DateTime? date, List<Action> action, Trigger trigger)
+        public List<Result> Results { get; private set; } = [];
+
+        Job(
+            string name,
+            Status status,
+            string? description,
+            int? priority,
+            DateTime? date,
+            List<Action> actions,
+            Trigger trigger)
         {
-            
             Name = name;
-            this.Status = status;
+            Status = status;
             Description = description;
             Priority = priority;
             Date = date;
-            Actions = action;
+            Actions = actions;
             Trigger = trigger;
         }
 
-        // contructor privado para el orm
-        private Job() {
+        // Private constructor for EF Core.
+        private Job()
+        {
             Name = null!;
-            Trigger = null!;
         }
 
         public static Task<Result<Job>> CreateJob(
-        string name,
-        string? description,
-        Status status,
-        int? priority,
-       
-        List<Action> actions,
-        Trigger trigger)
+            string name,
+            string? description,
+            Status status,
+            int? priority,
+            List<Action> actions,
+            Trigger trigger)
         {
-      
             if (string.IsNullOrWhiteSpace(name))
             {
                 return Task.FromResult(
