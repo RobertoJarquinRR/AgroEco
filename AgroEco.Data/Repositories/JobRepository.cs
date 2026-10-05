@@ -50,12 +50,9 @@ namespace AgroEco.Data.Repositories
                     "The trigger type cannot be updated through the current repository.");
             }
 
-            Result triggerResult = existingDateTime.UpdateConfiguration(
-                new DateTimeTriggerConfiguration(newDateTime.TargetTime));
-            if (!triggerResult.Success)
-            {
-                throw new InvalidOperationException(triggerResult.Message);
-            }
+            _context.Entry(existingDateTime)
+                .Property(trigger => trigger.TargetTime)
+                .CurrentValue = newDateTime.TargetTime;
         }
 
         public async Task<List<Job>> GetRunningJobsAsync(

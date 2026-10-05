@@ -233,6 +233,14 @@ namespace AgroEco.UI.Handlers
                     return;
                 }
 
+                if (targetTime <= DateTimeOffset.UtcNow)
+                {
+                    _enviar(
+                        "tareaError",
+                        new { mensaje = "La hora objetivo debe estar en el futuro." });
+                    return;
+                }
+
                 Result triggerUpdateResult = dateTimeTrigger.UpdateConfiguration(
                     new DateTimeTriggerConfiguration(targetTime));
                 if (!triggerUpdateResult.Success)
