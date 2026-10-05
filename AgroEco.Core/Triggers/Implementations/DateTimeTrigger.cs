@@ -54,13 +54,17 @@ namespace AgroEco.Core.Triggers.Implementations
 
             try
             {
-                while (true)
+                while (!ExecutionToken.IsCancellationRequested)
                 {
                     DateTimeOffset now = DateTimeOffset.UtcNow;
 
-                   
                     if (now >= TargetTime)
                     {
+                        if (ExecutionToken.IsCancellationRequested)
+                        {
+                            return Result.CreateFailure("The operation was canceled.");
+                        }
+
                         List<Result> batchResults = await ExecuteTriggerables();
 
                         if (batchResults.Any(r => !r.Success))
@@ -74,9 +78,10 @@ namespace AgroEco.Core.Triggers.Implementations
                     TimeSpan remaining = TargetTime - now;
                     TimeSpan waitInterval = CalculateAdaptiveInterval(remaining);
 
-
                     await Task.Delay(waitInterval, ExecutionToken);
                 }
+
+                return Result.CreateFailure("The operation was canceled.");
             }
             catch (OperationCanceledException)
             {

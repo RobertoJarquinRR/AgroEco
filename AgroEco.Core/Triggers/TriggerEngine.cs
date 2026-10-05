@@ -206,10 +206,14 @@ public sealed class TriggerEngine
     private void RemoveIfInactive(int triggerId, Trigger trigger)
     {
         if (trigger.RuntimeStatus is TriggerRuntimeStatus.Completed
-            or TriggerRuntimeStatus.Faulted
-            or TriggerRuntimeStatus.Stopped)
+            or TriggerRuntimeStatus.Faulted)
         {
             _registry.Unregister(triggerId);
+            return;
+        }
+
+        if (trigger.RuntimeStatus == TriggerRuntimeStatus.Stopped)
+        {
             return;
         }
 

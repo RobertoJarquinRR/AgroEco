@@ -57,4 +57,5 @@ public sealed class DateTimeTriggerTests
         Assert.False(result.Success);
         Assert.Contains("targetTime", result.Message);
     }
+
 }
