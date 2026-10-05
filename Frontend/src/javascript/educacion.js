@@ -197,6 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         Win.chrome.webview.postMessage({
+            screen: "educacion",
             type: type,
             payload: payload
         });
