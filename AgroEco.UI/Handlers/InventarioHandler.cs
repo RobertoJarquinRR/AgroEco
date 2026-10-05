@@ -25,6 +25,7 @@ namespace AgroEco.UI.Handlers
             switch (msg.Type)
             {
                 case "ready_inventario":
+                    EnviarFincas();
                     EnviarInsumos();
                     break;
 
@@ -49,6 +50,12 @@ namespace AgroEco.UI.Handlers
                     return;
                 }
 
+                DateOnly? caducidad = null;
+                if (!string.IsNullOrWhiteSpace(dto.Caducidad) && DateOnly.TryParse(dto.Caducidad, out var parsed))
+                {
+                    caducidad = parsed;
+                }
+
                 var insumo = new Insumo
                 {
                     Id = _siguienteId++,
@@ -58,7 +65,7 @@ namespace AgroEco.UI.Handlers
                     Cantidad = dto.Cantidad,
                     Unidad = dto.Unidad,
                     StockMin = dto.StockMin,
-                    Caducidad = dto.Caducidad.HasValue ? DateOnly.FromDateTime(dto.Caducidad.Value) : null,
+                    Caducidad = caducidad,
                     Finca = dto.Finca,
                     Descripcion = dto.Descripcion
                 };
@@ -125,6 +132,18 @@ namespace AgroEco.UI.Handlers
             _enviar("listaInsumos", lista);
         }
 
+        private void EnviarFincas()
+        {
+            var fincas = new[]
+            {
+                new { nombre = "Finca El Paraíso" },
+                new { nombre = "Finca La Esperanza" },
+                new { nombre = "Finca San José" },
+                new { nombre = "Finca Los Laureles" }
+            };
+            _enviar("listaFincas", fincas);
+        }
+
         private record CrearInsumoDto(
             string Nombre,
             string Categoria,
@@ -132,7 +151,7 @@ namespace AgroEco.UI.Handlers
             decimal Cantidad,
             string Unidad,
             decimal StockMin,
-            DateTime? Caducidad,
+            string Caducidad,
             string Finca,
             string Descripcion);
 
