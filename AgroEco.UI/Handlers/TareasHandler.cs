@@ -64,6 +64,22 @@ namespace AgroEco.UI.Handlers
 
         private void OnJobExecutionCompleted(Job job)
         {
+            if (job.Status == Status.Faulted)
+            {
+                string? failureMessage = job.Results
+                    .Where(result => !result.Success)
+                    .Select(result => result.Message)
+                    .FirstOrDefault(message => !string.IsNullOrWhiteSpace(message));
+
+                _enviar(
+                    "tareaError",
+                    new
+                    {
+                        mensaje = failureMessage
+                            ?? $"La tarea '{job.Name}' falló durante la ejecución."
+                    });
+            }
+
             _ = ObtenerTareasAsync();
         }
 
