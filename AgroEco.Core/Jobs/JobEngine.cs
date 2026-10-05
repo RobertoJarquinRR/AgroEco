@@ -27,6 +27,8 @@ namespace AgroEco.Core.Jobs
                 using IServiceScope scope = _scopeFactory.CreateScope();
                 GetRunningJobs getRunningJobs = scope.ServiceProvider
                     .GetRequiredService<GetRunningJobs>();
+                UpdateJob updateJob = scope.ServiceProvider
+                    .GetRequiredService<UpdateJob>();
                 var result = await getRunningJobs.HandleAsync(cancellationToken);
 
                 if (result.Value == null || result.Value.Count == 0)
@@ -37,7 +39,7 @@ namespace AgroEco.Core.Jobs
                 foreach (Job j in result.Value)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    await RebuildInMemoryState(j, cancellationToken);
+                    await RebuildInMemoryState(j, updateJob, cancellationToken);
                 }
             }
             catch (OperationCanceledException)
@@ -62,6 +64,8 @@ namespace AgroEco.Core.Jobs
                 using IServiceScope scope = _scopeFactory.CreateScope();
                 GetByIdJobWithDetails getByIdJob = scope.ServiceProvider
                     .GetRequiredService<GetByIdJobWithDetails>();
+                UpdateJob updateJob = scope.ServiceProvider
+                    .GetRequiredService<UpdateJob>();
                 var result = await getByIdJob.HandleAsync(id, cancellationToken);
 
                 if (result.Value == null)
@@ -71,10 +75,17 @@ namespace AgroEco.Core.Jobs
 
                 var (rehydrateResult, triggerResult) = await RebuildInMemoryState(
                     result.Value,
+                    updateJob,
                     cancellationToken);
 
                 string detailMessage = string.Join("; ", new[] { result.Message, rehydrateResult.Message, triggerResult.Message }
                     .Where(m => !string.IsNullOrEmpty(m)));
+
+                if (!rehydrateResult.Success || !triggerResult.Success)
+                {
+                    return Result.CreateFailure(
+                        $"Job '{result.Value.Name}' could not start: {detailMessage}");
+                }
 
                 return Result.CreateSuccess($"Job '{result.Value.Name}' running: {detailMessage}");
             }
@@ -90,6 +101,7 @@ namespace AgroEco.Core.Jobs
 
         private async Task<(Result rehydrateResult, Result triggerResult)> RebuildInMemoryState(
             Job job,
+            UpdateJob updateJob,
             CancellationToken cancellationToken)
         {
             Result rehydrateResult = job.Rehydrate();
@@ -112,6 +124,23 @@ namespace AgroEco.Core.Jobs
             Result triggerResult = await _triggerEngine.StartAsync(
                 job.Trigger.Id,
                 cancellationToken);
+
+            if (triggerResult.Success && job.Status != Status.Running)
+            {
+                Result runningResult = job.ChangeStatus(Status.Running);
+                if (!runningResult.Success)
+                {
+                    return (rehydrateResult, runningResult);
+                }
+
+                Result persistenceResult = await updateJob.HandleAsync(
+                    job,
+                    cancellationToken);
+                if (!persistenceResult.Success)
+                {
+                    return (rehydrateResult, persistenceResult);
+                }
+            }
 
             return (rehydrateResult, triggerResult);
         }

@@ -1,6 +1,8 @@
 using AgroEco.Core;
 using AgroEco.Core.Jobs;
+using AgroEco.Core.Triggers.Implementations;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 namespace AgroEco.Data.Repositories
 {
     public class JobRepository : RepositoryBase<Job, DataContext> ,IJobRepository
@@ -11,6 +13,10 @@ namespace AgroEco.Data.Repositories
 
         protected override void ApplyChanges(Job existingEntity, Job newEntity)
         {
+            _context.Entry(existingEntity)
+                .Reference(job => job.Trigger)
+                .Load();
+
             Result detailsResult = existingEntity.UpdateDetails(
                 newEntity.Name,
                 newEntity.Description,
@@ -29,6 +35,28 @@ namespace AgroEco.Data.Repositories
                 {
                     throw new InvalidOperationException(statusResult.Message);
                 }
+            }
+
+            if (existingEntity.Trigger is null || newEntity.Trigger is null)
+            {
+                throw new InvalidOperationException(
+                    $"Job '{existingEntity.Name}' must have a trigger.");
+            }
+
+            if (existingEntity.Trigger is not DateTimeTrigger
+                || newEntity.Trigger is not DateTimeTrigger newDateTime)
+            {
+                throw new InvalidOperationException(
+                    "The trigger type cannot be updated through the current repository.");
+            }
+
+            using JsonDocument triggerConfig = JsonDocument.Parse(
+                $$"""{"targetTime":"{{newDateTime.TargetTime:O}}"}""");
+            Result triggerResult = existingEntity.Trigger.UpdateConfiguration(
+                triggerConfig.RootElement);
+            if (!triggerResult.Success)
+            {
+                throw new InvalidOperationException(triggerResult.Message);
             }
         }
 

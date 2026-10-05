@@ -1,4 +1,6 @@
 using AgroEco.Core.Triggers.Persistence;
+using AgroEco.Core.Jobs;
+using AgroEco.Core.Jobs.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AgroEco.Core.Triggers;
@@ -13,6 +15,8 @@ public sealed class TriggerEngine
     {
         _scopeFactory = scopeFactory;
     }
+
+    public event Action<Job>? JobExecutionCompleted;
 
     public async Task<Result<Trigger>> GetOrCreateAsync(
         int triggerId,
@@ -171,13 +175,46 @@ public sealed class TriggerEngine
         }
 
         trigger.CompleteExecution(executionResult);
+        await PersistCompletedJobsAsync(trigger);
         RemoveIfInactive(triggerId, trigger);
+    }
+
+    private async Task PersistCompletedJobsAsync(Trigger trigger)
+    {
+        using IServiceScope scope = _scopeFactory.CreateScope();
+        UpdateJob updateJob = scope.ServiceProvider
+            .GetRequiredService<UpdateJob>();
+
+        foreach (Job job in trigger.GetTriggerables().OfType<Job>())
+        {
+            if (!job.IsCompleted)
+            {
+                continue;
+            }
+
+            Result persistenceResult = await updateJob.HandleAsync(job);
+            if (!persistenceResult.Success)
+            {
+                Console.Error.WriteLine(
+                    $"Could not persist completed job '{job.Name}': {persistenceResult.Message}");
+            }
+
+            JobExecutionCompleted?.Invoke(job);
+        }
     }
 
     private void RemoveIfInactive(int triggerId, Trigger trigger)
     {
+        if (trigger.RuntimeStatus is TriggerRuntimeStatus.Completed
+            or TriggerRuntimeStatus.Faulted
+            or TriggerRuntimeStatus.Stopped)
+        {
+            _registry.Unregister(triggerId);
+            return;
+        }
+
         if (trigger.HasTriggerables
-            || trigger.RuntimeStatus is TriggerRuntimeStatus.Notifying)
+            || trigger.RuntimeStatus == TriggerRuntimeStatus.Notifying)
         {
             return;
         }

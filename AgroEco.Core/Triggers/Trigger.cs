@@ -1,5 +1,6 @@
 ﻿using AgroEco.Core.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace AgroEco.Core.Triggers
 {
@@ -186,6 +187,18 @@ namespace AgroEco.Core.Triggers
             return results;
         }
 
+        internal IReadOnlyList<ITriggerable> GetTriggerables()
+        {
+            lock (_subscriptionLock)
+            {
+                return _triggerables.ToArray();
+            }
+        }
+
         public abstract Task<Result> InitTrigger();
+
+        public virtual Result UpdateConfiguration(JsonElement config)
+            => Result.CreateFailure(
+                $"Trigger '{Name}' does not support configuration updates.");
     }
 }
