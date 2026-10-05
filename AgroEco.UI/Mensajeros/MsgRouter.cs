@@ -7,13 +7,16 @@ namespace AgroEco.UI.Mensajeros
 {
     public class MsgRouter
     {
+        //coneciones con los handlers de cada screen. Si se agrega un nuevo screen, agregarlo acá y en el switch de Enrutar
         private readonly TareasHandler _tareas;
         private readonly PlagasHandler _plagas;
+        private readonly FinanzasHandler _finanzas;
 
         public MsgRouter(Action<string, object> enviar)
         {
             _tareas = new TareasHandler(enviar);
             _plagas = new PlagasHandler(enviar);
+            _finanzas = new FinanzasHandler(enviar);
         }
 
         // true = un handler lo atendió. false = que siga el switch viejo
@@ -30,7 +33,11 @@ namespace AgroEco.UI.Mensajeros
                     case "plagas":
                         _plagas.ManejarMensaje(mensaje);
                         return true;
-                        
+
+                    case "finanzas":                                 
+                        _finanzas.ManejarMensaje(mensaje);
+                        return true;
+
 
                     default:
                         return false;
