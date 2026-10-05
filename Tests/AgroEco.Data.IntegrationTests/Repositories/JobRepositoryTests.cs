@@ -30,7 +30,7 @@ public sealed class JobRepositoryTests
                 "description",
                 Status.Running,
                 1,
-                [new ActionTest("action")],
+                [new NoOpAction("action")],
                 new DateTimeTrigger(
                     "watering",
                     DateTimeOffset.UtcNow.AddHours(1)));
@@ -68,7 +68,7 @@ public sealed class JobRepositoryTests
                 null,
                 Status.Created,
                 null,
-                [new ActionTest("action")],
+                [new NoOpAction("action")],
                 new DateTimeTrigger(
                     "watering",
                     DateTimeOffset.UtcNow.AddHours(1)));
@@ -110,7 +110,7 @@ public sealed class JobRepositoryTests
                 null,
                 Status.Created,
                 null,
-                [new ActionTest("action")],
+                [new NoOpAction("action")],
                 new DateTimeTrigger("watering", originalTarget));
             context.Jobs.Add(Assert.IsType<Job>(creation.Value));
             await context.SaveChangesAsync();

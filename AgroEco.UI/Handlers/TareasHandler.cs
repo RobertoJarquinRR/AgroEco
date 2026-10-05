@@ -135,9 +135,13 @@ namespace AgroEco.UI.Handlers
                     return;
                 }
 
-                string actionTypeId = string.IsNullOrWhiteSpace(dto.ActionTypeId)
-                    ? "test"
-                    : dto.ActionTypeId;
+                if (string.IsNullOrWhiteSpace(dto.ActionTypeId))
+                {
+                    _enviar("tareaError", new { mensaje = "El tipo de acción es obligatorio." });
+                    return;
+                }
+
+                string actionTypeId = dto.ActionTypeId;
                 JsonElement actionConfig = dto.ActionConfig.ValueKind == JsonValueKind.Object
                     ? dto.ActionConfig
                     : JsonSerializer.SerializeToElement(new { });

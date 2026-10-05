@@ -30,7 +30,7 @@ public sealed class ActionRepositoryTests
                 null,
                 Status.Created,
                 null,
-                [new ActionTest("test action")],
+                [new NoOpAction("test action")],
                 new DateTimeTrigger(
                     "trigger",
                     DateTimeOffset.UtcNow.AddHours(1)));
@@ -40,7 +40,7 @@ public sealed class ActionRepositoryTests
 
         await using DataContext updateContext = new(options);
         ActionRepository repository = new(updateContext);
-        AgroEco.Core.Jobs.Actions.Action action = Assert.IsType<ActionTest>(
+        AgroEco.Core.Jobs.Actions.Action action = Assert.IsType<NoOpAction>(
             await repository.GetByIdAsync(1));
         Assert.True(action.ChangeStatus(Status.Running).Success);
 
@@ -50,7 +50,7 @@ public sealed class ActionRepositoryTests
 
         // Assert
         await using DataContext readContext = new(options);
-        AgroEco.Core.Jobs.Actions.Action persisted = Assert.IsType<ActionTest>(
+        AgroEco.Core.Jobs.Actions.Action persisted = Assert.IsType<NoOpAction>(
             await new ActionRepository(readContext).GetByIdAsync(1));
         Assert.Equal(Status.Running, persisted.Status);
     }

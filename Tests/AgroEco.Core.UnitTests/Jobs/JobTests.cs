@@ -65,7 +65,7 @@ public sealed class JobTests
             null,
             Status.Created,
             null,
-            [new ActionTest("action")],
+            [new NoOpAction("action")],
             new DateTimeTrigger("watering", DateTimeOffset.UtcNow.AddHours(1)));
 
         Job job = Assert.IsType<Job>(creation.Value);

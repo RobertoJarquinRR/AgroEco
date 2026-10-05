@@ -4,10 +4,10 @@ using System.Text;
 
 namespace AgroEco.Core.Jobs.Actions.Implementations
 {
-    public class ActionTest : Action
+    public class NoOpAction : Action
     {
 
-        public ActionTest(string name) : base(name)
+        public NoOpAction(string name) : base(name)
         {
         }
 

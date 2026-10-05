@@ -11,7 +11,7 @@ public sealed class ActionTests
     public void ChangeStatus_FromSucceededToRunning_ReturnsFailure()
     {
         // Arrange
-        ActionTest action = new("action");
+        NoOpAction action = new("action");
         action.ChangeStatus(Status.Running);
         action.ChangeStatus(Status.Succeeded);
 

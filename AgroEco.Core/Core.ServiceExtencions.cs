@@ -42,7 +42,7 @@ namespace AgroEco.Core
             services.AddScoped<UpdateAction>();
 
             services.AddSingleton<ITriggerCreator, DateTimeTriggerCreator>();
-            services.AddSingleton<IActionCreator, ActionTestCreator>();
+            services.AddSingleton<IActionCreator, NoOpActionCreator>();
             services.AddSingleton<ITriggerFactory, TriggerFactory>();
             services.AddSingleton<IActionFactory, ActionFactory>();
 

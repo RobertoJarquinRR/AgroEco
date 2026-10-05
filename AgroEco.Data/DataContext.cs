@@ -39,7 +39,6 @@ namespace AgroEco.Data
                 entity.Property(j => j.Status)
                       .HasConversion<string>();
 
-
                 entity.HasMany(j => j.Actions)
                       .WithOne()
                       .HasForeignKey(j => j.JobId);
@@ -68,7 +67,7 @@ namespace AgroEco.Data
                       .HasConversion<string>();
             });
 
-            modelBuilder.Entity<ActionTest>(entity =>
+            modelBuilder.Entity<NoOpAction>(entity =>
             {
                 entity.ToTable("ActionTests");
 

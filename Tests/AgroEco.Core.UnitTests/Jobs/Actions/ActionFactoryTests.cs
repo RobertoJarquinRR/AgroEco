@@ -10,41 +10,41 @@ namespace AgroEco.Core.UnitTests.Jobs.Actions;
 public sealed class ActionFactoryTests
 {
     [Fact]
-    public void GetAvailable_ReturnsTestDescriptor()
+    public void GetAvailable_ReturnsNoOpDescriptor()
     {
         // Arrange
-        ActionFactory factory = new([new ActionTestCreator()]);
+        ActionFactory factory = new([new NoOpActionCreator()]);
 
         // Act
         IReadOnlyList<ActionDescriptor> descriptors = factory.GetAvailable();
 
         // Assert
         ActionDescriptor descriptor = Assert.Single(descriptors);
-        Assert.Equal("test", descriptor.TypeId);
+        Assert.Equal("noop", descriptor.TypeId);
     }
 
     [Fact]
-    public void Create_WithTestType_ReturnsActionTest()
+    public void Create_WithNoOpType_ReturnsNoOpAction()
     {
         // Arrange
-        ActionFactory factory = new([new ActionTestCreator()]);
+        ActionFactory factory = new([new NoOpActionCreator()]);
         using JsonDocument config = JsonDocument.Parse("{}");
 
         // Act
         Result<CoreAction> result = factory.Create(
-            "test",
+            "noop",
             "Test action",
             config.RootElement);
 
         // Assert
-        Assert.IsType<ActionTest>(result.Value);
+        Assert.IsType<NoOpAction>(result.Value);
     }
 
     [Fact]
     public void Create_WithUnknownType_ReturnsFailure()
     {
         // Arrange
-        ActionFactory factory = new([new ActionTestCreator()]);
+        ActionFactory factory = new([new NoOpActionCreator()]);
         using JsonDocument config = JsonDocument.Parse("{}");
 
         // Act

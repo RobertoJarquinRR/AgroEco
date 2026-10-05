@@ -32,7 +32,7 @@ public sealed class CreateJobTests
             "job",
             "description",
             1,
-            [new ActionTest("action")],
+            [new NoOpAction("action")],
             trigger);
 
         // Assert
@@ -59,7 +59,7 @@ public sealed class CreateJobTests
             null,
             Status.Created,
             null,
-            [new ActionTest("action")],
+            [new NoOpAction("action")],
             new DateTimeTrigger("watering", DateTimeOffset.UtcNow.AddHours(1)));
         Job existingJob = Assert.IsType<Job>(existing.Value);
         allRepository
@@ -75,7 +75,7 @@ public sealed class CreateJobTests
             "JOB",
             null,
             null,
-            [new ActionTest("action")],
+            [new NoOpAction("action")],
             new DateTimeTrigger("watering", DateTimeOffset.UtcNow.AddHours(1)));
 
         // Assert

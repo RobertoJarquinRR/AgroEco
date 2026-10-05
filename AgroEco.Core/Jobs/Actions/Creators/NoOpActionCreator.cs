@@ -3,12 +3,12 @@ using AgroEco.Core.Jobs.Actions.Implementations;
 
 namespace AgroEco.Core.Jobs.Actions.Creators;
 
-public sealed class ActionTestCreator : IActionCreator
+public sealed class NoOpActionCreator : IActionCreator
 {
     public ActionDescriptor Descriptor { get; } =
-        new("test", "Acción de prueba", []);
+        new("noop", "Acción de demostración (sin operación)", []);
 
     public Result<Action> Create(string name, JsonElement config)
         => Result<Action>.CreateSuccess(
-            new ActionTest(name.Trim()));
+            new NoOpAction(name.Trim()));
 }
