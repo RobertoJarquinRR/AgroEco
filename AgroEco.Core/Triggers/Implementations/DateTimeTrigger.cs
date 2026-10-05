@@ -62,9 +62,20 @@ namespace AgroEco.Core.Triggers.Implementations
 
                         List<Result> batchResults = await ExecuteTriggerables();
 
-                        if (batchResults.Any(r => !r.Success))
+                        Result[] failedResults = batchResults
+                            .Where(result => !result.Success)
+                            .ToArray();
+                        if (failedResults.Length > 0)
                         {
-                            return Result.CreateFailure("One or more triggers failed during execution.");
+                            string details = string.Join(
+                                "; ",
+                                failedResults
+                                    .Select(result => result.Message)
+                                    .Where(message => !string.IsNullOrWhiteSpace(message)));
+                            return Result.CreateFailure(
+                                string.IsNullOrWhiteSpace(details)
+                                    ? "One or more triggers failed during execution."
+                                    : $"One or more triggers failed during execution: {details}");
                         }
 
                         return Result.CreateSuccess();
