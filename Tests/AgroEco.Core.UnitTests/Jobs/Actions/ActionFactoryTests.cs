@@ -1,6 +1,6 @@
-using System.Text.Json;
 using AgroEco.Core;
 using AgroEco.Core.Jobs.Actions;
+using AgroEco.Core.Jobs.Actions.Configuration;
 using AgroEco.Core.Jobs.Actions.Creators;
 using AgroEco.Core.Jobs.Actions.Implementations;
 using CoreAction = AgroEco.Core.Jobs.Actions.Action;
@@ -28,13 +28,13 @@ public sealed class ActionFactoryTests
     {
         // Arrange
         ActionFactory factory = new([new NoOpActionCreator()]);
-        using JsonDocument config = JsonDocument.Parse("{}");
+        NoOpActionConfiguration config = new();
 
         // Act
         Result<CoreAction> result = factory.Create(
             "noop",
             "Test action",
-            config.RootElement);
+            config);
 
         // Assert
         Assert.IsType<NoOpAction>(result.Value);
@@ -45,13 +45,13 @@ public sealed class ActionFactoryTests
     {
         // Arrange
         ActionFactory factory = new([new NoOpActionCreator()]);
-        using JsonDocument config = JsonDocument.Parse("{}");
+        NoOpActionConfiguration config = new();
 
         // Act
         Result<CoreAction> result = factory.Create(
             "unknown",
             "Test action",
-            config.RootElement);
+            config);
 
         // Assert
         Assert.False(result.Success);

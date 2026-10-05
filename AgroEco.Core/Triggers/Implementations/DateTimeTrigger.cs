@@ -1,9 +1,7 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
+using AgroEco.Core.Triggers.Configuration;
 
 namespace AgroEco.Core.Triggers.Implementations
 {
@@ -17,21 +15,17 @@ namespace AgroEco.Core.Triggers.Implementations
             TargetTime = targetTime;
         }
 
-        public override Result UpdateConfiguration(JsonElement config)
+        public DateTimeTrigger(
+            string name,
+            DateTimeTriggerConfiguration configuration)
+            : this(name, configuration.TargetTime)
         {
-            if (!config.TryGetProperty("targetTime", out JsonElement element)
-                || element.ValueKind != JsonValueKind.String
-                || !DateTimeOffset.TryParse(
-                    element.GetString(),
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.AssumeUniversal,
-                    out DateTimeOffset targetTime))
-            {
-                return Result.CreateFailure(
-                    "The 'targetTime' configuration value must be a valid date and time.");
-            }
+        }
 
-            TargetTime = targetTime;
+        public Result UpdateConfiguration(DateTimeTriggerConfiguration configuration)
+        {
+            ArgumentNullException.ThrowIfNull(configuration);
+            TargetTime = configuration.TargetTime;
             return Result.CreateSuccess();
         }
 

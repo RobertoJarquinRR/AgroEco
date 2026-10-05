@@ -1,4 +1,4 @@
-using System.Text.Json;
+using AgroEco.Core.Triggers.Configuration;
 
 namespace AgroEco.Core.Triggers;
 
@@ -8,5 +8,5 @@ public interface ITriggerCreator
 
     Result<Trigger> Create(
         string name,
-        JsonElement config);
+        TriggerConfiguration configuration);
 }

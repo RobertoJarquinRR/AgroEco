@@ -1,6 +1,5 @@
-using System.Globalization;
-using System.Text.Json;
 using AgroEco.Core.Configuration;
+using AgroEco.Core.Triggers.Configuration;
 using AgroEco.Core.Triggers.Implementations;
 
 namespace AgroEco.Core.Triggers.Creators;
@@ -13,29 +12,19 @@ public sealed class DateTimeTriggerCreator : ITriggerCreator
             "Fecha y hora",
             [new("targetTime", "Fecha objetivo", "datetime-local")]);
 
-    public Result<Trigger> Create(string name, JsonElement config)
+    public Result<Trigger> Create(
+        string name,
+        TriggerConfiguration configuration)
     {
-        if (!TryReadTargetTime(config, out DateTimeOffset targetTime))
+        if (configuration is not DateTimeTriggerConfiguration dateTimeConfiguration)
         {
             return Result<Trigger>.CreateFailure(
-                "The 'targetTime' configuration value must be a valid date and time.");
+                "The trigger configuration is invalid for the datetime trigger.");
         }
 
         return Result<Trigger>.CreateSuccess(
-            new DateTimeTrigger(name.Trim(), targetTime));
-    }
-
-    private static bool TryReadTargetTime(
-        JsonElement config,
-        out DateTimeOffset targetTime)
-    {
-        targetTime = default;
-        return config.TryGetProperty("targetTime", out JsonElement element)
-            && element.ValueKind == JsonValueKind.String
-            && DateTimeOffset.TryParse(
-                element.GetString(),
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.AssumeUniversal,
-                out targetTime);
+            new DateTimeTrigger(
+                name.Trim(),
+                dateTimeConfiguration));
     }
 }

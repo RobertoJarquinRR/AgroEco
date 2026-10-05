@@ -6,7 +6,7 @@ using AgroEco.Data;
 using AgroEco.Data.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+using AgroEco.Core.Triggers.Configuration;
 
 namespace AgroEco.Data.IntegrationTests.Repositories;
 
@@ -119,9 +119,10 @@ public sealed class JobRepositoryTests
         await using DataContext updateContext = new(options);
         JobRepository repository = new(updateContext);
         Job job = Assert.IsType<Job>(await repository.GetByIdWithDetailsAsync(1));
-        using JsonDocument config = JsonDocument.Parse(
-            $$"""{"targetTime":"{{updatedTarget:O}}"}""");
-        Assert.True(job.Trigger.UpdateConfiguration(config.RootElement).Success);
+        Assert.True(
+            Assert.IsType<DateTimeTrigger>(job.Trigger)
+                .UpdateConfiguration(new DateTimeTriggerConfiguration(updatedTarget))
+                .Success);
 
         // Act
         await repository.UpdateAsync(job);

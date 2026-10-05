@@ -1,6 +1,6 @@
-using System.Text.Json;
 using AgroEco.Core;
 using AgroEco.Core.Triggers;
+using AgroEco.Core.Triggers.Configuration;
 using AgroEco.Core.Triggers.Creators;
 using AgroEco.Core.Triggers.Implementations;
 
@@ -28,14 +28,14 @@ public sealed class TriggerFactoryTests
     {
         // Arrange
         TriggerFactory factory = new([new DateTimeTriggerCreator()]);
-        using JsonDocument config = JsonDocument.Parse(
-            """{"targetTime":"2026-10-05T07:00:00Z"}""");
+        DateTimeTriggerConfiguration config = new(
+            new DateTimeOffset(2026, 10, 5, 7, 0, 0, TimeSpan.Zero));
 
         // Act
         Result<Trigger> result = factory.Create(
             "datetime",
             "Morning watering",
-            config.RootElement);
+            config);
 
         // Assert
         DateTimeTrigger trigger = Assert.IsType<DateTimeTrigger>(result.Value);
@@ -47,13 +47,13 @@ public sealed class TriggerFactoryTests
     {
         // Arrange
         TriggerFactory factory = new([new DateTimeTriggerCreator()]);
-        using JsonDocument config = JsonDocument.Parse("{}");
+        DateTimeTriggerConfiguration config = new(DateTimeOffset.UtcNow.AddHours(1));
 
         // Act
         Result<Trigger> result = factory.Create(
             "unknown",
             "trigger",
-            config.RootElement);
+            config);
 
         // Assert
         Assert.False(result.Success);

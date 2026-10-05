@@ -1,4 +1,4 @@
-using System.Text.Json;
+using AgroEco.Core.Jobs.Actions.Configuration;
 
 namespace AgroEco.Core.Jobs.Actions;
 
@@ -9,5 +9,5 @@ public interface IActionFactory
     Result<Action> Create(
         string typeId,
         string name,
-        JsonElement config);
+        ActionConfiguration configuration);
 }

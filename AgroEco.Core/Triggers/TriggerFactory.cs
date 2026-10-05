@@ -1,4 +1,4 @@
-using System.Text.Json;
+using AgroEco.Core.Triggers.Configuration;
 
 namespace AgroEco.Core.Triggers;
 
@@ -22,7 +22,7 @@ public sealed class TriggerFactory : ITriggerFactory
     public Result<Trigger> Create(
         string typeId,
         string name,
-        JsonElement config)
+        TriggerConfiguration configuration)
     {
         if (string.IsNullOrWhiteSpace(typeId))
         {
@@ -34,12 +34,14 @@ public sealed class TriggerFactory : ITriggerFactory
             return Result<Trigger>.CreateFailure("Trigger name is required.");
         }
 
+        ArgumentNullException.ThrowIfNull(configuration);
+
         if (!_creators.TryGetValue(typeId, out ITriggerCreator? creator))
         {
             return Result<Trigger>.CreateFailure(
                 $"Unknown trigger type '{typeId}'.");
         }
 
-        return creator.Create(name, config);
+        return creator.Create(name, configuration);
     }
 }

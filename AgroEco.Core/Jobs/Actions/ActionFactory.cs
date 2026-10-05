@@ -1,4 +1,4 @@
-using System.Text.Json;
+using AgroEco.Core.Jobs.Actions.Configuration;
 
 namespace AgroEco.Core.Jobs.Actions;
 
@@ -22,7 +22,7 @@ public sealed class ActionFactory : IActionFactory
     public Result<Action> Create(
         string typeId,
         string name,
-        JsonElement config)
+        ActionConfiguration configuration)
     {
         if (string.IsNullOrWhiteSpace(typeId))
         {
@@ -34,12 +34,14 @@ public sealed class ActionFactory : IActionFactory
             return Result<Action>.CreateFailure("Action name is required.");
         }
 
+        ArgumentNullException.ThrowIfNull(configuration);
+
         if (!_creators.TryGetValue(typeId, out IActionCreator? creator))
         {
             return Result<Action>.CreateFailure(
                 $"Unknown action type '{typeId}'.");
         }
 
-        return creator.Create(name, config);
+        return creator.Create(name, configuration);
     }
 }

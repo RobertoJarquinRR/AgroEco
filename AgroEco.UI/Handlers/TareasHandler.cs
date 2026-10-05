@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using AgroEco.Core;
@@ -7,8 +8,10 @@ using System.Threading.Tasks;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Persistence;
 using AgroEco.Core.Triggers;
+using AgroEco.Core.Triggers.Configuration;
 using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Actions;
+using AgroEco.Core.Jobs.Actions.Configuration;
 using CoreAction = AgroEco.Core.Jobs.Actions.Action;
 using AgroEco.UI.Mensajeros;
 using Microsoft.Extensions.Logging;
@@ -128,7 +131,7 @@ namespace AgroEco.UI.Handlers
                 Result<Trigger> triggerResult = _triggerFactory.Create(
                     triggerTypeId,
                     $"Trigger_{dto.Nombre}",
-                    dto.TriggerConfig);
+                    ParseTriggerConfiguration(dto.TriggerConfig));
                 if (!triggerResult.Success || triggerResult.Value is null)
                 {
                     _enviar("tareaError", new { mensaje = triggerResult.Message });
@@ -148,7 +151,7 @@ namespace AgroEco.UI.Handlers
                 Result<CoreAction> actionResult = _actionFactory.Create(
                     actionTypeId,
                     $"Accion_{dto.Nombre}",
-                    actionConfig);
+                    ParseActionConfiguration(actionConfig));
                 if (!actionResult.Success || actionResult.Value is null)
                 {
                     _enviar("tareaError", new { mensaje = actionResult.Message });
@@ -216,8 +219,22 @@ namespace AgroEco.UI.Handlers
                     return;
                 }
 
-                Result triggerUpdateResult = job.Trigger.UpdateConfiguration(
-                    dto.TriggerConfig);
+                if (job.Trigger is not DateTimeTrigger dateTimeTrigger
+                    || !TryReadTargetTime(
+                        dto.TriggerConfig,
+                        out DateTimeOffset targetTime))
+                {
+                    _enviar(
+                        "tareaError",
+                        new
+                        {
+                            mensaje = "The 'targetTime' configuration value must be a valid date and time."
+                        });
+                    return;
+                }
+
+                Result triggerUpdateResult = dateTimeTrigger.UpdateConfiguration(
+                    new DateTimeTriggerConfiguration(targetTime));
                 if (!triggerUpdateResult.Success)
                 {
                     _enviar("tareaError", new { mensaje = triggerUpdateResult.Message });
@@ -426,5 +443,34 @@ namespace AgroEco.UI.Handlers
         private record EjecutarTareaDto(int Id);
 
         private record ActualizarEstadoTareaDto(int Id, string Estado);
+
+        private static bool TryReadTargetTime(
+            JsonElement config,
+            out DateTimeOffset targetTime)
+        {
+            targetTime = default;
+            return config.TryGetProperty("targetTime", out JsonElement element)
+                && element.ValueKind == JsonValueKind.String
+                && DateTimeOffset.TryParse(
+                    element.GetString(),
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal,
+                    out targetTime);
+        }
+
+        private static TriggerConfiguration ParseTriggerConfiguration(
+            JsonElement config)
+        {
+            return TryReadTargetTime(config, out DateTimeOffset targetTime)
+                ? new DateTimeTriggerConfiguration(targetTime)
+                : new InvalidTriggerConfiguration();
+        }
+
+        private static ActionConfiguration ParseActionConfiguration(
+            JsonElement config)
+            => new NoOpActionConfiguration();
+
+        private sealed record InvalidTriggerConfiguration
+            : TriggerConfiguration;
     }
 }

@@ -1,5 +1,5 @@
-using System.Text.Json;
 using AgroEco.Core;
+using AgroEco.Core.Triggers.Configuration;
 using AgroEco.Core.Triggers.Implementations;
 
 namespace AgroEco.Core.UnitTests.Triggers;
@@ -23,18 +23,17 @@ public sealed class DateTimeTriggerTests
     }
 
     [Fact]
-    public void UpdateConfiguration_WithValidTargetTime_UpdatesTargetTime()
+    public void UpdateConfiguration_WithTypedConfiguration_UpdatesTargetTime()
     {
         // Arrange
         DateTimeTrigger trigger = new(
             "watering",
             DateTimeOffset.UtcNow.AddHours(1));
         DateTimeOffset targetTime = DateTimeOffset.UtcNow.AddDays(1);
-        using JsonDocument config = JsonDocument.Parse(
-            $$"""{"targetTime":"{{targetTime:O}}"}""");
+        DateTimeTriggerConfiguration config = new(targetTime);
 
         // Act
-        Result result = trigger.UpdateConfiguration(config.RootElement);
+        Result result = trigger.UpdateConfiguration(config);
 
         // Assert
         Assert.True(result.Success);
@@ -42,20 +41,17 @@ public sealed class DateTimeTriggerTests
     }
 
     [Fact]
-    public void UpdateConfiguration_WithInvalidTargetTime_ReturnsFailure()
+    public void UpdateConfiguration_WithNullConfiguration_ThrowsArgumentNullException()
     {
         // Arrange
         DateTimeTrigger trigger = new(
             "watering",
             DateTimeOffset.UtcNow.AddHours(1));
-        using JsonDocument config = JsonDocument.Parse("{}");
-
         // Act
-        Result result = trigger.UpdateConfiguration(config.RootElement);
+        Action action = () => trigger.UpdateConfiguration(null!);
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Contains("targetTime", result.Message);
+        Assert.Throws<ArgumentNullException>(action);
     }
 
 }
