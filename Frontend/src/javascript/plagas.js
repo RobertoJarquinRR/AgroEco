@@ -40,11 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        winObj.chrome.webview.postMessage({ type: "ready_plagas" });
-        winObj.chrome.webview.postMessage({ type: "obtenerDetallesPlaga", payload: 1});
+        winObj.chrome.webview.postMessage({ screen: "plagas",type: "ready_plagas" });
+        winObj.chrome.webview.postMessage({ screen: "plagas", type: "obtenerDetallesPlaga", payload: 1});
     }
     
-    const MAX_TAREAS = 6;
+    const MAX_TAREAS = 8;
 
     const searchInput = document.getElementById("pest-search");
     const resultsContainer = document.getElementById("search-results");
@@ -85,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     li.addEventListener("click", () => {
                         idPlaga = plaga.id;
                         winObj.chrome.webview.postMessage({
+                            screen: "plagas",
                             type: "obtenerDetallesPlaga",
                             payload: idPlaga
                         });
@@ -117,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 boton.addEventListener("click", () => {
                     idPlaga = plaga.id;
                     winObj.chrome.webview.postMessage({
+                        screen: "plagas",
                         type: "obtenerDetallesPlaga",
                         payload: idPlaga
                     });
@@ -187,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             winObj.chrome.webview.postMessage({
+                screen: "plagas",
                 type: "nueva_tarea_plaga",
                 payload: { plaga: nombrePlaga, lote: lote, accion: accionPredeterminada }
             });
@@ -312,6 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (card.classList.contains("open")) {
                     idCultivo = cultivo.idCultivo;
                     winObj.chrome.webview.postMessage({
+                        screen: "plagas",
                         type: "obtenerDetallesCultivo",
                         payload: {
                             idPlaga: idPlaga,
