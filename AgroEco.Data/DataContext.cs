@@ -39,6 +39,8 @@ namespace AgroEco.Data
                 entity.Property(j => j.Status)
                       .HasConversion<string>();
 
+                entity.HasIndex(j => j.Status);
+
                 entity.HasMany(j => j.Actions)
                       .WithOne()
                       .HasForeignKey(j => j.JobId);
