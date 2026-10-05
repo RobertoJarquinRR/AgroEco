@@ -208,7 +208,10 @@ namespace AgroEco.Core.Jobs
         {
             bool validTransition = Status switch
             {
-                Status.Created => status is Status.Enqueued or Status.Running or Status.Canceled,
+                Status.Created => status is Status.Enqueued
+                    or Status.Running
+                    or Status.Faulted
+                    or Status.Canceled,
                 Status.Enqueued => status is Status.Running or Status.Canceled,
                 Status.Running => status is Status.Succeeded
                     or Status.CompletedWithErrors

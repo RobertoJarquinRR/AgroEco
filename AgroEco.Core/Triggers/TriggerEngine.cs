@@ -191,6 +191,7 @@ public sealed class TriggerEngine
         {
             if (!job.IsCompleted && !executionResult.Success)
             {
+                job.Results.Add(executionResult);
                 Result faultResult = job.ChangeStatus(Status.Faulted);
                 if (!faultResult.Success)
                 {

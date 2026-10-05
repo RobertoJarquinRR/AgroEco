@@ -173,6 +173,64 @@ public sealed class TriggerEngineTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task StartAsync_WhenTriggerFails_PreservesFailureResultOnJob()
+    {
+        // Arrange
+        Mock<IRepository<Trigger>> triggerRepository = new();
+        Mock<IRepository<Job>> jobRepository = new();
+        Mock<IUnitOfWork> unitOfWork = new();
+        FailingTrigger trigger = new("Test trigger");
+        Result<Job> jobResult = await Job.CreateJob(
+            "Test job",
+            "Timer failure test",
+            Status.Created,
+            1,
+            [new NoOpAction("Test action")],
+            trigger);
+        Assert.True(jobResult.Success);
+        Job job = jobResult.Value!;
+        triggerRepository
+            .Setup(value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trigger);
+        jobRepository
+            .Setup(value => value.GetByIdAsync(
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(job);
+        using ServiceProvider provider = BuildProvider(
+            triggerRepository.Object,
+            jobRepository.Object,
+            unitOfWork.Object);
+        TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
+        TaskCompletionSource<Job> completion =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        engine.JobExecutionCompleted += completed => completion.TrySetResult(completed);
+        await engine.SubscribeAsync(7, job);
+
+        // Act
+        Result startResult = await engine.StartAsync(7);
+        Job completedJob = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        // Assert
+        Assert.True(startResult.Success);
+        Assert.Equal(Status.Faulted, completedJob.Status);
+        Assert.Contains(
+            completedJob.Results,
+            result => !result.Success
+                && result.Message!.Contains("Test trigger failure"));
+    }
+
+    private sealed class FailingTrigger : Trigger
+    {
+        public FailingTrigger(string name) : base(name)
+        {
+        }
+
+        public override Task<Result> InitTrigger()
+            => Task.FromResult(Result.CreateFailure("Test trigger failure"));
+    }
+
     private static ServiceProvider BuildProvider(
         IRepository<Trigger> repository,
         IRepository<AgroEco.Core.Jobs.Job>? jobRepository = null,
