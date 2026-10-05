@@ -175,11 +175,13 @@ public sealed class TriggerEngine
         }
 
         trigger.CompleteExecution(executionResult);
-        await PersistCompletedJobsAsync(trigger);
+        await PersistCompletedJobsAsync(trigger, executionResult);
         RemoveIfInactive(triggerId, trigger);
     }
 
-    private async Task PersistCompletedJobsAsync(Trigger trigger)
+    private async Task PersistCompletedJobsAsync(
+        Trigger trigger,
+        Result executionResult)
     {
         using IServiceScope scope = _scopeFactory.CreateScope();
         UpdateJob updateJob = scope.ServiceProvider
@@ -187,9 +189,15 @@ public sealed class TriggerEngine
 
         foreach (Job job in trigger.GetTriggerables().OfType<Job>())
         {
-            if (!job.IsCompleted)
+            if (!job.IsCompleted && !executionResult.Success)
             {
-                continue;
+                Result faultResult = job.ChangeStatus(Status.Faulted);
+                if (!faultResult.Success)
+                {
+                    Console.Error.WriteLine(
+                        $"Could not mark job '{job.Name}' as faulted: {faultResult.Message}");
+                    continue;
+                }
             }
 
             Result persistenceResult = await updateJob.HandleAsync(job);

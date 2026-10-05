@@ -22,6 +22,12 @@ public sealed class DateTimeTriggerCreator : ITriggerCreator
                 "The trigger configuration is invalid for the datetime trigger.");
         }
 
+        if (dateTimeConfiguration.TargetTime <= DateTimeOffset.UtcNow)
+        {
+            return Result<Trigger>.CreateFailure(
+                "The target time must be in the future.");
+        }
+
         return Result<Trigger>.CreateSuccess(
             new DateTimeTrigger(
                 name.Trim(),

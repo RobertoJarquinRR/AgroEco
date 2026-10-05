@@ -25,6 +25,13 @@ namespace AgroEco.Core.Triggers.Implementations
         public Result UpdateConfiguration(DateTimeTriggerConfiguration configuration)
         {
             ArgumentNullException.ThrowIfNull(configuration);
+
+            if (configuration.TargetTime <= DateTimeOffset.UtcNow)
+            {
+                return Result.CreateFailure(
+                    "The target time must be in the future.");
+            }
+
             TargetTime = configuration.TargetTime;
             return Result.CreateSuccess();
         }

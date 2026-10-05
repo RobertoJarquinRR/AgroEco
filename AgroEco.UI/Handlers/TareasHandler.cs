@@ -456,7 +456,7 @@ namespace AgroEco.UI.Handlers
                 && DateTimeOffset.TryParse(
                     element.GetString(),
                     CultureInfo.InvariantCulture,
-                    DateTimeStyles.AssumeUniversal,
+                    DateTimeStyles.AssumeLocal,
                     out targetTime);
         }
 

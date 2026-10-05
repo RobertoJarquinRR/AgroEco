@@ -29,7 +29,7 @@ public sealed class TriggerFactoryTests
         // Arrange
         TriggerFactory factory = new([new DateTimeTriggerCreator()]);
         DateTimeTriggerConfiguration config = new(
-            new DateTimeOffset(2026, 10, 5, 7, 0, 0, TimeSpan.Zero));
+            DateTimeOffset.UtcNow.AddHours(1));
 
         // Act
         Result<Trigger> result = factory.Create(
@@ -40,6 +40,25 @@ public sealed class TriggerFactoryTests
         // Assert
         DateTimeTrigger trigger = Assert.IsType<DateTimeTrigger>(result.Value);
         Assert.Equal("Morning watering", trigger.Name);
+    }
+
+    [Fact]
+    public void Create_WithPastTargetTime_ReturnsFailure()
+    {
+        // Arrange
+        TriggerFactory factory = new([new DateTimeTriggerCreator()]);
+        DateTimeTriggerConfiguration config = new(
+            DateTimeOffset.UtcNow.AddMinutes(-1));
+
+        // Act
+        Result<Trigger> result = factory.Create(
+            "datetime",
+            "Past trigger",
+            config);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Contains("future", result.Message, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

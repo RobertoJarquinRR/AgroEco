@@ -54,4 +54,22 @@ public sealed class DateTimeTriggerTests
         Assert.Throws<ArgumentNullException>(action);
     }
 
+    [Fact]
+    public void UpdateConfiguration_WithPastTargetTime_ReturnsFailure()
+    {
+        // Arrange
+        DateTimeTrigger trigger = new(
+            "watering",
+            DateTimeOffset.UtcNow.AddHours(1));
+        DateTimeTriggerConfiguration config = new(
+            DateTimeOffset.UtcNow.AddMinutes(-1));
+
+        // Act
+        Result result = trigger.UpdateConfiguration(config);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Contains("future", result.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
 }
