@@ -45,58 +45,23 @@ namespace AgroEco.Core.Triggers.Implementations
             return TimeSpan.FromSeconds(1);
         }
 
-        public override async Task<Result> InitTrigger()
+        protected override async Task<Result> WaitUntilReadyAsync(
+            CancellationToken cancellationToken)
         {
-            try
+            while (!cancellationToken.IsCancellationRequested)
             {
-                while (!ExecutionToken.IsCancellationRequested)
+                DateTimeOffset now = DateTimeOffset.UtcNow;
+                if (now >= TargetTime)
                 {
-                    DateTimeOffset now = DateTimeOffset.UtcNow;
-
-                    if (now >= TargetTime)
-                    {
-                        if (ExecutionToken.IsCancellationRequested)
-                        {
-                            return Result.CreateFailure("The operation was canceled.");
-                        }
-
-                        List<Result> batchResults = await ExecuteTriggerables();
-
-                        Result[] failedResults = batchResults
-                            .Where(result => !result.Success)
-                            .ToArray();
-                        if (failedResults.Length > 0)
-                        {
-                            string details = string.Join(
-                                "; ",
-                                failedResults
-                                    .Select(result => result.Message)
-                                    .Where(message => !string.IsNullOrWhiteSpace(message)));
-                            return Result.CreateFailure(
-                                string.IsNullOrWhiteSpace(details)
-                                    ? "One or more triggers failed during execution."
-                                    : $"One or more triggers failed during execution: {details}");
-                        }
-
-                        return Result.CreateSuccess();
-                    }
-
-                    TimeSpan remaining = TargetTime - now;
-                    TimeSpan waitInterval = CalculateAdaptiveInterval(remaining);
-
-                    await Task.Delay(waitInterval, ExecutionToken);
+                    return Result.CreateSuccess();
                 }
 
-                return Result.CreateFailure("The operation was canceled.");
+                TimeSpan remaining = TargetTime - now;
+                TimeSpan waitInterval = CalculateAdaptiveInterval(remaining);
+                await Task.Delay(waitInterval, cancellationToken);
             }
-            catch (OperationCanceledException)
-            {
-                return Result.CreateFailure("The operation was canceled.");
-            }
-            catch (Exception ex)
-            {
-                return Result.CreateFailure($"Timer exited unexpectedly: {ex.Message}");
-            }
+
+            return Result.CreateFailure("The trigger execution was canceled.");
         }
     }
 }

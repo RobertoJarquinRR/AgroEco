@@ -77,6 +77,12 @@ public sealed class TriggerEngineTests
             jobRepository.Object,
             unitOfWork.Object);
         TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
+        int completedNotifications = 0;
+        engine.TriggerExecutionCompleted += (_, _) =>
+        {
+            completedNotifications++;
+            return Task.CompletedTask;
+        };
         await engine.SubscribeAsync(7, triggerable.Object);
 
         // Act
@@ -88,6 +94,7 @@ public sealed class TriggerEngineTests
         Assert.True(startResult.Success);
         Assert.True(stopResult.Success);
         triggerable.Verify(value => value.OnTrigger(), Times.Never);
+        Assert.Equal(0, completedNotifications);
     }
 
     [Fact]
@@ -146,31 +153,29 @@ public sealed class TriggerEngineTests
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(job);
-        TaskCompletionSource<Job> completion =
+        TaskCompletionSource<Result> completion =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
         using ServiceProvider provider = BuildProvider(
             triggerRepository.Object,
             jobRepository.Object,
             unitOfWork.Object);
         TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
-        engine.JobExecutionCompleted += completed => completion.TrySetResult(completed);
+        engine.TriggerExecutionCompleted += (_, result) =>
+        {
+            completion.TrySetResult(result);
+            return Task.CompletedTask;
+        };
         await engine.SubscribeAsync(7, job);
 
         // Act
         Result startResult = await engine.StartAsync(7);
-        Job completedJob = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Result completedResult = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
         // Assert
         Assert.True(startResult.Success);
-        Assert.Same(job, completedJob);
+        Assert.True(completedResult.Success);
         Assert.Equal(Status.Succeeded, job.Status);
         Assert.Equal(Status.Succeeded, job.Actions.Single().Status);
-        jobRepository.Verify(
-            value => value.UpdateAsync(job, It.IsAny<CancellationToken>()),
-            Times.Once);
-        unitOfWork.Verify(
-            value => value.SaveChangesAsync(It.IsAny<CancellationToken>()),
-            Times.Once);
     }
 
     [Fact]
@@ -203,22 +208,23 @@ public sealed class TriggerEngineTests
             jobRepository.Object,
             unitOfWork.Object);
         TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
-        TaskCompletionSource<Job> completion =
+        TaskCompletionSource<Result> completion =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
-        engine.JobExecutionCompleted += completed => completion.TrySetResult(completed);
+        engine.TriggerExecutionCompleted += (_, result) =>
+        {
+            completion.TrySetResult(result);
+            return Task.CompletedTask;
+        };
         await engine.SubscribeAsync(7, job);
 
         // Act
         Result startResult = await engine.StartAsync(7);
-        Job completedJob = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        Result completedResult = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
         // Assert
         Assert.True(startResult.Success);
-        Assert.Equal(Status.Faulted, completedJob.Status);
-        Assert.Contains(
-            completedJob.Results,
-            result => !result.Success
-                && result.Message!.Contains("Test trigger failure"));
+        Assert.False(completedResult.Success);
+        Assert.Contains("Test trigger failure", completedResult.Message);
     }
 
     [Fact]
@@ -260,7 +266,8 @@ public sealed class TriggerEngineTests
         {
         }
 
-        public override Task<Result> InitTrigger()
+        protected override Task<Result> WaitUntilReadyAsync(
+            CancellationToken cancellationToken)
             => Task.FromResult(Result.CreateFailure("Test trigger failure"));
     }
 
@@ -294,7 +301,8 @@ public sealed class TriggerEngineTests
         public void Complete()
             => _completion.TrySetResult(Result.CreateSuccess());
 
-        public override Task<Result> InitTrigger()
+        protected override Task<Result> WaitUntilReadyAsync(
+            CancellationToken cancellationToken)
             => _completion.Task;
     }
 }

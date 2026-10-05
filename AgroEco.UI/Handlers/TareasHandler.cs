@@ -28,7 +28,6 @@ namespace AgroEco.UI.Handlers
         private readonly UpdateJob _updateJob;
         private readonly DeleteJob _deleteJob;
         private readonly JobEngine _jobEngine;
-        private readonly TriggerEngine _triggerEngine;
         private readonly ITriggerFactory _triggerFactory;
         private readonly IActionFactory _actionFactory;
         private readonly ILogger<TareasHandler> _logger;
@@ -42,7 +41,6 @@ namespace AgroEco.UI.Handlers
             UpdateJob updateJob,
             DeleteJob deleteJob,
             JobEngine jobEngine,
-            TriggerEngine triggerEngine,
             ITriggerFactory triggerFactory,
             IActionFactory actionFactory,
             ILogger<TareasHandler> logger)
@@ -55,11 +53,10 @@ namespace AgroEco.UI.Handlers
             _updateJob = updateJob;
             _deleteJob = deleteJob;
             _jobEngine = jobEngine;
-            _triggerEngine = triggerEngine;
             _triggerFactory = triggerFactory;
             _actionFactory = actionFactory;
             _logger = logger;
-            _triggerEngine.JobExecutionCompleted += OnJobExecutionCompleted;
+            _jobEngine.JobExecutionCompleted += OnJobExecutionCompleted;
         }
 
         private void OnJobExecutionCompleted(Job job)
@@ -85,7 +82,7 @@ namespace AgroEco.UI.Handlers
 
         public void Dispose()
         {
-            _triggerEngine.JobExecutionCompleted -= OnJobExecutionCompleted;
+            _jobEngine.JobExecutionCompleted -= OnJobExecutionCompleted;
         }
 
         public void ManejarMensaje(Mensaje msg)

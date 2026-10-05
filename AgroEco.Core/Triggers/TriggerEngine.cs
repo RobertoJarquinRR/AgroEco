@@ -1,6 +1,4 @@
 using AgroEco.Core.Triggers.Persistence;
-using AgroEco.Core.Jobs;
-using AgroEco.Core.Jobs.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AgroEco.Core.Triggers;
@@ -16,7 +14,7 @@ public sealed class TriggerEngine
         _scopeFactory = scopeFactory;
     }
 
-    public event Action<Job>? JobExecutionCompleted;
+    public event Func<Trigger, Result, Task>? TriggerExecutionCompleted;
 
     public async Task<Result<Trigger>> GetOrCreateAsync(
         int triggerId,
@@ -165,7 +163,7 @@ public sealed class TriggerEngine
 
         try
         {
-            executionResult = await trigger.InitTrigger();
+            executionResult = await trigger.ExecuteAsync();
         }
         catch (Exception exception)
         {
@@ -175,41 +173,12 @@ public sealed class TriggerEngine
         }
 
         trigger.CompleteExecution(executionResult);
-        await PersistCompletedJobsAsync(trigger, executionResult);
-        RemoveIfInactive(triggerId, trigger);
-    }
-
-    private async Task PersistCompletedJobsAsync(
-        Trigger trigger,
-        Result executionResult)
-    {
-        using IServiceScope scope = _scopeFactory.CreateScope();
-        UpdateJob updateJob = scope.ServiceProvider
-            .GetRequiredService<UpdateJob>();
-
-        foreach (Job job in trigger.GetTriggerables().OfType<Job>())
+        if (trigger.RuntimeStatus != TriggerRuntimeStatus.Stopped
+            && TriggerExecutionCompleted is not null)
         {
-            if (!job.IsCompleted && !executionResult.Success)
-            {
-                job.Results.Add(executionResult);
-                Result faultResult = job.ChangeStatus(Status.Faulted);
-                if (!faultResult.Success)
-                {
-                    Console.Error.WriteLine(
-                        $"Could not mark job '{job.Name}' as faulted: {faultResult.Message}");
-                    continue;
-                }
-            }
-
-            Result persistenceResult = await updateJob.HandleAsync(job);
-            if (!persistenceResult.Success)
-            {
-                Console.Error.WriteLine(
-                    $"Could not persist completed job '{job.Name}': {persistenceResult.Message}");
-            }
-
-            JobExecutionCompleted?.Invoke(job);
+            await TriggerExecutionCompleted(trigger, executionResult);
         }
+        RemoveIfInactive(triggerId, trigger);
     }
 
     private void RemoveIfInactive(int triggerId, Trigger trigger)

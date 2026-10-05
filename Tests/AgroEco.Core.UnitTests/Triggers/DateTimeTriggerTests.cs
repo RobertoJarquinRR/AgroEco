@@ -75,7 +75,7 @@ public sealed class DateTimeTriggerTests
     }
 
     [Fact]
-    public async Task InitTrigger_WhenTargetTimeHasJustPassed_ExecutesSubscribersImmediately()
+    public async Task ExecuteAsync_WhenTargetTimeHasJustPassed_ExecutesSubscribersImmediately()
     {
         // Arrange
         DateTimeTrigger trigger = new(
@@ -88,7 +88,7 @@ public sealed class DateTimeTriggerTests
         trigger.Subscribe(triggerable.Object);
 
         // Act
-        Result result = await trigger.InitTrigger();
+        Result result = await trigger.ExecuteAsync();
 
         // Assert
         Assert.True(result.Success);

@@ -150,7 +150,48 @@ namespace AgroEco.Core.Triggers
             }
         }
 
-        protected async Task<List<Result>> ExecuteTriggerables()
+        public async Task<Result> ExecuteAsync()
+        {
+            try
+            {
+                Result readyResult = await WaitUntilReadyAsync(ExecutionToken);
+                if (!readyResult.Success)
+                {
+                    return readyResult;
+                }
+
+                List<Result> batchResults = await NotifyTriggerablesAsync();
+                Result[] failedResults = batchResults
+                    .Where(result => !result.Success)
+                    .ToArray();
+                if (failedResults.Length > 0)
+                {
+                    string details = string.Join(
+                        "; ",
+                        failedResults
+                            .Select(result => result.Message)
+                            .Where(message => !string.IsNullOrWhiteSpace(message)));
+                    return Result.CreateFailure(
+                        string.IsNullOrWhiteSpace(details)
+                            ? "One or more triggerables failed during execution."
+                            : $"One or more triggerables failed during execution: {details}");
+                }
+
+                return Result.CreateSuccess();
+            }
+            catch (OperationCanceledException)
+            {
+                return Result.CreateFailure("The trigger execution was canceled.");
+            }
+            catch (Exception exception)
+            {
+                return Result.CreateFailure(
+                    $"Trigger '{Name}' failed during execution.",
+                    exception);
+            }
+        }
+
+        private async Task<List<Result>> NotifyTriggerablesAsync()
         {
             ITriggerable[] subscribers;
 
@@ -194,6 +235,7 @@ namespace AgroEco.Core.Triggers
             }
         }
 
-        public abstract Task<Result> InitTrigger();
+        protected abstract Task<Result> WaitUntilReadyAsync(
+            CancellationToken cancellationToken);
     }
 }

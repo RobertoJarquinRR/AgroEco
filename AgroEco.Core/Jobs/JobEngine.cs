@@ -16,7 +16,44 @@ namespace AgroEco.Core.Jobs
         {
             _scopeFactory = scopeFactory;
             _triggerEngine = triggerEngine;
+            _triggerEngine.TriggerExecutionCompleted += OnTriggerExecutionCompletedAsync;
+        }
 
+        public event Action<Job>? JobExecutionCompleted;
+
+        private async Task OnTriggerExecutionCompletedAsync(
+            Trigger trigger,
+            Result executionResult)
+        {
+            await PersistCompletedJobsAsync(trigger, executionResult);
+        }
+
+        private async Task PersistCompletedJobsAsync(
+            Trigger trigger,
+            Result executionResult)
+        {
+            using IServiceScope scope = _scopeFactory.CreateScope();
+            UpdateJob updateJob = scope.ServiceProvider
+                .GetRequiredService<UpdateJob>();
+
+            foreach (Job job in trigger.GetTriggerables().OfType<Job>())
+            {
+                if (!job.IsCompleted && !executionResult.Success)
+                {
+                    job.Results.Add(executionResult);
+                    Result faultResult = job.ChangeStatus(Status.Faulted);
+                    if (!faultResult.Success)
+                    {
+                        return;
+                    }
+                }
+
+                Result persistenceResult = await updateJob.HandleAsync(job);
+                if (persistenceResult.Success)
+                {
+                    JobExecutionCompleted?.Invoke(job);
+                }
+            }
         }
 
         public async Task<Result> Init(
@@ -121,11 +158,7 @@ namespace AgroEco.Core.Jobs
                 return (rehydrateResult, subscribeResult);
             }
 
-            Result triggerResult = await _triggerEngine.StartAsync(
-                job.Trigger.Id,
-                cancellationToken);
-
-            if (triggerResult.Success && job.Status != Status.Running)
+            if (job.Status != Status.Running)
             {
                 Result runningResult = job.ChangeStatus(Status.Running);
                 if (!runningResult.Success)
@@ -141,6 +174,10 @@ namespace AgroEco.Core.Jobs
                     return (rehydrateResult, persistenceResult);
                 }
             }
+
+            Result triggerResult = await _triggerEngine.StartAsync(
+                job.Trigger.Id,
+                cancellationToken);
 
             return (rehydrateResult, triggerResult);
         }

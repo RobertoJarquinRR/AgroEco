@@ -46,7 +46,6 @@ namespace AgroEco.UI
                     sp.GetRequiredService<UpdateJob>(),
                     sp.GetRequiredService<DeleteJob>(),
                     sp.GetRequiredService<JobEngine>(),
-                    sp.GetRequiredService<TriggerEngine>(),
                     sp.GetRequiredService<ITriggerFactory>(),
                     sp.GetRequiredService<IActionFactory>(),
                     logger);
