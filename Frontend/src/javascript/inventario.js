@@ -25,7 +25,7 @@ if (Win.chrome && Win.chrome.webview) {
 
     Win.chrome.webview.postMessage({
         screen: "inventario",
-        type: "ready"
+        type: "ready_inventario"
     });
 }
 
