@@ -386,13 +386,9 @@ btnGuardar.addEventListener('click', () => {
         const index = tareasLocales.findIndex(t => t.id === idTareaEditando);
         if (index !== -1) tareasLocales[index] = { ...tareasLocales[index], ...payload };
     } else {
-        payload.id = Date.now();
         AgroBridge.send('crearTarea', payload);
-
-        tareasLocales.push(payload);
     }
 
-    renderizarTareas(tareasLocales);
     cerrarDialog();
 });
 
