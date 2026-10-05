@@ -78,7 +78,7 @@ public sealed class TriggerEngineTests
             unitOfWork.Object);
         TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
         int completedNotifications = 0;
-        engine.TriggerExecutionCompleted += (_, _) =>
+        engine.ExecutionCompleted += (report) =>
         {
             completedNotifications++;
             return Task.CompletedTask;
@@ -115,7 +115,7 @@ public sealed class TriggerEngineTests
         Result stopResult = await engine.StopAsync(7);
         Result<Trigger> registeredResult = await engine.GetOrCreateAsync(7);
         trigger.Complete();
-        await trigger.ExecutionCompleted;
+        await trigger.WaitCompletion;
 
         // Assert
         Assert.True(stopResult.Success);
@@ -153,27 +153,27 @@ public sealed class TriggerEngineTests
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(job);
-        TaskCompletionSource<Result> completion =
+        TaskCompletionSource<TriggerExecutionReport> completion =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
         using ServiceProvider provider = BuildProvider(
             triggerRepository.Object,
             jobRepository.Object,
             unitOfWork.Object);
         TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
-        engine.TriggerExecutionCompleted += (_, result) =>
+        engine.ExecutionCompleted += (report) =>
         {
-            completion.TrySetResult(result);
+            completion.TrySetResult(report);
             return Task.CompletedTask;
         };
         await engine.SubscribeAsync(7, job);
 
         // Act
         Result startResult = await engine.StartAsync(7);
-        Result completedResult = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        TriggerExecutionReport completedReport = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
         // Assert
         Assert.True(startResult.Success);
-        Assert.True(completedResult.Success);
+        Assert.True(completedReport.OverallResult.Success);
         Assert.Equal(Status.Succeeded, job.Status);
         Assert.Equal(Status.Succeeded, job.Actions.Single().Status);
     }
@@ -208,23 +208,23 @@ public sealed class TriggerEngineTests
             jobRepository.Object,
             unitOfWork.Object);
         TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
-        TaskCompletionSource<Result> completion =
+        TaskCompletionSource<TriggerExecutionReport> completion =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
-        engine.TriggerExecutionCompleted += (_, result) =>
+        engine.ExecutionCompleted += (report) =>
         {
-            completion.TrySetResult(result);
+            completion.TrySetResult(report);
             return Task.CompletedTask;
         };
         await engine.SubscribeAsync(7, job);
 
         // Act
         Result startResult = await engine.StartAsync(7);
-        Result completedResult = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        TriggerExecutionReport completedReport = await completion.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
         // Assert
         Assert.True(startResult.Success);
-        Assert.False(completedResult.Success);
-        Assert.Contains("Test trigger failure", completedResult.Message);
+        Assert.False(completedReport.OverallResult.Success);
+        Assert.Contains("Test trigger failure", completedReport.OverallResult.Message);
     }
 
     [Fact]
@@ -296,7 +296,7 @@ public sealed class TriggerEngineTests
         {
         }
 
-        public Task ExecutionCompleted => _completion.Task;
+        public Task WaitCompletion => _completion.Task;
 
         public void Complete()
             => _completion.TrySetResult(Result.CreateSuccess());

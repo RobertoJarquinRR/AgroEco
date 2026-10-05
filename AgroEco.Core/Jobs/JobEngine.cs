@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using System.Collections.Concurrent;
 using AgroEco.Core.Jobs.Persistence;
 using AgroEco.Core.Triggers;
+using AgroEco.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AgroEco.Core.Jobs
@@ -9,6 +11,7 @@ namespace AgroEco.Core.Jobs
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly TriggerEngine _triggerEngine;
+        private readonly ConcurrentDictionary<int, ConcurrentDictionary<int, Job>> _subscribedJobs = new();
 
         public JobEngine(
             IServiceScopeFactory scopeFactory,
@@ -16,35 +19,49 @@ namespace AgroEco.Core.Jobs
         {
             _scopeFactory = scopeFactory;
             _triggerEngine = triggerEngine;
-            _triggerEngine.TriggerExecutionCompleted += OnTriggerExecutionCompletedAsync;
+            _triggerEngine.ExecutionCompleted += OnTriggerExecutionCompletedAsync;
         }
 
         public event Action<Job>? JobExecutionCompleted;
 
         private async Task OnTriggerExecutionCompletedAsync(
-            Trigger trigger,
-            Result executionResult)
+            TriggerExecutionReport report)
         {
-            await PersistCompletedJobsAsync(trigger, executionResult);
+            await PersistCompletedJobsAsync(report);
         }
 
         private async Task PersistCompletedJobsAsync(
-            Trigger trigger,
-            Result executionResult)
+            TriggerExecutionReport report)
         {
+            if (!_subscribedJobs.TryGetValue(report.TriggerId, out var jobsById))
+            {
+                return;
+            }
+
             using IServiceScope scope = _scopeFactory.CreateScope();
             UpdateJob updateJob = scope.ServiceProvider
                 .GetRequiredService<UpdateJob>();
 
-            foreach (Job job in trigger.GetTriggerables().OfType<Job>())
+            foreach (var subscriberReport in report.SubscriberReports)
             {
-                if (!job.IsCompleted && !executionResult.Success)
+                if (subscriberReport.SubscriberType != nameof(Job))
                 {
-                    job.Results.Add(executionResult);
+                    continue;
+                }
+
+                var jobId = subscriberReport.SubscriberId;
+                if (jobId is null || !jobsById.TryGetValue(jobId.Value, out Job? job))
+                {
+                    continue;
+                }
+
+                if (!job.IsCompleted && !report.OverallResult.Success)
+                {
+                    job.Results.Add(report.OverallResult);
                     Result faultResult = job.ChangeStatus(Status.Faulted);
                     if (!faultResult.Success)
                     {
-                        return;
+                        continue;
                     }
                 }
 
@@ -54,6 +71,26 @@ namespace AgroEco.Core.Jobs
                     JobExecutionCompleted?.Invoke(job);
                 }
             }
+
+            // Clean up completed jobs
+            var completedJobIds = jobsById
+                .Where(kvp => kvp.Value.IsCompleted)
+                .Select(kvp => kvp.Key)
+                .ToList();
+            foreach (var id in completedJobIds)
+            {
+                jobsById.TryRemove(id, out _);
+            }
+            if (jobsById.IsEmpty)
+            {
+                _subscribedJobs.TryRemove(report.TriggerId, out _);
+            }
+        }
+
+        internal void TrackSubscribedJob(int triggerId, Job job)
+        {
+            var jobsById = _subscribedJobs.GetOrAdd(triggerId, _ => new ConcurrentDictionary<int, Job>());
+            jobsById.TryAdd(job.Id, job);
         }
 
         public async Task<Result> Init(
@@ -95,7 +132,6 @@ namespace AgroEco.Core.Jobs
             int id,
             CancellationToken cancellationToken = default)
         {
-           
             try
             {
                 using IServiceScope scope = _scopeFactory.CreateScope();
@@ -157,6 +193,8 @@ namespace AgroEco.Core.Jobs
             {
                 return (rehydrateResult, subscribeResult);
             }
+
+            TrackSubscribedJob(job.Trigger.Id, job);
 
             if (job.Status != Status.Running)
             {

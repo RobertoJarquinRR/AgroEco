@@ -88,10 +88,10 @@ public sealed class DateTimeTriggerTests
         trigger.Subscribe(triggerable.Object);
 
         // Act
-        Result result = await trigger.ExecuteAsync();
+        TriggerExecutionReport report = await trigger.ExecuteAsync();
 
         // Assert
-        Assert.True(result.Success);
+        Assert.True(report.OverallResult.Success);
         triggerable.Verify(value => value.OnTrigger(), Times.Once);
     }
 
