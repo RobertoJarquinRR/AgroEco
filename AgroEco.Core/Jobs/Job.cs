@@ -206,6 +206,11 @@ namespace AgroEco.Core.Jobs
 
         public Result ChangeStatus(Status status)
         {
+            if (Status == status)
+            {
+                return Result.CreateSuccess();
+            }
+
             bool validTransition = Status switch
             {
                 Status.Created => status is Status.Enqueued

@@ -111,6 +111,29 @@ public sealed class JobTests
     }
 
     [Fact]
+    public async Task ChangeStatus_WhenStatusIsAlreadyCurrent_ReturnsSuccess()
+    {
+        // Arrange
+        Result<Job> creation = await Job.CreateJob(
+            "job",
+            null,
+            Status.Created,
+            null,
+            [new NoOpAction("action")],
+            new DateTimeTrigger("watering", DateTimeOffset.UtcNow.AddHours(1)));
+
+        Job job = Assert.IsType<Job>(creation.Value);
+        Assert.True(job.ChangeStatus(Status.Running).Success);
+
+        // Act
+        Result result = job.ChangeStatus(Status.Running);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.Equal(Status.Running, job.Status);
+    }
+
+    [Fact]
     public async Task ChangeStatus_FromCreatedToSucceeded_ReturnsFailure()
     {
         // Arrange
