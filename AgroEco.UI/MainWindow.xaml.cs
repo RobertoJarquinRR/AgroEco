@@ -96,6 +96,13 @@ namespace AgroEco.UI
 
         private void EnviarAJS(string type, object? payload)
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                _ = Dispatcher.BeginInvoke(
+                    new Action(() => EnviarAJS(type, payload)));
+                return;
+            }
+
             try
             {
                 var msg = new { type, payload };

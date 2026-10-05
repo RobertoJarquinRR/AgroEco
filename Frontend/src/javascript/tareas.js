@@ -115,6 +115,11 @@ const estadoConfig = {
     porVencer:  { label: 'Por Vencer',  color: '#e67e22', bg: '#FCE8D6' },
     vencida:    { label: 'Vencida',     color: '#C0392B', bg: '#FBE0DE' },
     completada: { label: 'Completada',  color: '#276A2A', bg: '#E1F0E1' },
+    completada_con_errores: {
+        label: 'Completada con errores',
+        color: '#9A6700',
+        bg: '#FFF4CC'
+    },
 };
 
 const prioridadConfig = {
@@ -242,7 +247,8 @@ function actualizarContadores(tareas) {
     document.getElementById('en-progreso').textContent = tareas.filter(t => t.estado === 'progreso').length;
     document.getElementById('por-vencer').textContent = tareas.filter(t => t.estado === 'porVencer').length;
     document.getElementById('vencidas').textContent = tareas.filter(t => t.estado === 'vencida').length;
-    document.getElementById('completadas').textContent = tareas.filter(t => t.estado === 'completada').length;
+    document.getElementById('completadas').textContent = tareas.filter(t =>
+        t.estado === 'completada' || t.estado === 'completada_con_errores').length;
 
     const porVencer = tareas.filter(t => t.estado === 'porVencer').length;
     const elemWarn = document.getElementById('tareasAVencer');
