@@ -1,53 +1,67 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using AgroEco.UI.Handlers;
+using Microsoft.Extensions.Logging;
 
 namespace AgroEco.UI.Mensajeros
 {
     public class MsgRouter
     {
-        //coneciones con los handlers de cada screen. Si se agrega un nuevo screen, agregarlo acá y en el switch de Enrutar
         private readonly TareasHandler _tareas;
         private readonly PlagasHandler _plagas;
         private readonly FinanzasHandler _finanzas;
+        private readonly DashboardHandler _dashboard;
+        private readonly SensoresHandler _sensores;
+        private readonly InventarioHandler _inventario;
+        private readonly EducacionHandler _educacion;
+        private readonly ILogger<MsgRouter> _logger;
 
-        public MsgRouter(Action<string, object> enviar)
+        public MsgRouter(
+            TareasHandler tareas,
+            PlagasHandler plagas,
+            FinanzasHandler finanzas,
+            DashboardHandler dashboard,
+            SensoresHandler sensores,
+            InventarioHandler inventario,
+            EducacionHandler educacion,
+            ILogger<MsgRouter> logger)
         {
-            _tareas = new TareasHandler(enviar);
-            _plagas = new PlagasHandler(enviar);
-            _finanzas = new FinanzasHandler(enviar);
+            _tareas = tareas;
+            _plagas = plagas;
+            _finanzas = finanzas;
+            _dashboard = dashboard;
+            _sensores = sensores;
+            _inventario = inventario;
+            _educacion = educacion;
+            _logger = logger;
         }
 
-        // true = un handler lo atendió. false = que siga el switch viejo
         public bool Enrutar(Mensaje mensaje)
         {
             try
             {
-                switch (mensaje.Screen)
+                return mensaje.Screen switch
                 {
-                    case "tareas":
-                        _tareas.ManejarMensaje(mensaje);
-                        return true;
-
-                    case "plagas":
-                        _plagas.ManejarMensaje(mensaje);
-                        return true;
-
-                    case "finanzas":                                 
-                        _finanzas.ManejarMensaje(mensaje);
-                        return true;
-
-
-                    default:
-                        return false;
-                }
+                    "tareas" => HandleScreen(_tareas.ManejarMensaje, mensaje),
+                    "plagas" => HandleScreen(_plagas.ManejarMensaje, mensaje),
+                    "finanzas" => HandleScreen(_finanzas.ManejarMensaje, mensaje),
+                    "dashboard" => HandleScreen(_dashboard.ManejarMensaje, mensaje),
+                    "sensores" => HandleScreen(_sensores.ManejarMensaje, mensaje),
+                    "inventario" => HandleScreen(_inventario.ManejarMensaje, mensaje),
+                    "educacion" => HandleScreen(_educacion.ManejarMensaje, mensaje),
+                    _ => false
+                };
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error en {mensaje.Screen}/{mensaje.Type}: {ex}");
+                _logger.LogError(ex, "Error en {Screen}/{Type}", mensaje.Screen, mensaje.Type);
                 return true;
             }
+        }
+
+        private bool HandleScreen(Action<Mensaje> handler, Mensaje mensaje)
+        {
+            handler(mensaje);
+            return true;
         }
     }
 }

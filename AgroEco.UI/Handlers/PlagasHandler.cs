@@ -1,27 +1,25 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.IO;
+using System.Text.Json;
 using AgroEco.UI.Clases;
-using AgroEco.UI.Mensajeros;
 using AgroEco.UI.CultivosAfectado;
+using AgroEco.UI.Mensajeros;
 
 namespace AgroEco.UI.Handlers
 {
     public class PlagasHandler
     {
         private readonly Action<string, object> _enviar;
+        private readonly ILogger<PlagasHandler> _logger;
         private readonly List<Plagas> _plagas = new();
-        //permite que Name == name y no sea case sensitive
-        private static readonly JsonSerializerOptions _options = new() {
-            PropertyNameCaseInsensitive = true
-        };
+        private static readonly JsonSerializerOptions _options = new() { PropertyNameCaseInsensitive = true };
 
-
-        //constructor 
-        public PlagasHandler(Action<string, object> enviar)
+        public PlagasHandler(Action<string, object> enviar, ILogger<PlagasHandler> logger)
         {
             _enviar = enviar;
+            _logger = logger;
             CargarPlagas();
         }
 
@@ -42,6 +40,7 @@ namespace AgroEco.UI.Handlers
                     break;
             }
         }
+
         private void EnviarPlagas()
         {
             var lista = _plagas.Select(p => new
@@ -53,13 +52,14 @@ namespace AgroEco.UI.Handlers
 
             _enviar("cargar_plagas", lista);
         }
+
         private void EnviarDetallesPlaga(Mensaje msg)
         {
             int idPlaga = msg.LeerPayload<int>();
 
             var plaga = _plagas.FirstOrDefault(p => p.Id == idPlaga);
             if (plaga is null)
-            { 
+            {
                 return;
             }
 
@@ -80,6 +80,7 @@ namespace AgroEco.UI.Handlers
 
             _enviar("cargar_cultivos", cultivos);
         }
+
         private void EnviarDetallesCultivo(Mensaje msg)
         {
             var pedido = msg.LeerPayload<DetallesCultivosAfectados>();
@@ -89,7 +90,7 @@ namespace AgroEco.UI.Handlers
             var cultivo = plaga?.CultivosAfectados.FirstOrDefault(c => c.Id == pedido.IdCultivo);
 
             if (cultivo is null)
-            { 
+            {
                 return;
             }
 
@@ -104,24 +105,30 @@ namespace AgroEco.UI.Handlers
                 frecuenciaTratamiento = cultivo.FrecuenciaAplicacion
             });
         }
+
         private void CargarPlagas()
         {
-            string ruta = Path.Combine(AppContext.BaseDirectory,
-                "..", "..", "..", "..", "Frontend", "public", "data", "plagas.json");
-
-            if (!File.Exists(ruta))
+            try
             {
-                System.Diagnostics.Debug.WriteLine($"No se encontró plagas.json en: {ruta}");
-                return;
+                string ruta = Path.Combine(AppContext.BaseDirectory,
+                    "..", "..", "..", "..", "Frontend", "public", "data", "plagas.json");
+
+                if (!File.Exists(ruta))
+                {
+                    _logger.LogWarning("No se encontró plagas.json en: {Ruta}", ruta);
+                    return;
+                }
+
+                string texto = File.ReadAllText(ruta);
+                var lista = JsonSerializer.Deserialize<List<Plagas>>(texto, _options);
+
+                _plagas.AddRange(lista ?? new());
+                _logger.LogInformation("Plagas cargadas: {Count}", _plagas.Count);
             }
-
-            string texto = File.ReadAllText(ruta);
-            var lista = JsonSerializer.Deserialize<List<Plagas>>(texto, _options);
-
-            _plagas.AddRange(lista ?? new());
-            System.Diagnostics.Debug.WriteLine($"Plagas cargadas: {_plagas.Count}");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error cargando plagas.json");
+            }
         }
     }
-
-
 }

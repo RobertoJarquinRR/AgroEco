@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AgroEco.UI.Clases;
@@ -9,12 +10,14 @@ namespace AgroEco.UI.Handlers
     public class FinanzasHandler
     {
         private readonly Action<string, object> _enviar;
+        private readonly ILogger<FinanzasHandler> _logger;
         private readonly List<RegistroFinanciero> _registros = new();
         private long _siguienteId = 1;
 
-        public FinanzasHandler(Action<string, object> enviar)
+        public FinanzasHandler(Action<string, object> enviar, ILogger<FinanzasHandler> logger)
         {
             _enviar = enviar;
+            _logger = logger;
         }
 
         public void ManejarMensaje(Mensaje msg)
@@ -37,7 +40,6 @@ namespace AgroEco.UI.Handlers
             var registro = msg.LeerPayload<RegistroFinanciero>();
             if (registro is null) return;
 
-            // C# también valida, no solo el JS
             if (registro.Monto <= 0) return;
             if (registro.Tipo != "ingreso" && registro.Tipo != "costo") return;
 
