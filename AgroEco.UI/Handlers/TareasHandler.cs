@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AgroEco.UI.Clases;
 
-namespace AgroEco.UI.Mensajeros
+namespace AgroEco.UI.Handlers
 {
     public class TareasHandler
     {

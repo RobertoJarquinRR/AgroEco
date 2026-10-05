@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AgroEco.UI.Mensajeros
+namespace AgroEco.UI.Handlers
 {
     internal class DashboardHandler
     {
