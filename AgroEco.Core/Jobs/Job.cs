@@ -148,9 +148,14 @@ namespace AgroEco.Core.Jobs
                 }
 
                 Results.Add(actionResult);
-                action.ChangeStatus(
+                Result actionCompletionResult = action.ChangeStatus(
                     actionResult.Success ? Status.Succeeded : Status.Faulted);
-                actionFailed |= !actionResult.Success;
+                if (!actionCompletionResult.Success)
+                {
+                    Results.Add(actionCompletionResult);
+                }
+
+                actionFailed |= !actionResult.Success || !actionCompletionResult.Success;
             }
             Result completionResult = ChangeStatus(
                 actionFailed ? Status.Faulted : Status.Succeeded);

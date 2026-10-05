@@ -57,6 +57,35 @@ public sealed class JobTests
     }
 
     [Fact]
+    public async Task OnTrigger_WhenActionCannotCompleteTransition_MarksJobAsFaulted()
+    {
+        // Arrange
+        DateTimeTrigger trigger = new(
+            "watering",
+            DateTimeOffset.UtcNow.AddHours(1));
+        Result<Job> creation = await Job.CreateJob(
+            "job",
+            null,
+            Status.Created,
+            null,
+            [new ActionWithInvalidCompletionTransition()],
+            trigger);
+
+        Job job = Assert.IsType<Job>(creation.Value);
+
+        // Act
+        Result result = await job.OnTrigger();
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Equal(Status.Faulted, job.Status);
+        Assert.Contains(
+            job.Results,
+            item => (item.Message ?? string.Empty)
+                .Contains("cannot transition", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public async Task ChangeStatus_FromCreatedToSucceeded_ReturnsFailure()
     {
         // Arrange
@@ -86,5 +115,18 @@ public sealed class JobTests
 
         public override Task<Result> Execute()
             => Task.FromResult(Result.CreateFailure("Expected failure"));
+    }
+
+    private sealed class ActionWithInvalidCompletionTransition : CoreAction
+    {
+        public ActionWithInvalidCompletionTransition() : base("invalid completion")
+        {
+        }
+
+        public override Task<Result> Execute()
+        {
+            ChangeStatus(Status.Canceled);
+            return Task.FromResult(Result.CreateSuccess());
+        }
     }
 }
