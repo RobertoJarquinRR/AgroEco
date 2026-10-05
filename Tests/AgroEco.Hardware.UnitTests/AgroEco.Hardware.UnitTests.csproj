@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AgroEco.Hardware\AgroEco.Hardware.csproj" />
+    <ProjectReference Include="..\..\AgroEco.Hardware\AgroEco.Hardware.csproj" />
   </ItemGroup>
 
 </Project>

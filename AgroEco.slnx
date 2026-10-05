@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/Tests/">
-    <Project Path="AgroEco.Hardware.UnitTests/AgroEco.Hardware.UnitTests.csproj" Id="8761a0a9-1d2d-4f90-a0d1-7251f62393ad" />
+    <Project Path="Tests/AgroEco.Hardware.UnitTests/AgroEco.Hardware.UnitTests.csproj" Id="8761a0a9-1d2d-4f90-a0d1-7251f62393ad" />
     <Project Path="Tests/AgroEco.Data.IntegrationTests/AgroEco.Data.IntegrationTests.csproj" Id="c35d5178-e765-4c0c-a1b6-aadbfde008b6" />
     <Project Path="Tests/AgroEco.Core.UnitTests/AgroEco.Core.UnitTests.csproj" Id="848cd9f6-eef9-4ffe-8eb0-ce5c7ad93954" />
   </Folder>
