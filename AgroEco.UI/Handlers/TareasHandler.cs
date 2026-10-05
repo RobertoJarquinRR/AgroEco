@@ -339,6 +339,7 @@ namespace AgroEco.UI.Handlers
                 var status = dto.Estado switch
                 {
                     "completada" => Status.Succeeded,
+                    "completada_con_errores" => Status.CompletedWithErrors,
                     "progreso" => Status.Running,
                     "pendiente" => Status.Enqueued,
                     "cancelada" => Status.Canceled,
@@ -387,6 +388,7 @@ namespace AgroEco.UI.Handlers
             var estado = job.Status switch
             {
                 Status.Succeeded => "completada",
+                Status.CompletedWithErrors => "completada_con_errores",
                 Status.Faulted => "vencida",
                 Status.Canceled => "cancelada",
                 Status.Running => "progreso",

@@ -120,18 +120,26 @@ namespace AgroEco.Core.Jobs
                 return runningResult;
             }
 
-            bool actionFailed = false;
+            int successfulActions = 0;
+            int failedActions = 0;
             foreach (Action action in Actions)
             {
-                if(action.Status == Status.Succeeded || action.Status == Status.Canceled)
+                if (action.Status == Status.Succeeded)
                 {
+                    successfulActions++;
                     continue;
                 }
+                if (action.Status == Status.Canceled)
+                {
+                    failedActions++;
+                    continue;
+                }
+
                 Result startResult = action.ChangeStatus(Status.Running);
                 if (!startResult.Success)
                 {
                     Results.Add(startResult);
-                    actionFailed = true;
+                    failedActions++;
                     continue;
                 }
 
@@ -155,10 +163,23 @@ namespace AgroEco.Core.Jobs
                     Results.Add(actionCompletionResult);
                 }
 
-                actionFailed |= !actionResult.Success || !actionCompletionResult.Success;
+                if (actionResult.Success && actionCompletionResult.Success)
+                {
+                    successfulActions++;
+                }
+                else
+                {
+                    failedActions++;
+                }
             }
+
+            Status completionStatus = successfulActions == Actions.Count
+                ? Status.Succeeded
+                : successfulActions > 0
+                    ? Status.CompletedWithErrors
+                    : Status.Faulted;
             Result completionResult = ChangeStatus(
-                actionFailed ? Status.Faulted : Status.Succeeded);
+                completionStatus);
             if (!completionResult.Success)
             {
                 return completionResult;
@@ -170,11 +191,13 @@ namespace AgroEco.Core.Jobs
             string actionSummary = string.Join("; ", messages);
 
             string message =
-                $"Job '{Name}' executed with {(actionFailed ? "failures" : "success")}. Action results: {actionSummary}";
+                $"Job '{Name}' executed with status {completionStatus}. " +
+                $"Successful actions: {successfulActions}; failed actions: {failedActions}. " +
+                $"Action results: {actionSummary}";
 
-            return actionFailed
-                ? Result.CreateFailure(message)
-                : Result.CreateSuccess(message);
+            return completionStatus == Status.Succeeded
+                ? Result.CreateSuccess(message)
+                : Result.CreateFailure(message);
         }
 
         public Result ChangeStatus(Status status)
@@ -183,8 +206,14 @@ namespace AgroEco.Core.Jobs
             {
                 Status.Created => status is Status.Enqueued or Status.Running or Status.Canceled,
                 Status.Enqueued => status is Status.Running or Status.Canceled,
-                Status.Running => status is Status.Succeeded or Status.Faulted or Status.Canceled,
-                Status.Succeeded or Status.Faulted or Status.Canceled => false,
+                Status.Running => status is Status.Succeeded
+                    or Status.CompletedWithErrors
+                    or Status.Faulted
+                    or Status.Canceled,
+                Status.Succeeded
+                    or Status.CompletedWithErrors
+                    or Status.Faulted
+                    or Status.Canceled => false,
                 _ => false
             };
 
@@ -219,7 +248,10 @@ namespace AgroEco.Core.Jobs
         }
 
         internal bool IsCompleted
-            => Status is Status.Succeeded or Status.Faulted or Status.Canceled;
+            => Status is Status.Succeeded
+                or Status.CompletedWithErrors
+                or Status.Faulted
+                or Status.Canceled;
 
 
 

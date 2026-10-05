@@ -57,6 +57,31 @@ public sealed class JobTests
     }
 
     [Fact]
+    public async Task OnTrigger_WhenSomeActionsFail_MarksJobAsCompletedWithErrors()
+    {
+        // Arrange
+        DateTimeTrigger trigger = new(
+            "watering",
+            DateTimeOffset.UtcNow.AddHours(1));
+        Result<Job> creation = await Job.CreateJob(
+            "job",
+            null,
+            Status.Created,
+            null,
+            [new NoOpAction("successful action"), new FailingAction()],
+            trigger);
+
+        Job job = Assert.IsType<Job>(creation.Value);
+
+        // Act
+        Result result = await job.OnTrigger();
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Equal(Status.CompletedWithErrors, job.Status);
+    }
+
+    [Fact]
     public async Task OnTrigger_WhenActionCannotCompleteTransition_MarksJobAsFaulted()
     {
         // Arrange
