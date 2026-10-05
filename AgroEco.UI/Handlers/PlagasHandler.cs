@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.IO;
 using AgroEco.UI.Clases;
 using AgroEco.UI.Mensajeros;
 using AgroEco.UI.CultivosAfectado;
@@ -102,6 +103,23 @@ namespace AgroEco.UI.Handlers
                 dosisPor20Litros = cultivo.DosisRecomendada,
                 frecuenciaTratamiento = cultivo.FrecuenciaAplicacion
             });
+        }
+        private void CargarPlagas()
+        {
+            string ruta = Path.Combine(AppContext.BaseDirectory,
+                "..", "..", "..", "..", "Frontend", "public", "data", "plagas.json");
+
+            if (!File.Exists(ruta))
+            {
+                System.Diagnostics.Debug.WriteLine($"No se encontró plagas.json en: {ruta}");
+                return;
+            }
+
+            string texto = File.ReadAllText(ruta);
+            var lista = JsonSerializer.Deserialize<List<Plagas>>(texto, _options);
+
+            _plagas.AddRange(lista ?? new());
+            System.Diagnostics.Debug.WriteLine($"Plagas cargadas: {_plagas.Count}");
         }
     }
 

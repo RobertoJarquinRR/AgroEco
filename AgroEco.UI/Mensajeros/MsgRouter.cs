@@ -29,7 +29,8 @@ namespace AgroEco.UI.Mensajeros
 
                     case "plagas":
                         _plagas.ManejarMensaje(mensaje);
-                        break;
+                        return true;
+                        
 
                     default:
                         return false;
