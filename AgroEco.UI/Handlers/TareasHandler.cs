@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using AgroEco.Core;
 using System.Threading.Tasks;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Persistence;
@@ -8,7 +10,6 @@ using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Actions;
 using CoreAction = AgroEco.Core.Jobs.Actions.Action;
-using AgroEco.Core.Jobs.Actions.Implementations;
 using AgroEco.UI.Mensajeros;
 using Microsoft.Extensions.Logging;
 
@@ -20,10 +21,13 @@ namespace AgroEco.UI.Handlers
         private readonly CreateJob _createJob;
         private readonly GetAllJob _getAllJob;
         private readonly GetRunningJobs _getRunningJobs;
-        private readonly GetByIdJob _getByIdJob;
+        private readonly GetByIdJobWithDetails _getByIdJob;
         private readonly UpdateJob _updateJob;
         private readonly DeleteJob _deleteJob;
         private readonly JobEngine _jobEngine;
+        private readonly TriggerEngine _triggerEngine;
+        private readonly ITriggerFactory _triggerFactory;
+        private readonly IActionFactory _actionFactory;
         private readonly ILogger<TareasHandler> _logger;
 
         public TareasHandler(
@@ -31,10 +35,13 @@ namespace AgroEco.UI.Handlers
             CreateJob createJob,
             GetAllJob getAllJob,
             GetRunningJobs getRunningJobs,
-            GetByIdJob getByIdJob,
+            GetByIdJobWithDetails getByIdJob,
             UpdateJob updateJob,
             DeleteJob deleteJob,
             JobEngine jobEngine,
+            TriggerEngine triggerEngine,
+            ITriggerFactory triggerFactory,
+            IActionFactory actionFactory,
             ILogger<TareasHandler> logger)
         {
             _enviar = enviar;
@@ -45,7 +52,21 @@ namespace AgroEco.UI.Handlers
             _updateJob = updateJob;
             _deleteJob = deleteJob;
             _jobEngine = jobEngine;
+            _triggerEngine = triggerEngine;
+            _triggerFactory = triggerFactory;
+            _actionFactory = actionFactory;
             _logger = logger;
+            _triggerEngine.JobExecutionCompleted += OnJobExecutionCompleted;
+        }
+
+        private void OnJobExecutionCompleted(Job job)
+        {
+            _ = ObtenerTareasAsync();
+        }
+
+        public void Dispose()
+        {
+            _triggerEngine.JobExecutionCompleted -= OnJobExecutionCompleted;
         }
 
         public void ManejarMensaje(Mensaje msg)
@@ -53,6 +74,8 @@ namespace AgroEco.UI.Handlers
             _ = msg.Type switch
             {
                 "obtenerTareas" => ObtenerTareasAsync(),
+                "obtenerTriggersDisponibles" => EnviarTriggersDisponibles(),
+                "obtenerActionsDisponibles" => EnviarActionsDisponibles(),
                 "crearTarea" => CrearTareaAsync(msg),
                 "actualizarTarea" => ActualizarTareaAsync(msg),
                 "actualizarEstadoTarea" => ActualizarEstadoTareaAsync(msg),
@@ -94,15 +117,46 @@ namespace AgroEco.UI.Handlers
                     return;
                 }
 
-                var trigger = new DateTimeTrigger($"Trigger_{dto.Nombre}", DateTimeOffset.Parse(dto.FechaLimite));
-                var action = new ActionTest($"Accion_{dto.Nombre}", Status.Created);
+                string triggerTypeId = string.IsNullOrWhiteSpace(dto.TriggerTypeId)
+                    ? "datetime"
+                    : dto.TriggerTypeId;
+                if (dto.TriggerConfig.ValueKind != JsonValueKind.Object)
+                {
+                    _enviar("tareaError", new { mensaje = "La configuración del trigger es obligatoria." });
+                    return;
+                }
+                Result<Trigger> triggerResult = _triggerFactory.Create(
+                    triggerTypeId,
+                    $"Trigger_{dto.Nombre}",
+                    dto.TriggerConfig);
+                if (!triggerResult.Success || triggerResult.Value is null)
+                {
+                    _enviar("tareaError", new { mensaje = triggerResult.Message });
+                    return;
+                }
+
+                string actionTypeId = string.IsNullOrWhiteSpace(dto.ActionTypeId)
+                    ? "test"
+                    : dto.ActionTypeId;
+                JsonElement actionConfig = dto.ActionConfig.ValueKind == JsonValueKind.Object
+                    ? dto.ActionConfig
+                    : JsonSerializer.SerializeToElement(new { });
+                Result<CoreAction> actionResult = _actionFactory.Create(
+                    actionTypeId,
+                    $"Accion_{dto.Nombre}",
+                    actionConfig);
+                if (!actionResult.Success || actionResult.Value is null)
+                {
+                    _enviar("tareaError", new { mensaje = actionResult.Message });
+                    return;
+                }
 
                 var result = await _createJob.HandleAsync(
                     dto.Nombre,
                     dto.Descripcion,
                     dto.Prioridad switch { "alta" => 1, "media" => 2, _ => 3 },
-                    new List<CoreAction> { action },
-                    trigger);
+                    new List<CoreAction> { actionResult.Value },
+                    triggerResult.Value);
 
                 if (result.Success)
                 {
@@ -144,7 +198,7 @@ namespace AgroEco.UI.Handlers
                     dto.Nombre,
                     dto.Descripcion,
                     dto.Prioridad switch { "alta" => 1, "media" => 2, _ => 3 },
-                    DateTime.Parse(dto.FechaLimite));
+                    job.Date);
 
                 if (!updateResult.Success)
                 {
@@ -152,9 +206,18 @@ namespace AgroEco.UI.Handlers
                     return;
                 }
 
-                if (job.Trigger is DateTimeTrigger dtTrigger)
+                if (dto.TriggerConfig.ValueKind != JsonValueKind.Object)
                 {
-                    dtTrigger.TargetTime = DateTimeOffset.Parse(dto.FechaLimite);
+                    _enviar("tareaError", new { mensaje = "La configuración del trigger es obligatoria." });
+                    return;
+                }
+
+                Result triggerUpdateResult = job.Trigger.UpdateConfiguration(
+                    dto.TriggerConfig);
+                if (!triggerUpdateResult.Success)
+                {
+                    _enviar("tareaError", new { mensaje = triggerUpdateResult.Message });
+                    return;
                 }
 
                 var result = await _updateJob.HandleAsync(job);
@@ -286,6 +349,18 @@ namespace AgroEco.UI.Handlers
             }
         }
 
+        private Task EnviarTriggersDisponibles()
+        {
+            _enviar("triggersDisponibles", _triggerFactory.GetAvailable());
+            return Task.CompletedTask;
+        }
+
+        private Task EnviarActionsDisponibles()
+        {
+            _enviar("actionsDisponibles", _actionFactory.GetAvailable());
+            return Task.CompletedTask;
+        }
+
         private object MappearJobATarea(Job job, bool isRunning)
         {
             var estado = job.Status switch
@@ -299,11 +374,9 @@ namespace AgroEco.UI.Handlers
                 _ => "pendiente"
             };
 
-            if (estado == "pendiente" && job.Date.HasValue)
+            if (isRunning)
             {
-                var dias = (job.Date.Value.Date - DateTime.Today).Days;
-                if (dias < 0) estado = "vencida";
-                else if (dias <= 2) estado = "porVencer";
+                estado = "progreso";
             }
 
             return new
@@ -313,9 +386,11 @@ namespace AgroEco.UI.Handlers
                 descripcion = job.Description ?? "",
                 asignado = "Sistema",
                 prioridad = job.Priority switch { 1 => "alta", 2 => "media", _ => "baja" },
-                fechaLimite = job.Date?.ToString("dd/MM/yyyy") ?? "",
-                fechaLimiteISO = job.Date?.ToString("yyyy-MM-dd") ?? "",
-                estado = estado
+                estado = estado,
+                triggerTypeId = job.Trigger is DateTimeTrigger ? "datetime" : null,
+                triggerConfig = job.Trigger is DateTimeTrigger dateTimeTrigger
+                    ? new { targetTime = dateTimeTrigger.TargetTime }
+                    : null
             };
         }
 
@@ -324,8 +399,11 @@ namespace AgroEco.UI.Handlers
             string Descripcion,
             string Asignado,
             string Prioridad,
-            string FechaLimite,
-            string Estado);
+            string Estado,
+            string? TriggerTypeId,
+            JsonElement TriggerConfig,
+            string? ActionTypeId,
+            JsonElement ActionConfig);
 
         private record ActualizarTareaDto(
             int Id,
@@ -333,8 +411,11 @@ namespace AgroEco.UI.Handlers
             string Descripcion,
             string Asignado,
             string Prioridad,
-            string FechaLimite,
-            string Estado);
+            string Estado,
+            string? TriggerTypeId,
+            JsonElement TriggerConfig,
+            string? ActionTypeId,
+            JsonElement ActionConfig);
 
         private record EliminarTareaDto(int Id);
 

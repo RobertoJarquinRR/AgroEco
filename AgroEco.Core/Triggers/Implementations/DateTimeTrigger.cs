@@ -1,18 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AgroEco.Core.Triggers.Implementations
 {
     public class DateTimeTrigger : Trigger
     {
-        public DateTimeOffset TargetTime { get; set; }
+        public DateTimeOffset TargetTime { get; private set; }
         public bool IsActive { get; set; }
 
         public DateTimeTrigger(string name, DateTimeOffset targetTime) : base(name)
         {
             TargetTime = targetTime;
+        }
+
+        public override Result UpdateConfiguration(JsonElement config)
+        {
+            if (!config.TryGetProperty("targetTime", out JsonElement element)
+                || element.ValueKind != JsonValueKind.String
+                || !DateTimeOffset.TryParse(
+                    element.GetString(),
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal,
+                    out DateTimeOffset targetTime))
+            {
+                return Result.CreateFailure(
+                    "The 'targetTime' configuration value must be a valid date and time.");
+            }
+
+            TargetTime = targetTime;
+            return Result.CreateSuccess();
         }
 
         private TimeSpan CalculateAdaptiveInterval(TimeSpan remaining)

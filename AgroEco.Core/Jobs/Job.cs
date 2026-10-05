@@ -45,7 +45,7 @@ namespace AgroEco.Core.Jobs
             Trigger = null!;
         }
 
-        public static async Task<Result<Job>> CreateJob(
+        public static Task<Result<Job>> CreateJob(
         string name,
         string? description,
         Status status,
@@ -55,19 +55,35 @@ namespace AgroEco.Core.Jobs
         Trigger trigger)
         {
       
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                return Result<Job>.CreateFailure("Name can't be empty");
-            }
-            Job t = new(name, status, description, priority, DateTime.Now, actions, trigger);
-
-            if (status == Status.Running)
-            {
-                await t.OnTrigger();
+                return Task.FromResult(
+                    Result<Job>.CreateFailure("Name can't be empty"));
             }
 
-            return Result<Job>.CreateSuccess(t, "job create successfully");
+            if (trigger is null)
+            {
+                return Task.FromResult(
+                    Result<Job>.CreateFailure("A trigger is required."));
+            }
 
+            if (actions is null || actions.Count == 0)
+            {
+                return Task.FromResult(
+                    Result<Job>.CreateFailure("At least one action is required."));
+            }
+
+            Job job = new(
+                name.Trim(),
+                status,
+                description,
+                priority,
+                DateTime.Now,
+                actions,
+                trigger);
+
+            return Task.FromResult(
+                Result<Job>.CreateSuccess(job, "job create successfully"));
         }
 
         public Result UpdateDetails(
@@ -104,6 +120,7 @@ namespace AgroEco.Core.Jobs
                 return runningResult;
             }
 
+            bool actionFailed = false;
             foreach (Action action in Actions)
             {
                 if(action.Status == Status.Succeeded || action.Status == Status.Canceled)
@@ -114,6 +131,7 @@ namespace AgroEco.Core.Jobs
                 if (!startResult.Success)
                 {
                     Results.Add(startResult);
+                    actionFailed = true;
                     continue;
                 }
 
@@ -132,8 +150,10 @@ namespace AgroEco.Core.Jobs
                 Results.Add(actionResult);
                 action.ChangeStatus(
                     actionResult.Success ? Status.Succeeded : Status.Faulted);
+                actionFailed |= !actionResult.Success;
             }
-            Result completionResult = ChangeStatus(Status.Succeeded);
+            Result completionResult = ChangeStatus(
+                actionFailed ? Status.Faulted : Status.Succeeded);
             if (!completionResult.Success)
             {
                 return completionResult;
@@ -144,8 +164,12 @@ namespace AgroEco.Core.Jobs
                 .Where(m => !string.IsNullOrEmpty(m));
             string actionSummary = string.Join("; ", messages);
 
-            return Result.CreateSuccess(
-                $"Job '{Name}' executed successfully. Action results: {actionSummary}");
+            string message =
+                $"Job '{Name}' executed with {(actionFailed ? "failures" : "success")}. Action results: {actionSummary}";
+
+            return actionFailed
+                ? Result.CreateFailure(message)
+                : Result.CreateSuccess(message);
         }
 
         public Result ChangeStatus(Status status)
@@ -178,6 +202,7 @@ namespace AgroEco.Core.Jobs
                         $"Job '{Name}' has no trigger definition.");
 
                 }
+
                 return Result.CreateSuccess($"Job '{Name}' rehydrated successfully.");
             }
             catch (Exception exception)
@@ -187,6 +212,9 @@ namespace AgroEco.Core.Jobs
                     exception);
             }
         }
+
+        internal bool IsCompleted
+            => Status is Status.Succeeded or Status.Faulted or Status.Canceled;
 
 
 

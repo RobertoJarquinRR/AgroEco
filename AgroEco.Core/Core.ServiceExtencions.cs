@@ -1,9 +1,12 @@
 ﻿using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs;
+using AgroEco.Core.Jobs.Actions;
+using AgroEco.Core.Jobs.Actions.Creators;
 using AgroEco.Core.Jobs.Actions.Persistence;
 using AgroEco.Core.Jobs.Persistence;
 using AgroEco.Core.Triggers.Persistence;
 using AgroEco.Core.Triggers;
+using AgroEco.Core.Triggers.Creators;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -37,6 +40,11 @@ namespace AgroEco.Core
             services.AddScoped<GetAllAction>();
             services.AddScoped<GetByIdAction>();
             services.AddScoped<UpdateAction>();
+
+            services.AddSingleton<ITriggerCreator, DateTimeTriggerCreator>();
+            services.AddSingleton<IActionCreator, ActionTestCreator>();
+            services.AddSingleton<ITriggerFactory, TriggerFactory>();
+            services.AddSingleton<IActionFactory, ActionFactory>();
 
             services.AddSingleton<JobEngine>();
             services.AddSingleton<TriggerEngine>();
