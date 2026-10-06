@@ -582,3 +582,11 @@ h4{
 #lbSinTareas {
     color: var(--color-text-secundary);
 }
+.advertencia {
+    margin-top: 5px;
+    display: flex;
+    gap: 5px;
+    align-content: center;
+    color: var(--color-text-custom2);
+    font-weight: var(--font-weight-primary);
+}

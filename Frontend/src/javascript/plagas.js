@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const labelName = document.getElementById("pest-name");
     const labelScientific = document.getElementById("pest-scientific");
     const labelDesc = document.getElementById("pest-desc");
+    const labelFav = document.getElementById("pest-favorece");
     
     
     const tasksContainer = document.getElementById("active-tasks-container");
@@ -151,6 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (labelName) labelName.textContent = plaga.nombre;
         if (labelScientific) labelScientific.textContent = plaga.cientifico;
         if (labelDesc) labelDesc.textContent = plaga.desc;
+        if (labelFav) labelFav.textContent = plaga.favorece;
     }
 
     if (tasksContainer) {
@@ -287,6 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
  *     nombreCultivo: string,
  *     comoIdentificar: string,
  *     pasosIdentificacion: string[],
+ *     prevencion: string[],
  *     formulaTratamiento: string,
  *     dosisPor20Litros: string,
  *     frecuenciaTratamiento: string
@@ -299,24 +302,34 @@ function mostrarDetallesCultivo(cultivo, card) {
         card.querySelector(".accordion-content")
     );
 
-    const pasosHTML = cultivo.pasosIdentificacion
+    const pasos = Array.isArray(cultivo.pasosIdentificacion)
+        ? cultivo.pasosIdentificacion
+        : [];
+
+    const pasosHTML = pasos
+        .filter(paso => paso)
         .map(paso => `<li>${paso}</li>`)
         .join("");
 
-    contenedor.innerHTML = `
-        <div class="pest-identification">
+    const prevencion = Array.isArray(cultivo.prevencion)
+        ? cultivo.prevencion
+        : [];
 
+    const prevencionHTML = prevencion
+        .filter(prevencion => prevencion)
+        .map(prevencion => `<li>${prevencion}</li>`)
+        .join("");
+
+    const identificacionHTML = cultivo.comoIdentificar || pasosHTML ? `
+        <div class="pest-identification">
             <h3 class="section-sub-title">
                 Cómo identificar la plaga
             </h3>
 
-            <p>
-                ${cultivo.comoIdentificar}
-            </p>
-
+            ${cultivo.comoIdentificar ? `<p> ${cultivo.comoIdentificar } </p> ` : ""}
         </div>
 
-
+        ${pasosHTML ? `
         <div class="pest-steps">
 
             <h4>Pasos de diagnóstico</h4>
@@ -326,13 +339,35 @@ function mostrarDetallesCultivo(cultivo, card) {
             </ul>
 
         </div>
+        ` 
+        : ""}
+    ` : "";
 
+    const tratamientoHTML = cultivo.formulaTratamiento ? `
 
+        ${prevencionHTML ? `
+            <div class="pest-steps">
+
+                <h4>Prevención sin químicos</h4>
+
+                <ul class="steps-list-styled">
+                    ${prevencionHTML}
+                </ul>
+
+            </div>
+            `
+    : ""}
         <div class="pest-treatment">
 
             <h4>
                 Tratamiento sugerido y formulación (20 Litros)
             </h4>
+            <div class= "advertencia">
+                <img src="/images/svg-hackaton/Vector (8).svg" alt="advertencia" width="15px" height="15px">
+                <p class="lbAdvertencia">
+                    Consultar a un técnico agrícola antes de realizar cualquier tratamiento
+                </p>
+            </div>
 
             <div class="pest-treatment-steps">
 
@@ -341,20 +376,25 @@ function mostrarDetallesCultivo(cultivo, card) {
                     ${cultivo.formulaTratamiento}
                 </p>
 
-                <p>
-                    <strong>Dosis por bomba de 20 litros:</strong>
-                    ${cultivo.dosisPor20Litros}
-                </p>
+                 ${cultivo.dosisPor20Litros ? ` 
+                    <p>
+                        <strong>Dosis por bomba de 20 litros:</strong>
+                        ${cultivo.dosisPor20Litros}
+                    </p>
+                ` : ""}
 
-                <p>
-                    <strong>Frecuencia de aplicación:</strong>
-                    ${cultivo.frecuenciaTratamiento}
-                </p>
-
+                ${cultivo.frecuenciaTratamiento ? `
+                    <p>
+                        <strong>Frecuencia de aplicación:</strong>
+                        ${cultivo.frecuenciaTratamiento}
+                    </p>
+                ` : ""}
             </div>
 
         </div>
+        ` : "";
 
+    const tareaHTML = `
 
         <div class="task-action-box">
 
@@ -364,7 +404,14 @@ function mostrarDetallesCultivo(cultivo, card) {
             </button>
 
         </div>
+       `;
+
+    contenedor.innerHTML = `
+        ${identificacionHTML}
+        ${tratamientoHTML}
+        ${tareaHTML}
     `;
+
     const btnAction =  /** @type {HTMLButtonElement} */ (contenedor.querySelector(".btn-start-task"));
     if (btnAction) {
         btnAction.addEventListener("click", () => {
