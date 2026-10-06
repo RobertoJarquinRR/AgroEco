@@ -54,9 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const labelScientific = document.getElementById("pest-scientific");
     const labelDesc = document.getElementById("pest-desc");
     
-    const btnAction = document.getElementById("btn-action");
+    
     const tasksContainer = document.getElementById("active-tasks-container");
     const taskCounter = document.getElementById("task-counter");
+    const lbSinTareas =  /** @type {HTMLElement} */ (document.getElementById("lbSinTareas"));
 
     /** @type {number | null} */
     let idCultivo = null;
@@ -107,8 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const contenedorTags = /** @type {HTMLElement | null} */ (
             document.getElementById("quick-tags")
         );
-        
         if (contenedorTags) {
+            contenedorTags.innerHTML = "";
             datos.forEach(plaga => {
                 const boton = document.createElement("button");
                 
@@ -150,58 +151,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (labelName) labelName.textContent = plaga.nombre;
         if (labelScientific) labelScientific.textContent = plaga.cientifico;
         if (labelDesc) labelDesc.textContent = plaga.desc;
-    }
-
-    if (btnAction) {
-        btnAction.addEventListener("click", () => {
-            const tareasActuales = tasksContainer ? tasksContainer.querySelectorAll(".task-item").length : 0;
-            if (tareasActuales >= MAX_TAREAS) {
-                const originalText = btnAction.innerHTML;
-                btnAction.style.backgroundColor = "#e74c3c";
-                btnAction.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Límite (${MAX_TAREAS}) alcanzado`;
-                
-                setTimeout(() => {
-                    btnAction.style.backgroundColor = "";
-                    btnAction.innerHTML = originalText;
-                }, 2000);
-                return;
-            }
-
-            const nombrePlaga = labelName ? labelName.textContent : "Plaga";
-            const lote = "Lote General";
-            const accionPredeterminada = "Aplicación de Tratamiento";
-
-            const nuevaTarea = document.createElement("div");
-            nuevaTarea.className = "task-item";
-            nuevaTarea.innerHTML = `
-                <div class="task-status-dot pending"></div>
-                <div class="task-details">
-                    <h4>${accionPredeterminada}</h4>
-                    <p class="task-sub">${nombrePlaga} · <strong>${lote}</strong></p>
-                    <span class="task-date">Iniciada hace unos instantes</span>
-                </div>
-                <button class="btn-complete-task"><i class="fa-solid fa-check"></i></button>
-            `;
-
-            if (tasksContainer) {
-                tasksContainer.prepend(nuevaTarea);
-                actualizarContador();
-            }
-
-            winObj.chrome.webview.postMessage({
-                screen: "plagas",
-                type: "nueva_tarea_plaga",
-                payload: { plaga: nombrePlaga, lote: lote, accion: accionPredeterminada }
-            });
-
-            const originalText = btnAction.innerHTML;
-            btnAction.style.backgroundColor = "#3b9d85";
-            btnAction.innerHTML = `<i class="fa-solid fa-circle-check"></i> ¡Tarea Asignada!`;
-            setTimeout(() => {
-                btnAction.style.backgroundColor = "";
-                btnAction.innerHTML = originalText;
-            }, 1800);
-        });
     }
 
     if (tasksContainer) {
@@ -282,6 +231,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (taskCounter) {
             taskCounter.textContent = `${total} Activas`;
         }
+        if (total == 0) {
+            lbSinTareas.style.display = "block";
+        }
     }
     
      /** @param {Array<{ idCultivo: number, nombreCultivo: string}>} datos */
@@ -301,7 +253,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="accordion-content">
                         </div>
             `;
-            card.addEventListener("click", () => {
+            const header = /** @type {HTMLElement} */ (card.querySelector(".accordion-header"));
+            header.addEventListener("click", () => {
                 const cards = contenedor.querySelectorAll(".accordion-item");
 
                 cards.forEach(otraCard => {
@@ -405,12 +358,67 @@ function mostrarDetallesCultivo(cultivo, card) {
 
         <div class="task-action-box">
 
-            <button class="btn-start-task" id="btn-action">
+            <button class="btn-start-task">
                 <i class="fa-solid fa-circle-play"></i>
                 Iniciar Tarea de Mitigación
             </button>
 
         </div>
     `;
+    const btnAction =  /** @type {HTMLButtonElement} */ (contenedor.querySelector(".btn-start-task"));
+    if (btnAction) {
+        btnAction.addEventListener("click", () => {
+            const tareasActuales = tasksContainer ? tasksContainer.querySelectorAll(".task-item").length : 0;
+            lbSinTareas.style.display = "none";
+
+            if (tareasActuales >= MAX_TAREAS) {
+                const originalText = btnAction.innerHTML;
+                btnAction.style.backgroundColor = "#e74c3c";
+                btnAction.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Límite (${MAX_TAREAS}) alcanzado`;
+
+                setTimeout(() => {
+                    btnAction.style.backgroundColor = "";
+                    btnAction.innerHTML = originalText;
+                }, 2000);
+                return;
+            }
+
+            const nombrePlaga = labelName ? labelName.textContent : "Plaga";
+            const nombreCultivo = cultivo.nombreCultivo;
+            const lote = "Lote General";
+            const accionPredeterminada = "Aplicación de Tratamiento";
+
+            const nuevaTarea = document.createElement("div");
+            nuevaTarea.className = "task-item";
+            nuevaTarea.innerHTML = `
+            <div class="task-status-dot pending"></div>
+            <div class="task-details">
+                <h4>${accionPredeterminada}</h4>
+                <p class="task-sub">${nombrePlaga} · ${nombreCultivo} · <strong>${lote}</strong></p>
+                <span class="task-date">Iniciada hace unos instantes</span>
+            </div>
+            <button class="btn-complete-task"><i class="fa-solid fa-check"></i></button>
+        `;
+
+            if (tasksContainer) {
+                tasksContainer.prepend(nuevaTarea);
+                actualizarContador();
+            }
+
+            winObj.chrome.webview.postMessage({
+                screen: "plagas",
+                type: "nueva_tarea_plaga",
+                payload: { plaga: nombrePlaga, lote: lote, cultivo: nombreCultivo, accion: accionPredeterminada }
+            });
+
+            const originalText = btnAction.innerHTML;
+            btnAction.style.backgroundColor = "#3b9d85";
+            btnAction.innerHTML = `<i class="fa-solid fa-circle-check"></i> ¡Tarea Asignada!`;
+            setTimeout(() => {
+                btnAction.style.backgroundColor = "";
+                btnAction.innerHTML = originalText;
+            }, 1800);
+        });
+    }
 }
 });

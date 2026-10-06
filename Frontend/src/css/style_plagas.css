@@ -150,7 +150,7 @@ aside {
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 320px;
     gap: 12px;
     align-items: start;
     flex: 1;
@@ -577,4 +577,8 @@ h4{
 }
 .accordion-item.open .accordion-arrow{
     transform: rotate(270deg);
+}
+
+#lbSinTareas {
+    color: var(--color-text-secundary);
 }
