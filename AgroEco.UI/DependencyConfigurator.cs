@@ -3,9 +3,12 @@ using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Actions;
 using AgroEco.Core.Jobs.Persistence;
+using AgroEco.Core.Inventario.Persistence;
+using AgroEco.Core.Finanzas.Persistence;
 using AgroEco.Core.Triggers;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
+using AgroEco.UI.Events;
 using AgroEco.UI.Handlers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,22 +35,36 @@ namespace AgroEco.UI
             services.AddDataServices();
             services.AddCoreServices();
 
+            services.AddSingleton<IEventBus, InMemoryEventBus>();
+
             services.AddScoped<MainWindow>();
 
-            services.AddScoped<Func<Action<string, object>, TareasHandler>>(sp => enviar =>
+            services.AddScoped<Func<Action<string, object>, TareasHandler>>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<TareasHandler>>();
-                return new TareasHandler(
+                var createJob = sp.GetRequiredService<CreateJob>();
+                var getAllJob = sp.GetRequiredService<GetAllJob>();
+                var getRunningJobs = sp.GetRequiredService<GetRunningJobs>();
+                var getByIdJob = sp.GetRequiredService<GetByIdJobWithDetails>();
+                var updateJob = sp.GetRequiredService<UpdateJob>();
+                var deleteJob = sp.GetRequiredService<DeleteJob>();
+                var jobEngine = sp.GetRequiredService<JobEngine>();
+                var triggerFactory = sp.GetRequiredService<ITriggerFactory>();
+                var actionFactory = sp.GetRequiredService<IActionFactory>();
+                var getByIdInsumo = sp.GetRequiredService<GetByIdInsumo>();
+
+                return (Action<string, object> enviar) => new TareasHandler(
                     enviar,
-                    sp.GetRequiredService<CreateJob>(),
-                    sp.GetRequiredService<GetAllJob>(),
-                    sp.GetRequiredService<GetRunningJobs>(),
-                    sp.GetRequiredService<GetByIdJobWithDetails>(),
-                    sp.GetRequiredService<UpdateJob>(),
-                    sp.GetRequiredService<DeleteJob>(),
-                    sp.GetRequiredService<JobEngine>(),
-                    sp.GetRequiredService<ITriggerFactory>(),
-                    sp.GetRequiredService<IActionFactory>(),
+                    createJob,
+                    getAllJob,
+                    getRunningJobs,
+                    getByIdJob,
+                    updateJob,
+                    deleteJob,
+                    jobEngine,
+                    triggerFactory,
+                    actionFactory,
+                    getByIdInsumo,
                     logger);
             });
 
@@ -57,10 +74,17 @@ namespace AgroEco.UI
                 return new PlagasHandler(enviar, logger);
             });
 
-            services.AddScoped<Func<Action<string, object>, FinanzasHandler>>(sp => enviar =>
+            services.AddScoped<Func<Action<string, object>, FinanzasHandler>>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<FinanzasHandler>>();
-                return new FinanzasHandler(enviar, logger);
+                var getAllRegistros = sp.GetRequiredService<GetAllRegistroFinanciero>();
+                var createRegistro = sp.GetRequiredService<CreateRegistroFinanciero>();
+
+                return (Action<string, object> enviar) => new FinanzasHandler(
+                    enviar,
+                    getAllRegistros,
+                    createRegistro,
+                    logger);
             });
 
             services.AddScoped<Func<Action<string, object>, DashboardHandler>>(sp => enviar =>
@@ -75,10 +99,21 @@ namespace AgroEco.UI
                 return new SensoresHandler(enviar, logger);
             });
 
-            services.AddScoped<Func<Action<string, object>, InventarioHandler>>(sp => enviar =>
+            services.AddScoped<Func<Action<string, object>, InventarioHandler>>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<InventarioHandler>>();
-                return new InventarioHandler(enviar, logger);
+                var getAllInsumo = sp.GetRequiredService<GetAllInsumo>();
+                var createInsumo = sp.GetRequiredService<CreateInsumo>();
+                var deleteInsumo = sp.GetRequiredService<DeleteInsumo>();
+                var getByIdInsumo = sp.GetRequiredService<GetByIdInsumo>();
+
+                return (Action<string, object> enviar) => new InventarioHandler(
+                    enviar,
+                    getAllInsumo,
+                    createInsumo,
+                    deleteInsumo,
+                    getByIdInsumo,
+                    logger);
             });
 
             services.AddScoped<Func<Action<string, object>, EducacionHandler>>(sp => enviar =>

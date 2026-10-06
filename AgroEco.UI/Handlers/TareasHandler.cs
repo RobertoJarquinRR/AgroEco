@@ -12,6 +12,7 @@ using AgroEco.Core.Triggers.Configuration;
 using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Actions;
 using AgroEco.Core.Jobs.Actions.Configuration;
+using AgroEco.Core.Inventario.Persistence;
 using CoreAction = AgroEco.Core.Jobs.Actions.Action;
 using AgroEco.UI.Mensajeros;
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,7 @@ namespace AgroEco.UI.Handlers
         private readonly JobEngine _jobEngine;
         private readonly ITriggerFactory _triggerFactory;
         private readonly IActionFactory _actionFactory;
+        private readonly GetByIdInsumo _getByIdInsumo;
         private readonly ILogger<TareasHandler> _logger;
 
         public TareasHandler(
@@ -43,6 +45,7 @@ namespace AgroEco.UI.Handlers
             JobEngine jobEngine,
             ITriggerFactory triggerFactory,
             IActionFactory actionFactory,
+            GetByIdInsumo getByIdInsumo,
             ILogger<TareasHandler> logger)
         {
             _enviar = enviar;
@@ -55,6 +58,7 @@ namespace AgroEco.UI.Handlers
             _jobEngine = jobEngine;
             _triggerFactory = triggerFactory;
             _actionFactory = actionFactory;
+            _getByIdInsumo = getByIdInsumo;
             _logger = logger;
             _jobEngine.JobExecutionCompleted += OnJobExecutionCompleted;
         }
@@ -75,6 +79,11 @@ namespace AgroEco.UI.Handlers
                         mensaje = failureMessage
                             ?? $"La tarea '{job.Name}' falló durante la ejecución."
                     });
+            }
+            else if (job.Status == Status.Succeeded || job.Status == Status.CompletedWithErrors)
+            {
+                // La acción ExecuteTaskAction ya hace el trabajo (descuenta inventario y registra gasto)
+                // Solo refrescamos la lista
             }
 
             _ = ObtenerTareasAsync();
@@ -131,6 +140,17 @@ namespace AgroEco.UI.Handlers
                 {
                     _enviar("tareaError", new { mensaje = "Datos inválidos" });
                     return;
+                }
+
+                // Validar acción executeTask
+                if (dto.ActionTypeId == "executeTask")
+                {
+                    var validationResult = await ValidarConfiguracionExecuteTask(dto.ActionConfig);
+                    if (!validationResult.Success)
+                    {
+                        _enviar("tareaError", new { mensaje = validationResult.Message });
+                        return;
+                    }
                 }
 
                 string triggerTypeId = string.IsNullOrWhiteSpace(dto.TriggerTypeId)
@@ -193,6 +213,60 @@ namespace AgroEco.UI.Handlers
                 _logger.LogError(ex, "Error creando tarea");
                 _enviar("tareaError", new { mensaje = ex.Message });
             }
+        }
+
+        private async Task<Result> ValidarConfiguracionExecuteTask(JsonElement actionConfig)
+        {
+            if (!actionConfig.TryGetProperty("insumoId", out var insumoIdEl) || insumoIdEl.ValueKind != JsonValueKind.Number)
+            {
+                return Result.CreateFailure("insumoId es obligatorio y debe ser un número");
+            }
+
+            int insumoId = insumoIdEl.GetInt32();
+            if (insumoId <= 0)
+            {
+                return Result.CreateFailure("insumoId debe ser mayor a 0");
+            }
+
+            // Verificar que el insumo existe
+            var insumoResult = await _getByIdInsumo.HandleAsync(insumoId);
+            if (!insumoResult.Success || insumoResult.Value == null)
+            {
+                return Result.CreateFailure($"Insumo con ID {insumoId} no encontrado");
+            }
+
+            var insumo = insumoResult.Value;
+
+            if (!actionConfig.TryGetProperty("cantidadDescontar", out var cantidadEl) || cantidadEl.ValueKind != JsonValueKind.Number)
+            {
+                return Result.CreateFailure("cantidadDescontar es obligatoria y debe ser un número");
+            }
+
+            decimal cantidadDescontar = cantidadEl.GetDecimal();
+            if (cantidadDescontar <= 0)
+            {
+                return Result.CreateFailure("cantidadDescontar debe ser mayor a 0");
+            }
+
+            // Validar stock suficiente
+            if (insumo.Cantidad < cantidadDescontar)
+            {
+                return Result.CreateFailure(
+                    $"Stock insuficiente para '{insumo.Nombre}'. Disponible: {insumo.Cantidad} {insumo.Unidad}, Requerido: {cantidadDescontar} {insumo.Unidad}");
+            }
+
+            if (!actionConfig.TryGetProperty("costoUnitario", out var costoEl) || costoEl.ValueKind != JsonValueKind.Number)
+            {
+                return Result.CreateFailure("costoUnitario es obligatorio y debe ser un número");
+            }
+
+            decimal costoUnitario = costoEl.GetDecimal();
+            if (costoUnitario < 0)
+            {
+                return Result.CreateFailure("costoUnitario no puede ser negativo");
+            }
+
+            return Result.CreateSuccess();
         }
 
         private async Task ActualizarTareaAsync(Mensaje msg)
@@ -491,7 +565,49 @@ namespace AgroEco.UI.Handlers
 
         private static ActionConfiguration ParseActionConfiguration(
             JsonElement config)
-            => new NoOpActionConfiguration();
+        {
+            int insumoId = 0;
+            decimal cantidadDescontar = 0;
+            decimal costoUnitario = 0;
+            string? descripcion = null;
+            string? cultivo = null;
+            string? categoriaInsumo = null;
+
+            if (config.TryGetProperty("insumoId", out var insumoIdEl) && insumoIdEl.ValueKind == JsonValueKind.Number)
+            {
+                insumoId = insumoIdEl.GetInt32();
+            }
+            if (config.TryGetProperty("cantidadDescontar", out var cantidadEl) && cantidadEl.ValueKind == JsonValueKind.Number)
+            {
+                cantidadDescontar = cantidadEl.GetDecimal();
+            }
+            if (config.TryGetProperty("costoUnitario", out var costoEl) && costoEl.ValueKind == JsonValueKind.Number)
+            {
+                costoUnitario = costoEl.GetDecimal();
+            }
+            if (config.TryGetProperty("descripcion", out var descEl) && descEl.ValueKind == JsonValueKind.String)
+            {
+                descripcion = descEl.GetString();
+            }
+            if (config.TryGetProperty("cultivo", out var cultivoEl) && cultivoEl.ValueKind == JsonValueKind.String)
+            {
+                cultivo = cultivoEl.GetString();
+            }
+            if (config.TryGetProperty("categoriaInsumo", out var catEl) && catEl.ValueKind == JsonValueKind.String)
+            {
+                categoriaInsumo = catEl.GetString();
+            }
+
+            return new ExecuteTaskActionConfiguration
+            {
+                InsumoId = insumoId,
+                CantidadDescontar = cantidadDescontar,
+                CostoUnitario = costoUnitario,
+                Descripcion = descripcion,
+                Cultivo = cultivo,
+                CategoriaInsumo = categoriaInsumo
+            };
+        }
 
         private sealed record InvalidTriggerConfiguration
             : TriggerConfiguration;
