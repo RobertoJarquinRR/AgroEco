@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Implementations;
@@ -28,6 +29,16 @@ namespace AgroEco.Data
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.ConfigureWarnings(w => 
+            {
+                w.Ignore(RelationalEventId.PendingModelChangesWarning);
+                w.Default(WarningBehavior.Log);
+            });
         }
 
         private static SendAlertActionConfiguration DeserializeSendAlertConfig(string json)

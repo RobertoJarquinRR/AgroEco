@@ -20,6 +20,7 @@ using AgroEco.UI.Services;
 using AgroEco.Hardware;
 using AgroEco.UI.Alerts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -39,6 +40,11 @@ namespace AgroEco.UI
             services.AddDbContext<DataContext>(db =>
             {
                 db.UseSqlite($"Data source={databasePath}");
+                db.ConfigureWarnings(w => 
+                {
+                    w.Ignore(RelationalEventId.PendingModelChangesWarning);
+                    w.Default(WarningBehavior.Log);
+                });
             });
 
             services.AddLogging();
@@ -137,6 +143,7 @@ namespace AgroEco.UI
                 var getByIdUmbral = sp.GetRequiredService<GetByIdUmbralSensor>();
                 var updateUmbral = sp.GetRequiredService<UpdateUmbralSensor>();
                 var deleteUmbral = sp.GetRequiredService<DeleteUmbralSensor>();
+                var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
 
                 return (Action<string, object> enviar) => new SensorReadingHandler(
                     enviar,
@@ -145,6 +152,7 @@ namespace AgroEco.UI
                     getByIdUmbral,
                     updateUmbral,
                     deleteUmbral,
+                    scopeFactory,
                     logger);
             });
 

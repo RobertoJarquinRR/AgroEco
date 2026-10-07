@@ -1,12 +1,17 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AgroEco.Core.Alertas;
 using AgroEco.Core.Alertas.Persistence;
 using AgroEco.Core.Interfaces;
 using AgroEco.Core.Inventario.Persistence;
+using AgroEco.Core.Jobs.Actions;
+using AgroEco.Core.Jobs.Actions.Configuration;
+using AgroEco.UI.Mensajes;
 using AgroEco.UI.Mensajeros;
 
 namespace AgroEco.UI.Handlers
@@ -20,6 +25,7 @@ namespace AgroEco.UI.Handlers
         private readonly GetByIdUmbralSensor _getByIdUmbral;
         private readonly UpdateUmbralSensor _updateUmbral;
         private readonly DeleteUmbralSensor _deleteUmbral;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public SensorReadingHandler(
             Action<string, object> enviar,
@@ -28,6 +34,7 @@ namespace AgroEco.UI.Handlers
             GetByIdUmbralSensor getByIdUmbral,
             UpdateUmbralSensor updateUmbral,
             DeleteUmbralSensor deleteUmbral,
+            IServiceScopeFactory scopeFactory,
             ILogger<SensorReadingHandler> logger)
         {
             _enviar = enviar;
@@ -36,6 +43,7 @@ namespace AgroEco.UI.Handlers
             _getByIdUmbral = getByIdUmbral;
             _updateUmbral = updateUmbral;
             _deleteUmbral = deleteUmbral;
+            _scopeFactory = scopeFactory;
             _logger = logger;
         }
 
@@ -43,39 +51,42 @@ namespace AgroEco.UI.Handlers
         {
             switch (msg.Type)
             {
-                case "ready_sensores":
+                case TiposMensaje.ListoSensores:
                     await EnviarConfiguracionSensores();
                     break;
 
-                case "lecturaSensor":
+                case TiposMensaje.LecturaSensor:
                     await ProcesarLecturaSensor(msg);
                     break;
 
-                case "obtenerUmbrales":
+                case TiposMensaje.ObtenerUmbrales:
                     await ObtenerUmbralesAsync();
                     break;
 
-                case "crearUmbral":
+                case TiposMensaje.CrearUmbral:
                     await CrearUmbralAsync(msg);
                     break;
 
-                case "actualizarUmbral":
+                case TiposMensaje.ActualizarUmbral:
                     await ActualizarUmbralAsync(msg);
                     break;
 
-                case "eliminarUmbral":
+                case TiposMensaje.EliminarUmbral:
                     await EliminarUmbralAsync(msg);
                     break;
 
-                case "obtenerLecturas":
+                case TiposMensaje.ObtenerLecturas:
                     await ObtenerLecturasAsync();
+                    break;
+
+                case TiposMensaje.ObtenerAccionesDisponibles:
+                    await ObtenerAccionesDisponiblesAsync();
                     break;
             }
         }
 
         private async Task EnviarConfiguracionSensores()
         {
-            // Enviar lista de sensores disponibles y sus tipos
             var sensores = new[]
             {
                 new { tipo = "temperatura_suelo", nombre = "Temperatura Suelo", unidad = "°C", icono = "🌡️" },
@@ -109,50 +120,82 @@ namespace AgroEco.UI.Handlers
             }
         }
 
-        private async Task CrearUmbralAsync(Mensaje msg)
-{
-                try
+        private async Task ObtenerAccionesDisponiblesAsync()
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var actionFactory = scope.ServiceProvider.GetRequiredService<IActionFactory>();
+                var acciones = actionFactory.GetAvailable();
+                
+                var lista = acciones.Select(a => new
                 {
-                    var dto = msg.LeerPayload<CrearUmbralDto>();
-                    if (dto == null)
+                    typeId = a.TypeId,
+                    displayName = a.DisplayName,
+                    fields = a.Fields.Select(f => new
                     {
-                        _enviar("umbralError", new { mensaje = "Datos inválidos" });
-                        return;
-                    }
+                        key = f.Name,
+                        label = f.Label,
+                        type = f.InputType,
+                        f.Required,
+                        f.Multiple,
+                        choices = f.Choices?.Select(c => new { c.Value, c.Label })
+                    })
+                }).ToList();
 
-                    var result = await _createUmbral.HandleAsync(
-                    dto.SensorTipo,
-                    dto.FincaId,
-                    dto.FincaNombre,
-                    dto.Minimo,
-                    dto.Maximo,
-                    dto.SeveridadMinima,
-                    dto.SeveridadMaxima,
-                    dto.GenerarTareaAuto,
-                    dto.AccionSugerida,
-                    dto.InsumoSugeridoId,
-                    dto.CantidadInsumoSugerida,
-                    dto.CostoUnitarioSugerido,
-                    dto.Activo,
-                    dto.AccionTipo,
-                    dto.AccionConfigJson,
-                    dto.CooldownMinutos);
-
-                if (result.Success)
-                {
-                    _logger.LogInformation("Umbral creado: {SensorTipo} para {Finca}", result.Value.SensorTipo, result.Value.FincaNombre);
-                    _enviar("umbralCreado", new { success = true, umbral = result.Value });
-                }
-                else
-                {
-                    _enviar("umbralError", new { mensaje = result.Message });
-                }
+                _enviar("accionesDisponibles", new { acciones = lista });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creando umbral");
-                _enviar("umbralError", new { mensaje = ex.Message });
+                _logger.LogError(ex, "Error obteniendo acciones disponibles");
+                _enviar("accionesDisponibles", new { acciones = new List<object>() });
             }
+        }
+
+        private async Task CrearUmbralAsync(Mensaje msg)
+        {
+            try
+            {
+                var dto = msg.LeerPayload<CrearUmbralDto>();
+                if (dto == null)
+                {
+                    _enviar("umbralError", new { mensaje = "Datos inválidos" });
+                    return;
+                }
+
+                var result = await _createUmbral.HandleAsync(
+                dto.SensorTipo,
+                dto.FincaId,
+                dto.FincaNombre,
+                dto.Minimo,
+                dto.Maximo,
+                dto.SeveridadMinima,
+                dto.SeveridadMaxima,
+                dto.GenerarTareaAuto,
+                dto.AccionSugerida,
+                dto.InsumoSugeridoId,
+                dto.CantidadInsumoSugerida,
+                dto.CostoUnitarioSugerido,
+                dto.Activo,
+                dto.AccionTipo,
+                dto.AccionConfigJson,
+                dto.CooldownMinutos);
+
+            if (result.Success)
+            {
+                _logger.LogInformation("Umbral creado: {SensorTipo} para {Finca}", result.Value.SensorTipo, result.Value.FincaNombre);
+                _enviar("umbralCreado", new { success = true, umbral = result.Value });
+            }
+            else
+            {
+                _enviar("umbralError", new { mensaje = result.Message });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creando umbral");
+            _enviar("umbralError", new { mensaje = ex.Message });
+        }
         }
 
         private async Task ActualizarUmbralAsync(Mensaje msg)
@@ -241,7 +284,6 @@ namespace AgroEco.UI.Handlers
 
         private async Task ObtenerLecturasAsync()
         {
-            // Placeholder - en implementación real leería de una tabla de lecturas de sensores
             try
             {
                 _enviar("lecturas", new { lecturas = new List<object>() });
@@ -268,6 +310,8 @@ namespace AgroEco.UI.Handlers
                     dto.SensorTipo, dto.Valor, dto.FincaNombre);
 
                 _enviar("lecturaProcesada", new { exito = true, sensor = dto.SensorTipo, valor = dto.Valor });
+
+                await EvaluarUmbralesAsync(dto);
             }
             catch (Exception ex)
             {
@@ -276,7 +320,6 @@ namespace AgroEco.UI.Handlers
             }
         }
 
-        // Método público para procesar lecturas desde el serial (hardware)
         public void ProcesarLecturaExterna(LecturaSensorDto dto)
         {
             if (dto == null) return;
@@ -287,11 +330,112 @@ namespace AgroEco.UI.Handlers
                     dto.SensorTipo, dto.Valor, dto.FincaNombre);
 
                 _enviar("lecturaProcesada", new { exito = true, sensor = dto.SensorTipo, valor = dto.Valor });
+
+                _ = EvaluarUmbralesAsync(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error procesando lectura externa de sensor");
                 _enviar("lecturaProcesada", new { exito = false, error = ex.Message });
+            }
+        }
+
+        private async Task EvaluarUmbralesAsync(LecturaSensorDto dto)
+        {
+            try
+            {
+                var result = await _getAllUmbrales.HandleAsync(true);
+                if (!result.Success || result.Value == null) return;
+
+                var umbrales = result.Value
+                    .Where(u => u.Activo 
+                             && u.SensorTipo == dto.SensorTipo
+                             && (u.FincaId == null || u.FincaId == dto.FincaId))
+                    .ToList();
+
+                foreach (var umbral in umbrales)
+                {
+                    bool cruzaMinimo = umbral.Minimo.HasValue && dto.Valor < umbral.Minimo.Value;
+                    bool cruzaMaximo = umbral.Maximo.HasValue && dto.Valor > umbral.Maximo.Value;
+                    
+                    if (!cruzaMinimo && !cruzaMaximo) continue;
+
+                    if (umbral.UltimoDisparo.HasValue 
+                        && DateTime.UtcNow < umbral.UltimoDisparo.Value.AddMinutes(umbral.CooldownMinutos))
+                    {
+                        _logger.LogInformation("Umbral {Id} en cooldown, saltando", umbral.Id);
+                        continue;
+                    }
+
+                    if (!string.IsNullOrEmpty(umbral.AccionTipo))
+                    {
+                        await EjecutarAccionUmbralAsync(umbral, dto, cruzaMinimo ? "min" : "max");
+                    }
+
+                    umbral.UltimoDisparo = DateTime.UtcNow;
+                    await _updateUmbral.HandleAsync(umbral);
+
+                    if (umbral.GenerarTareaAuto)
+                    {
+                        _logger.LogInformation("Generando tarea automática para umbral {Id}", umbral.Id);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error evaluando umbrales para sensor {Sensor}", dto.SensorTipo);
+            }
+        }
+
+        private async Task EjecutarAccionUmbralAsync(UmbralSensor umbral, LecturaSensorDto dto, string direccion)
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var actionFactory = scope.ServiceProvider.GetRequiredService<IActionFactory>();
+                
+                ActionConfiguration? config = null;
+                if (!string.IsNullOrEmpty(umbral.AccionConfigJson))
+                {
+                    try
+                    {
+                        config = JsonSerializer.Deserialize<ActionConfiguration>(umbral.AccionConfigJson, 
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError(ex, "Error deserializando config de acción para umbral {Id}", umbral.Id);
+                    }
+                }
+
+                config ??= new NoOpActionConfiguration();
+
+                var createResult = actionFactory.Create(umbral.AccionTipo!, $"Umbral_{umbral.Id}_{direccion}", config);
+                if (!createResult.Success)
+                {
+                    _logger.LogError("Error creando acción {Tipo} para umbral {Id}: {Error}", 
+                        umbral.AccionTipo, umbral.Id, createResult.Message);
+                    return;
+                }
+
+                createResult.Value.AttachServices(scope.ServiceProvider);
+                
+                var execResult = await createResult.Value.Execute();
+                
+                if (execResult.Success)
+                {
+                    _logger.LogInformation("Acción {Tipo} ejecutada para umbral {Id}: {Msg}", 
+                        umbral.AccionTipo, umbral.Id, execResult.Message);
+                }
+                else
+                {
+                    _logger.LogWarning("Acción {Tipo} falló para umbral {Id}: {Error}", 
+                        umbral.AccionTipo, umbral.Id, execResult.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error ejecutando acción {Tipo} para umbral {Id}", umbral.AccionTipo, umbral.Id);
             }
         }
 

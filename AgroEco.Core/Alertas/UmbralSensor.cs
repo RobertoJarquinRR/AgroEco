@@ -21,9 +21,11 @@ public class UmbralSensor : IEntity
     
     public decimal? Maximo { get; set; } // null = no hay límite superior
     
+    [Required]
     [MaxLength(20)]
     public string SeveridadMinima { get; set; } = "media"; // severidad si baja del mínimo
     
+    [Required]
     [MaxLength(20)]
     public string SeveridadMaxima { get; set; } = "media"; // severidad si sube del máximo
     
@@ -31,6 +33,7 @@ public class UmbralSensor : IEntity
     
     public bool GenerarTareaAuto { get; set; } = true; // si true, crea tarea al disparar
     
+    [Required]
     [MaxLength(500)]
     public string AccionSugerida { get; set; } = ""; // descripción de qué hacer
     

@@ -133,7 +133,7 @@ namespace AgroEco.educacion
         public string? Descripcion { get; set; }
 
         [JsonPropertyName("ingredientes")]
-        public Ingrediente[]? Ingredientes { get; set; }
+        public IngredienteBioinsumo[]? Ingredientes { get; set; }
 
         [JsonPropertyName("procedimiento")]
         public string[]? Procedimiento { get; set; }
@@ -144,14 +144,14 @@ namespace AgroEco.educacion
         [JsonPropertyName("dosis")]
         public string? Dosis { get; set; }
 
-        [JsonPropertyName("cultivosIds")]
-        public int[]? CultivosIds { get; set; }
+        [JsonPropertyName("cultivoIds")]
+        public int[]? CultivoIds { get; set; }
     }
 
-    public class Ingrediente
+    public class IngredienteBioinsumo
     {
         [JsonPropertyName("ingrediente")]
-        public string? NombreIngrediente { get; set; }
+        public string? Ingrediente { get; set; }
 
         [JsonPropertyName("cantidad")]
         public string? Cantidad { get; set; }

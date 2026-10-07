@@ -120,7 +120,13 @@
                     <div class="card-devices">
                         <div class="devices-header">
                             <h3>Dispositivos</h3>
-                            <button class="btn-refresh" id="refresh-btn"><img src="../../images/svg-hackaton/arrow-right (2).svg" alt="" class="icon-svg"></button>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <button class="btn-primary" id="btnNuevoUmbral" style="padding: 6px 12px; font-size: 0.875rem;">
+                                    <img src="../../images/svg-hackaton/plus.svg" alt="" class="icon-svg" style="width: 16px; height: 16px; margin-right: 4px;">
+                                    Nuevo Umbral
+                                </button>
+                                <button class="btn-refresh" id="refresh-btn"><img src="../../images/svg-hackaton/arrow-right (2).svg" alt="" class="icon-svg"></button>
+                            </div>
                         </div>
                         <div class="device-list" id="device-container">
                             <div class="device-item">
@@ -172,6 +178,16 @@
                 </div>
             </div>
         </main>
+    
+    <!-- Panel de Umbrales Configurados -->
+    <section id="umbrales-section" style="margin-top: 20px; padding: 0 24px;">
+        <div class="card" style="background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid #E8F0EE; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">Umbrales Configurados</h3>
+            </div>
+            <div id="umbralesContainer" style="padding: 16px;"></div>
+        </div>
+    </section>
     </div>
 
     <!-- Modal Nuevo/Editar Umbral -->
@@ -238,6 +254,26 @@
                             <input type="checkbox" id="umbralGenerarTarea" checked>
                             Generar tarea automática al disparar umbral
                         </label>
+                    </div>
+                    <div class="form-group full-width" id="grupoAccionUmbral">
+                        <label for="umbralAccionTipo">Al dispararse, ejecutar:</label>
+                        <select id="umbralAccionTipo">
+                            <option value="">Ninguna</option>
+                            <option value="sendAlert">Enviar alerta</option>
+                            <option value="activateHardware">Activar hardware (riego)</option>
+                            <option value="executeTask">Ejecutar tarea (descontar insumo)</option>
+                        </select>
+                        <span class="error-message" id="errUmbralAccionTipo"></span>
+                    </div>
+                    <div class="form-group" id="grupoAccionConfig" style="display: none;">
+                        <label for="umbralAccionConfig">Configuración de la acción (JSON)</label>
+                        <textarea id="umbralAccionConfig" rows="4" placeholder='Ej: {"title": "Temp alta", "message": "Temp > 30°C", "level": "Warning"}'></textarea>
+                        <span class="error-message" id="errUmbralAccionConfig">JSON inválido</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="umbralCooldown">Cooldown (minutos entre disparos)</label>
+                        <input type="number" id="umbralCooldown" min="0" value="30" step="1">
+                        <span class="error-message" id="errUmbralCooldown">El cooldown debe ser ≥ 0</span>
                     </div>
                     <div class="form-group" id="grupoInsumo" style="display: none;">
                         <label for="umbralInsumo">Insumo a usar en tarea</label>

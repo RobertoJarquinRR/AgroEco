@@ -23,9 +23,16 @@ namespace AgroEco.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("AccionConfigJson")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("AccionSugerida")
                         .IsRequired()
                         .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AccionTipo")
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Activo")
@@ -33,6 +40,9 @@ namespace AgroEco.Data.Migrations
 
                     b.Property<decimal?>("CantidadInsumoSugerida")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CooldownMinutos")
+                        .HasColumnType("INTEGER");
 
                     b.Property<decimal?>("CostoUnitarioSugerido")
                         .HasColumnType("decimal(18,2)");
@@ -76,6 +86,9 @@ namespace AgroEco.Data.Migrations
                     b.Property<string>("SeveridadMinima")
                         .IsRequired()
                         .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UltimoDisparo")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

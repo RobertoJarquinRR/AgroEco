@@ -24,7 +24,7 @@ public sealed class SendAlertAction : Action
         init => _config = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    internal override void AttachServices(IServiceProvider services)
+    public override void AttachServices(IServiceProvider services)
     {
         _alertEngine = services.GetRequiredService<AlertEngine>();
     }
