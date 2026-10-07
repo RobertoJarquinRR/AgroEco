@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,12 +24,19 @@
     <ProjectReference Include="..\AgroEco.Core\AgroEco.Core.csproj" />
     <ProjectReference Include="..\AgroEco.Data\AgroEco.Data.csproj" />
     <ProjectReference Include="..\AgroEco.Hardware\AgroEco.Hardware.csproj" />
+    <ProjectReference Include="..\AgroEco.Notifications\AgroEco.Notifications.csproj" />
   </ItemGroup>
 
   <ItemGroup>
 	  <None Include="Frontend\**\*.*" Exclude="Frontend\.gitkeep">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+  </ItemGroup>
+
+  <ItemGroup>
+	<Content Include="Assets\AppLogo.png">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
   </ItemGroup>
 
   <ItemGroup>
