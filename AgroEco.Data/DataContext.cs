@@ -191,6 +191,88 @@ modelBuilder.Entity<DateTimeTrigger>(entity =>{
                 entity.HasIndex(r => r.Tipo);
                 entity.HasIndex(r => r.TaskId);
             });
+            
+            // Mapeo Alertas
+            modelBuilder.Entity<Alerta>(entity =>
+            {
+                entity.ToTable("Alertas");
+                entity.HasKey(a => a.Id);
+                
+                entity.Property(a => a.Tipo)
+                      .IsRequired()
+                      .HasMaxLength(50);
+                
+                entity.Property(a => a.Severidad)
+                      .HasMaxLength(20);
+                
+                entity.Property(a => a.Titulo)
+                      .HasMaxLength(100);
+                
+                entity.Property(a => a.Descripcion)
+                      .HasMaxLength(500);
+                
+                entity.Property(a => a.FincaNombre)
+                      .HasMaxLength(50);
+                
+                entity.Property(a => a.SensorNombre)
+                      .HasMaxLength(50);
+                
+                entity.Property(a => a.SensorTipo)
+                      .HasMaxLength(50);
+                
+                entity.Property(a => a.ValorActual)
+                      .HasColumnType("decimal(18,2)");
+                
+                entity.Property(a => a.UmbralConfigurado)
+                      .HasColumnType("decimal(18,2)");
+                
+                entity.Property(a => a.AccionSugerida)
+                      .HasMaxLength(500);
+                
+                entity.HasIndex(a => a.EsActiva);
+                entity.HasIndex(a => a.FincaId);
+                entity.HasIndex(a => a.SensorId);
+                entity.HasIndex(a => a.FechaCreacion);
+            });
+            
+            // Mapeo Umbrales Sensor
+            modelBuilder.Entity<UmbralSensor>(entity =>
+            {
+                entity.ToTable("UmbralesSensor");
+                entity.HasKey(u => u.Id);
+                
+                entity.Property(u => u.SensorTipo)
+                      .IsRequired()
+                      .HasMaxLength(50);
+                
+                entity.Property(u => u.FincaNombre)
+                      .HasMaxLength(50);
+                
+                entity.Property(u => u.Minimo)
+                      .HasColumnType("decimal(18,2)");
+                
+                entity.Property(u => u.Maximo)
+                      .HasColumnType("decimal(18,2)");
+                
+                entity.Property(u => u.SeveridadMinima)
+                      .HasMaxLength(20);
+                
+                entity.Property(u => u.SeveridadMaxima)
+                      .HasMaxLength(20);
+                
+                entity.Property(u => u.AccionSugerida)
+                      .HasMaxLength(500);
+                
+                entity.Property(u => u.CantidadInsumoSugerida)
+                      .HasColumnType("decimal(18,2)");
+                
+                entity.Property(u => u.CostoUnitarioSugerido)
+                      .HasColumnType("decimal(18,2)");
+                
+                entity.HasIndex(u => u.SensorTipo);
+                entity.HasIndex(u => u.FincaId);
+                entity.HasIndex(u => u.Activo);
+            });
             /////////////////////////////////////////////////////////////////////////////////
         }
     }
