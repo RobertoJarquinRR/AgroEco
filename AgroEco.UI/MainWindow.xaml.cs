@@ -5,22 +5,12 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using AgroEco.UI.Handlers;
 using AgroEco.UI.Alerts;
 using AgroEco.UI.Mensajeros;
 
 namespace AgroEco.UI
 {
-    internal static class JsonOptions
-    {
-        public static readonly JsonSerializerOptions CamelCase = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
-    }
-
     public partial class MainWindow : Window
     {
         private readonly MsgRouter _router;
@@ -120,7 +110,7 @@ namespace AgroEco.UI
             try
             {
                 var msg = new { type, payload };
-                string json = JsonSerializer.Serialize(msg, JsonOptions.CamelCase);
+                string json = JsonSerializer.Serialize(msg);
                 webView.CoreWebView2.PostWebMessageAsJson(json);
             }
             catch (Exception ex)
