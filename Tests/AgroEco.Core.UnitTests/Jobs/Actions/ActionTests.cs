@@ -22,4 +22,20 @@ public sealed class ActionTests
         Assert.False(result.Success);
         Assert.Equal(Status.Succeeded, action.Status);
     }
+
+    [Fact]
+    public void ChangeStatus_WhenStatusIsAlreadyCurrent_ReturnsSuccess()
+    {
+        // Arrange
+        NoOpAction action = new("action");
+        action.ChangeStatus(Status.Running);
+        action.ChangeStatus(Status.Succeeded);
+
+        // Act
+        Result result = action.ChangeStatus(Status.Succeeded);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.Equal(Status.Succeeded, action.Status);
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using AgroEco.UI.Handlers;
+using AgroEco.UI.Alerts;
 using Microsoft.Extensions.Logging;
 
 namespace AgroEco.UI.Mensajeros
@@ -14,6 +15,7 @@ namespace AgroEco.UI.Mensajeros
         private readonly SensorReadingHandler _sensorReading;
         private readonly InventarioHandler _inventario;
         private readonly EducacionHandler _educacion;
+        private readonly AlertHandler _alertas;
         private readonly ILogger<MsgRouter> _logger;
 
         public MsgRouter(
@@ -25,6 +27,7 @@ namespace AgroEco.UI.Mensajeros
             SensorReadingHandler sensorReading,
             InventarioHandler inventario,
             EducacionHandler educacion,
+            AlertHandler alertas,
             ILogger<MsgRouter> logger)
         {
             _tareas = tareas;
@@ -35,6 +38,7 @@ namespace AgroEco.UI.Mensajeros
             _sensorReading = sensorReading;
             _inventario = inventario;
             _educacion = educacion;
+            _alertas = alertas;
             _logger = logger;
         }
 
@@ -52,6 +56,7 @@ namespace AgroEco.UI.Mensajeros
                     "sensorReading" => HandleScreen(_sensorReading.ManejarMensaje, mensaje),
                     "inventario" => HandleScreen(_inventario.ManejarMensaje, mensaje),
                     "educacion" => HandleScreen(_educacion.ManejarMensaje, mensaje),
+                    "alertas" => HandleScreen(_alertas.ManejarMensaje, mensaje),
                     _ => false
                 };
             }

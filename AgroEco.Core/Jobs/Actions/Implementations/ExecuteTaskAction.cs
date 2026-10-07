@@ -9,7 +9,7 @@ namespace AgroEco.Core.Jobs.Actions.Implementations;
 
 public class ExecuteTaskAction : Action
 {
-    private readonly IServiceScopeFactory _scopeFactory;
+    private IServiceScopeFactory _scopeFactory = null!;
     private ExecuteTaskActionConfiguration _config = null!;
 
     public ExecuteTaskAction(string name, IServiceScopeFactory scopeFactory) : base(name)
@@ -17,10 +17,19 @@ public class ExecuteTaskAction : Action
         _scopeFactory = scopeFactory;
     }
 
+    private ExecuteTaskAction() : base(string.Empty)
+    {
+    }
+
     public ExecuteTaskActionConfiguration Config
     {
         get => _config;
         init => _config = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    internal override void AttachServices(IServiceProvider services)
+    {
+        _scopeFactory = services.GetRequiredService<IServiceScopeFactory>();
     }
 
     public override async Task<Result> Execute()

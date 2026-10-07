@@ -23,8 +23,17 @@ namespace AgroEco.Core.Jobs.Actions
 
         public abstract Task<Result> Execute();
 
+        internal virtual void AttachServices(IServiceProvider services)
+        {
+        }
+
         public Result ChangeStatus(Status status)
         {
+            if (Status == status)
+            {
+                return Result.CreateSuccess();
+            }
+
             if (!IsValidTransition(Status, status))
             {
                 return Result.CreateFailure(

@@ -13,6 +13,8 @@ using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
 using AgroEco.Core.Alertas.Persistence;
 using AgroEco.Core.Alertas;
+using AgroEco.Core.Alerts;
+using AgroEco.Core.Alerts.Persistence;
 using AgroEco.Core.Reportes;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -64,12 +66,7 @@ namespace AgroEco.Core
             services.AddScoped<UpdateRegistroFinanciero>();
             services.AddScoped<DeleteRegistroFinanciero>();
 
-            // Alertas persistence
-            services.AddScoped<CreateAlerta>();
-            services.AddScoped<GetAllAlertas>();
-            services.AddScoped<GetByIdAlerta>();
-            services.AddScoped<UpdateAlerta>();
-            services.AddScoped<ResolverAlerta>();
+            // Umbrales de sensores
             services.AddScoped<CreateUmbralSensor>();
             services.AddScoped<GetAllUmbralesSensor>();
             services.AddScoped<GetByIdUmbralSensor>();
@@ -79,10 +76,18 @@ namespace AgroEco.Core
             // Reportes
             services.AddScoped<IExportService, ExportService>();
 
+            // Alerts
+            services.AddScoped<CreateAlert>();
+            services.AddScoped<GetAlertById>();
+            services.AddScoped<GetAllAlerts>();
+            services.AddScoped<UpdateAlert>();
+            services.AddScoped<DeleteAlert>();
+
             services.AddSingleton<ITriggerCreator, DateTimeTriggerCreator>();
             services.AddSingleton<ITriggerCreator, CronTriggerCreator>();
             services.AddSingleton<IActionCreator, NoOpActionCreator>();
             services.AddSingleton<IActionCreator, ExecuteTaskActionCreator>();
+            services.AddSingleton<IActionCreator, SendAlertActionCreator>();
             services.AddSingleton<ITriggerFactory, TriggerFactory>();
             services.AddSingleton<IActionFactory, ActionFactory>();
 
@@ -90,7 +95,6 @@ namespace AgroEco.Core
             services.AddSingleton<TriggerEngine>();
             services.AddSingleton<AlertEngine>();
 
-            
             return services;
         }
     }
