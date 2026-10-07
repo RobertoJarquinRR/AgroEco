@@ -89,11 +89,11 @@ namespace AgroEco.UI.Handlers
         {
             var sensores = new[]
             {
-                new { tipo = "temperatura_suelo", nombre = "Temperatura Suelo", unidad = "°C", icono = "🌡️" },
-                new { tipo = "temperatura_ambiente", nombre = "Temperatura Ambiente", unidad = "°C", icono = "🌡️" },
-                new { tipo = "humedad_suelo", nombre = "Humedad Suelo", unidad = "%", icono = "💧" },
-                new { tipo = "humedad_ambiente", nombre = "Humedad Ambiente", unidad = "%", icono = "💧" },
-                new { tipo = "luz", nombre = "Luz Solar", unidad = "lux", icono = "☀️" }
+                new { tipo = "temperatura_suelo", nombre = "Temperatura Suelo", unidad = "°C", icono = "thermometer" },
+                new { tipo = "temperatura_ambiente", nombre = "Temperatura Ambiente", unidad = "°C", icono = "thermometer" },
+                new { tipo = "humedad_suelo", nombre = "Humedad Suelo", unidad = "%", icono = "humidity" },
+                new { tipo = "humedad_ambiente", nombre = "Humedad Ambiente", unidad = "%", icono = "humidity" },
+                new { tipo = "luz", nombre = "Luz Solar", unidad = "lux", icono = "light" }
             };
 
             _enviar("sensoresConfigurados", sensores);

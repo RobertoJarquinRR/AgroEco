@@ -174,6 +174,60 @@ document.addEventListener("DOMContentLoaded", () => {
             aplicarLectura("viento", Math.floor(10 + Math.random() * 4));
         }
     }, SIMULACION_VIENTO_MS);
+
+    // Modal Umbral - abrir desde los dos botones "Nuevo Umbral"
+    ["btnNuevoUmbral", "btnNuevoUmbral2"].forEach(id => {
+        const btn = obtenerElemento(id);
+        if (btn) btn.addEventListener("click", () => abrirModalUmbral());
+    });
+
+    // Modal Umbral - cerrar con la X y con Cancelar
+    ["modalUmbralClose", "btnCancelarUmbral"].forEach(id => {
+        const btn = obtenerElemento(id);
+        if (btn) btn.addEventListener("click", cerrarModalUmbral);
+    });
+
+    // Modal Umbral - guardar (submit del formulario)
+    const formUmbral = obtenerElemento("formUmbral");
+    if (formUmbral) {
+        formUmbral.addEventListener("submit", (/** @type {Event} */ e) => {
+            e.preventDefault();
+            enviarUmbral();
+        });
+    }
+
+    // Al elegir un tipo de acción, mostrar u ocultar el campo de configuración JSON
+    const accionTipoSelect = obtenerElemento("umbralAccionTipo");
+    if (accionTipoSelect) {
+        accionTipoSelect.addEventListener("change", () => {
+            if (accionTipoSelect.value) mostrarGrupo("grupoAccionConfig");
+            else ocultarGrupo("grupoAccionConfig");
+        });
+    }
+
+    // Modal Eliminar - cerrar con la X y con Cancelar
+    ["modalEliminarClose", "btnCancelarEliminar"].forEach(id => {
+        const btn = obtenerElemento(id);
+        if (btn) btn.addEventListener("click", cerrarModalEliminar);
+    });
+
+    // Modal Eliminar - confirmar (aquí SÍ se manda a borrar)
+    const btnConfirmarEliminar = obtenerElemento("btnConfirmarEliminar");
+    if (btnConfirmarEliminar) {
+        btnConfirmarEliminar.addEventListener("click", () => {
+            const modal = obtenerElemento("modalEliminar");
+            if (modal && modal.dataset.umbralId) {
+                eliminarUmbral(parseInt(modal.dataset.umbralId, 10));
+            }
+        });
+    }
+
+    // Cerrar los modales al hacer click en el fondo oscuro
+    document.querySelectorAll(".modal-overlay").forEach(overlay => {
+        overlay.addEventListener("click", (e) => {
+            if (e.target === overlay) overlay.classList.remove("active");
+        });
+    });
 });
 
 // ===== LÓGICA DE MODAL UMBRALES =====
@@ -474,14 +528,32 @@ function editarUmbral(id) {
     }
 }
 
-/** @param {number} id */
+/** Paso 1: solo muestra el modal de confirmación @param {number} id */
 function confirmarEliminarUmbral(id) {
-    if (confirm("¿Estás seguro de eliminar este umbral?")) {
-        /** @type {any} */
-        const win = window;
-        if (win.chrome && win.chrome.webview) {
-            win.chrome.webview.postMessage({ type: "eliminarUmbral", payload: { Id: id } });
-        }
+    const modal = obtenerElemento("modalEliminar");
+    const nombreEl = obtenerElemento("eliminarUmbralNombre");
+    if (modal && nombreEl) {
+        modal.dataset.umbralId = String(id);
+        nombreEl.textContent = `ID ${id}`;
+        modal.classList.add("active");
+    }
+}
+
+/** Paso 2: el usuario confirmó, ahora sí se envía a C# @param {number} id */
+function eliminarUmbral(id) {
+    /** @type {any} */
+    const win = window;
+    if (win.chrome && win.chrome.webview) {
+        win.chrome.webview.postMessage({ type: "eliminarUmbral", payload: { Id: id } });
+    }
+    cerrarModalEliminar();
+}
+
+function cerrarModalEliminar() {
+    const modal = obtenerElemento("modalEliminar");
+    if (modal) {
+        modal.classList.remove("active");
+        delete modal.dataset.umbralId;
     }
 }
 
@@ -578,6 +650,9 @@ function confirmarEliminarUmbral(id) {
         winSensores.chrome.webview.postMessage({ type: "obtenerAlertasActivas" });
 
         winSensores.chrome.webview.postMessage({ type: "ready_sensores" });
+
+        // Cargar la lista de umbrales al abrir la pantalla
+        solicitarUmbrales();
     }
 }
 

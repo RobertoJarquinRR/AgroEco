@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eco Agro - Panel de Control</title>
-    <link rel="stylesheet" href="../css/style_sensores.css">   
+    <link rel="stylesheet" href="../css/style_sensores.css">
     <script src="/src/javascript/chart.umd.min.js"></script>
-    <script src="/src/javascript/sensores.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -120,12 +119,10 @@
                     <div class="card-devices">
                         <div class="devices-header">
                             <h3>Dispositivos</h3>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <button class="btn-primary" id="btnNuevoUmbral" style="padding: 6px 12px; font-size: 0.875rem;">
-                                    <img src="../../images/svg-hackaton/plus.svg" alt="" class="icon-svg" style="width: 16px; height: 16px; margin-right: 4px;">
-                                    Nuevo Umbral
+                            <div class="devices-actions">
+                                <button type="button" class="btn-refresh" id="refresh-btn" title="Actualizar" aria-label="Actualizar">
+                                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                                 </button>
-                                <button class="btn-refresh" id="refresh-btn"><img src="../../images/svg-hackaton/arrow-right (2).svg" alt="" class="icon-svg"></button>
                             </div>
                         </div>
                         <div class="device-list" id="device-container">
@@ -177,17 +174,21 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Panel de Umbrales Configurados (ahora DENTRO de <main>) -->
+            <section id="umbrales-section" style="margin-top: 24px;">
+                <div class="card" style="background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid #E8F0EE; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <h3 style="margin: 0; font-size: 1.125rem; font-weight: 700;">Umbrales Configurados</h3>
+                        <button type="button" class="btn-primary btn-nuevo-umbral" id="btnNuevoUmbral2">
+                            <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            <span>Nuevo Umbral</span>
+                        </button>
+                    </div>
+                    <div id="umbralesContainer" style="padding: 16px;"></div>
+                </div>
+            </section>
         </main>
-    
-    <!-- Panel de Umbrales Configurados -->
-    <section id="umbrales-section" style="margin-top: 20px; padding: 0 24px;">
-        <div class="card" style="background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid #E8F0EE; display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0;">Umbrales Configurados</h3>
-            </div>
-            <div id="umbralesContainer" style="padding: 16px;"></div>
-        </div>
-    </section>
     </div>
 
     <!-- Modal Nuevo/Editar Umbral -->
@@ -195,7 +196,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h2 id="modalUmbralTitulo">Nuevo Umbral</h2>
-                <button class="modal-close" id="modalUmbralClose">&times;</button>
+                <button type="button" class="modal-close" id="modalUmbralClose">&times;</button>
             </div>
             <form id="formUmbral">
                 <div class="form-grid">
@@ -209,7 +210,7 @@
                             <option value="humedad_ambiente">Humedad Ambiente (%)</option>
                             <option value="luz">Luz Solar (lux)</option>
                         </select>
-                        <span class="error-message" id="errUmbralSensorTipo">Selecciona un tipo de sensor</span>
+                        <span class="error-message" id="errUmbralSensorTipo"></span>
                     </div>
                     <div class="form-group">
                         <label for="umbralFinca">Finca (opcional - si vacío aplica a todas)</label>
@@ -220,12 +221,12 @@
                     <div class="form-group">
                         <label for="umbralMinimo">Valor Mínimo</label>
                         <input type="number" id="umbralMinimo" step="0.1" min="0" placeholder="Ej: 15">
-                        <span class="error-message" id="errUmbralMinimo">El mínimo debe ser ≥ 0</span>
+                        <span class="error-message" id="errUmbralMinimo"></span>
                     </div>
                     <div class="form-group">
                         <label for="umbralMaximo">Valor Máximo</label>
                         <input type="number" id="umbralMaximo" step="0.1" min="0" placeholder="Ej: 35">
-                        <span class="error-message" id="errUmbralMaximo">El máximo debe ser ≥ 0</span>
+                        <span class="error-message" id="errUmbralMaximo"></span>
                     </div>
                     <div class="form-group">
                         <label for="umbralSeveridadMin">Severidad si bajo mínimo</label>
@@ -268,12 +269,12 @@
                     <div class="form-group" id="grupoAccionConfig" style="display: none;">
                         <label for="umbralAccionConfig">Configuración de la acción (JSON)</label>
                         <textarea id="umbralAccionConfig" rows="4" placeholder='Ej: {"title": "Temp alta", "message": "Temp > 30°C", "level": "Warning"}'></textarea>
-                        <span class="error-message" id="errUmbralAccionConfig">JSON inválido</span>
+                        <span class="error-message" id="errUmbralAccionConfig"></span>
                     </div>
                     <div class="form-group">
                         <label for="umbralCooldown">Cooldown (minutos entre disparos)</label>
                         <input type="number" id="umbralCooldown" min="0" value="30" step="1">
-                        <span class="error-message" id="errUmbralCooldown">El cooldown debe ser ≥ 0</span>
+                        <span class="error-message" id="errUmbralCooldown"></span>
                     </div>
                     <div class="form-group" id="grupoInsumo" style="display: none;">
                         <label for="umbralInsumo">Insumo a usar en tarea</label>
@@ -285,12 +286,12 @@
                         <div class="form-group">
                             <label for="umbralCantidad">Cantidad a descontar</label>
                             <input type="number" id="umbralCantidad" step="0.01" min="0.01" value="1">
-                            <span class="error-message" id="errUmbralCantidad">La cantidad debe ser > 0</span>
+                            <span class="error-message" id="errUmbralCantidad"></span>
                         </div>
                         <div class="form-group">
                             <label for="umbralCosto">Costo unitario</label>
                             <input type="number" id="umbralCosto" step="0.01" min="0" value="0">
-                            <span class="error-message" id="errUmbralCosto">El costo no puede ser negativo</span>
+                            <span class="error-message" id="errUmbralCosto"></span>
                         </div>
                     </div>
                 </div>
@@ -309,13 +310,15 @@
         <div class="modal">
             <div class="modal-header">
                 <h2>Eliminar Umbral</h2>
-                <button class="modal-close" id="modalEliminarClose">&times;</button>
+                <button type="button" class="modal-close" id="modalEliminarClose">&times;</button>
             </div>
-            <p>¿Estás seguro de eliminar el umbral <strong id="eliminarUmbralNombre"></strong>?</p>
-            <p style="color: #DC2626; font-size: 0.875rem;">Esta acción no se puede deshacer.</p>
-            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-                <button class="btn-secondary" id="btnCancelarEliminar">Cancelar</button>
-                <button class="btn-primary" style="background: #DC2626;" id="btnConfirmarEliminar">Eliminar</button>
+            <div style="padding: 24px;">
+                <p>¿Estás seguro de eliminar el umbral <strong id="eliminarUmbralNombre"></strong>?</p>
+                <p style="color: #DC2626; font-size: 0.875rem; margin-top: 8px;">Esta acción no se puede deshacer.</p>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn-secondary" id="btnCancelarEliminar">Cancelar</button>
+                    <button type="button" class="btn-primary" style="background: #DC2626;" id="btnConfirmarEliminar">Eliminar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -323,9 +326,7 @@
     <!-- Contenedor de Alertas -->
     <div id="alertas-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000; max-width: 400px;"></div>
 
-    <!-- Contenedor de Umbrales -->
-    <div id="umbralesContainer" style="margin-top: 20px;"></div>
-     <!-- el js-->   
+    <!-- Scripts (cada uno se carga UNA sola vez) -->
     <script src="/src/javascript/sidebar.js"></script>
     <script>updateSidebar();</script>
     <script src="/src/javascript/sensores.js"></script>

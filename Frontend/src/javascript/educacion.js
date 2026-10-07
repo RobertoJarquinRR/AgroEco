@@ -148,6 +148,9 @@ const Win = /** @type {any} */ (window);
                 case "listaBioinsumos":
                     cargarBioinsumos(payload);
                     break;
+                case "cargar_detalle_bioinsumo":
+                    mostrarDetalleBioinsumo(payload, document.querySelector('.accordion-item.open'));
+                    break;
                 case "alertaClimatica":
                     mostrarAlertaClimatica(payload);
                     break;
