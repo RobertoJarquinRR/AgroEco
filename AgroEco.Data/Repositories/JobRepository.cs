@@ -7,9 +7,24 @@ namespace AgroEco.Data.Repositories
 {
     public class JobRepository : RepositoryBase<Job, DataContext> ,IJobRepository
     {
-        public JobRepository(DataContext context) : base(context) { }
+        private readonly IServiceProvider? _services;
 
-      
+        public JobRepository(DataContext context, IServiceProvider? services = null) : base(context) { _services = services; }
+
+        private void AttachActionServices(Job job)
+        {
+            if (_services is null)
+            {
+                return;
+            }
+
+            foreach (AgroEco.Core.Jobs.Actions.Action action in job.Actions)
+            {
+                action.AttachServices(_services);
+            }
+        }
+
+
 
         protected override void ApplyChanges(Job existingEntity, Job newEntity)
         {
@@ -58,12 +73,19 @@ namespace AgroEco.Data.Repositories
         public async Task<List<Job>> GetRunningJobsAsync(
             CancellationToken ct = default)
         {
-            return await _context.Jobs
+            List<Job> jobs = await _context.Jobs
             .Where(j => j.Status == Status.Running)
             .AsNoTracking()
             .Include(j => j.Trigger)
             .Include(j => j.Actions)
             .ToListAsync(ct);
+
+            foreach (Job job in jobs)
+            {
+                AttachActionServices(job);
+            }
+
+            return jobs;
         }
 
         public async Task<Job?> GetByIdWithDetailsAsync(int id, CancellationToken ct = default)
@@ -73,7 +95,14 @@ namespace AgroEco.Data.Repositories
             query = query.Include(j => j.Trigger)
             .Include(j => j.Actions);
 
-            return await query.FirstOrDefaultAsync(j => j.Id == id, ct);
+            Job? job = await query.FirstOrDefaultAsync(j => j.Id == id, ct);
+
+            if (job is not null)
+            {
+                AttachActionServices(job);
+            }
+
+            return job;
         }
     }
 }
