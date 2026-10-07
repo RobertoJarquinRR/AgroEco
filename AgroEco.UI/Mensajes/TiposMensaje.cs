@@ -16,7 +16,9 @@ public static class TiposMensaje
     public const string ObtenerAlturaMaxima = "obtenerAlturaMaxima";
     public const string ObtenerDatosEtapa = "obtener_datos_etapa";
     public const string ObtenerBioinsumos = "obtener_bioinsumos";
+    public const string ObtenerDatosCategoriaBioInsumo = "obtenerDatosCategoriaBioInsumo";
     public const string ObtenerDetalleBioinsumo = "obtener_detalle_bioinsumo";
+    public const string ObtenerDatosBioinsumo = "obtenerDatosBioinsumo";
     public const string ObtenerAlertaClimatica = "obtener_alerta_climatica";
 
     // Sensores
@@ -51,4 +53,8 @@ public static class TiposMensaje
     public const string ObtenerRegistros = "obtener_registros";
     public const string CrearRegistro = "crear_registro";
     public const string EliminarRegistro = "eliminar_registro";
+
+    // Dashboard
+    public const string ReadyDashboard = "ready_dashboard";
+    public const string Ready = "ready";
 }

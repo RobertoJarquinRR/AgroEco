@@ -48,8 +48,8 @@ namespace AgroEco.UI.Handlers
         {
             switch (msg.Type)
             {
-                case "ready_dashboard":
-                case "ready":
+                case TiposMensaje.ReadyDashboard:
+                case TiposMensaje.Ready:
                     await EnviarDashboardCompletoAsync();
                     break;
             }
@@ -59,10 +59,8 @@ namespace AgroEco.UI.Handlers
         {
             try
             {
-                // 1. Enviar nombre de finca
                 _enviar("finca", "Finca Principal");
 
-                // 2. Obtener datos en paralelo
                 var alertasTask = _getAllAlerts.HandleAsync(limit: 20, status: AlertStatus.Pending);
                 var jobsTask = _getAllJobs.HandleAsync();
                 var umbralesTask = _getAllUmbrales.HandleAsync(soloActivos: true);
@@ -71,7 +69,6 @@ namespace AgroEco.UI.Handlers
 
                 await Task.WhenAll(alertasTask, jobsTask, umbralesTask, insumosTask, registrosTask);
 
-                // 3. Procesar alertas
                 var alertas = alertasTask.Result.Success ? alertasTask.Result.Value : new List<Alert>();
                 var alertasPendientes = alertas.Where(a => a.Status == AlertStatus.Pending).ToList();
                 var alertasParaUI = alertasPendientes.Take(10).Select(a => new
@@ -81,7 +78,6 @@ namespace AgroEco.UI.Handlers
                     nivel = a.Level.ToString().ToLower()
                 }).ToList();
 
-                // 4. Procesar tareas (jobs)
                 var jobs = jobsTask.Result.Success ? jobsTask.Result.Value : new List<Job>();
                 var tareasPendientes = jobs.Where(j => j.Status == Status.Created || j.Status == Status.Enqueued || j.Status == Status.Running).ToList();
                 var tareasCompletadas = jobs.Where(j => j.Status == Status.Succeeded).ToList();
@@ -93,7 +89,6 @@ namespace AgroEco.UI.Handlers
                     estado = j.Status.ToString()
                 }).ToList();
 
-                // 5. Procesar umbrales
                 var umbrales = umbralesTask.Result.Success ? umbralesTask.Result.Value : new List<UmbralSensor>();
                 var umbralesParaUI = umbrales.Take(10).Select(u => new
                 {
@@ -109,17 +104,14 @@ namespace AgroEco.UI.Handlers
                     Activo = u.Activo
                 }).ToList();
 
-                // 6. Procesar insumos (bajo mínimo)
                 var insumos = insumosTask.Result.Success ? insumosTask.Result.Value : new List<AgroEco.Core.Inventario.Insumo>();
                 var itemsBajoMinimo = insumos.Where(i => i.Cantidad < i.StockMin).Count();
 
-                // 7. Procesar finanzas (balance)
                 var registros = registrosTask.Result.Success ? registrosTask.Result.Value : new List<AgroEco.Core.Finanzas.RegistroFinanciero>();
                 var ingresos = registros.Where(r => r.Tipo == "Ingreso").Sum(r => r.Monto);
                 var costos = registros.Where(r => r.Tipo == "Gasto").Sum(r => r.Monto);
                 var balance = ingresos - costos;
 
-                // 8. Simular lectura de sensores
                 _enviar("ambiente", new
                 {
                     temperatura = 24.5,
@@ -128,7 +120,6 @@ namespace AgroEco.UI.Handlers
                     notaHumedad = "Óptimo"
                 });
 
-                // 9. Enviar stats
                 _enviar("stats", new
                 {
                     sensoresActivos = umbrales.Count(u => u.Activo),
@@ -138,10 +129,8 @@ namespace AgroEco.UI.Handlers
                     plagas = 0
                 });
 
-                // 10. Enviar umbrales
                 _enviar("umbrales", new { umbrales = umbralesParaUI });
 
-                // 11. Enviar estado cultivo
                 _enviar("plagas", new
                 {
                     hayPlagas = false,
@@ -149,10 +138,8 @@ namespace AgroEco.UI.Handlers
                     salud = "saludable"
                 });
 
-                // 12. Enviar alertas
                 _enviar("alertas", alertasParaUI);
 
-                // 13. Enviar tareas
                 _enviar("tareas", tareasParaUI);
 
                 _logger.LogInformation("Dashboard completo enviado: {Alertas} alertas, {Tareas} tareas, {Umbrales} umbrales",

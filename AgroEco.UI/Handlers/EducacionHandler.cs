@@ -40,12 +40,12 @@ namespace AgroEco.UI.Handlers
                     break;
 
                 case TiposMensaje.ObtenerBioinsumos:
-                case "obtenerDatosCategoriaBioInsumo":
+                case TiposMensaje.ObtenerDatosCategoriaBioInsumo:
                     ObtenerBioinsumos(msg);
                     break;
 
                 case TiposMensaje.ObtenerDetalleBioinsumo:
-                case "obtenerDatosBioinsumo":
+                case TiposMensaje.ObtenerDatosBioinsumo:
                     ObtenerDetalleBioinsumo(msg);
                     break;
 
