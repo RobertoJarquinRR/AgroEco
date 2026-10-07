@@ -29,6 +29,11 @@ namespace AgroEco.Core.Jobs.Actions
 
         public Result ChangeStatus(Status status)
         {
+            if (Status == status)
+            {
+                return Result.CreateSuccess();
+            }
+
             if (!IsValidTransition(Status, status))
             {
                 return Result.CreateFailure(
