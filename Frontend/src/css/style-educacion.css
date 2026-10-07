@@ -44,9 +44,8 @@ img {
     max-width: 100%;
 }
 
-/* ==========================================
-   ESTRUCTURA GENERAL Y SIDEBAR (ORIGINAL)
-   ========================================== */
+/*
+   ESTRUCTURA GENERAL Y SIDEBAR (ORIGINAL)*/
 
 .app-container {
     display: grid;
@@ -134,9 +133,9 @@ aside {
     color: #bc6661;
 }
 
-/* ==========================================
+/* 
    CONTENIDO PRINCIPAL (AJUSTADO SIN SCROLL)
-   ========================================== */
+*/
 
 .main-content {
     padding: 20px 25px;
@@ -241,7 +240,20 @@ svg{
 .filters-row.wrap {
     flex-wrap: wrap;
 }
+/* paneles */
+.etapas-panels {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
 
+.etapa-panel {
+    display: none;
+}
+
+.etapa-panel.active {
+    display: block;
+}
 
 .filter-btn {
     background: white;
