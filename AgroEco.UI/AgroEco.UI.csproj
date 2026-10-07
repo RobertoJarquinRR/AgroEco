@@ -27,9 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <None Include="Frontend\**\*.*" Exclude="Frontend\.gitkeep">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+    <Content Include="Frontend\data\*.json" Link="Data\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

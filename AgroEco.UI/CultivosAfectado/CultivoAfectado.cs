@@ -22,9 +22,9 @@ namespace AgroEco.UI.Cultivos
         public string? FormulaTratamiento { get; set; }
         [JsonPropertyName("dosisPor20Litros")]
         public string? DosisRecomendada { get; set; }
-        [JsonPropertyName("frecuenciaTratamiento")]
+[JsonPropertyName("frecuenciaTratamiento")]
         public string? FrecuenciaAplicacion { get; set; }
-       
-
+        [JsonPropertyName("prevencion")]
+        public string? Prevencion { get; set; } = "";
     }
 }

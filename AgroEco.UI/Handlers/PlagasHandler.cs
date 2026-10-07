@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+using System.Linq;
 using AgroEco.UI.Clases;
+using AgroEco.UI.Cultivos;
 using AgroEco.UI.CultivosAfectado;
+using AgroEco.UI.Mensajes;
 using AgroEco.UI.Mensajeros;
+using AgroEco.UI.Servicios;
 
 namespace AgroEco.UI.Handlers
 {
@@ -14,7 +16,6 @@ namespace AgroEco.UI.Handlers
         private readonly Action<string, object> _enviar;
         private readonly ILogger<PlagasHandler> _logger;
         private readonly List<Plagas> _plagas = new();
-        private static readonly JsonSerializerOptions _options = new() { PropertyNameCaseInsensitive = true };
 
         public PlagasHandler(Action<string, object> enviar, ILogger<PlagasHandler> logger)
         {
@@ -27,15 +28,15 @@ namespace AgroEco.UI.Handlers
         {
             switch (msg.Type)
             {
-                case "ready_plagas":
+                case TiposMensaje.ListoPlagas:
                     EnviarPlagas();
                     break;
 
-                case "obtenerDetallesPlaga":
+                case TiposMensaje.ObtenerDetallePlaga:
                     EnviarDetallesPlaga(msg);
                     break;
 
-                case "obtenerDetallesCultivo":
+                case TiposMensaje.ObtenerDetalleCultivo:
                     EnviarDetallesCultivo(msg);
                     break;
             }
@@ -69,7 +70,8 @@ namespace AgroEco.UI.Handlers
                 nombre = plaga.Nombre,
                 cientifico = plaga.NameCientifico,
                 riesgo = plaga.Riesgo,
-                desc = plaga.Descripcion
+                desc = plaga.Descripcion,
+                favorece = plaga.Favorece
             });
 
             var cultivos = plaga.CultivosAfectados.Select(c => new
@@ -102,7 +104,8 @@ namespace AgroEco.UI.Handlers
                 pasosIdentificacion = cultivo.PasosIdentificacion,
                 formulaTratamiento = cultivo.FormulaTratamiento,
                 dosisPor20Litros = cultivo.DosisRecomendada,
-                frecuenciaTratamiento = cultivo.FrecuenciaAplicacion
+                frecuenciaTratamiento = cultivo.FrecuenciaAplicacion,
+                prevencion = cultivo.Prevencion
             });
         }
 
@@ -110,20 +113,16 @@ namespace AgroEco.UI.Handlers
         {
             try
             {
-                string ruta = Path.Combine(AppContext.BaseDirectory,
-                    "..", "..", "..", "..", "Frontend", "public", "data", "plagas.json");
-
-                if (!File.Exists(ruta))
+                var lista = JsonContentLoader.Cargar<List<Plagas>>("plagas.json", _logger);
+                if (lista is not null)
                 {
-                    _logger.LogWarning("No se encontró plagas.json en: {Ruta}", ruta);
-                    return;
+                    _plagas.AddRange(lista);
+                    _logger.LogInformation("Plagas cargadas: {Count}", _plagas.Count);
                 }
-
-                string texto = File.ReadAllText(ruta);
-                var lista = JsonSerializer.Deserialize<List<Plagas>>(texto, _options);
-
-                _plagas.AddRange(lista ?? new());
-                _logger.LogInformation("Plagas cargadas: {Count}", _plagas.Count);
+                else
+                {
+                    _logger.LogWarning("No se pudieron cargar las plagas desde plagas.json");
+                }
             }
             catch (Exception ex)
             {
