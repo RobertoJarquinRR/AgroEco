@@ -132,6 +132,32 @@ function renderTareas(data) {
     `).join("");
 }
 
+function renderUmbrales(umbrales) {
+    const container = document.getElementById("umbralesContainer") || document.querySelector(".umbrales-list");
+    if (!container) return;
+
+    if (!umbrales || umbrales.length === 0) {
+        container.innerHTML = "<p style='color: #666; text-align: center; padding: 20px;'>No hay umbrales configurados</p>";
+        return;
+    }
+
+    const recientes = umbrales.slice(0, 3);
+    container.innerHTML = recientes.map(u => `
+        <div class="umbral-card" data-id="${u.Id}">
+            <div class="umbral-header">
+                <span class="umbral-sensor">${u.SensorTipo}</span>
+                <span class="umbral-finca">${u.FincaNombre || "Todas las fincas"}</span>
+                <span class="umbral-status ${u.Activo ? "activo" : "inactivo"}">${u.Activo ? "Activo" : "Inactivo"}</span>
+            </div>
+            <div class="umbral-details">
+                ${u.Minimo !== null && u.Minimo !== undefined ? `<span>Mín: ${u.Minimo} (${u.SeveridadMinima})</span>` : ""}
+                ${u.Maximo !== null && u.Maximo !== undefined ? `<span>Máx: ${u.Maximo} (${u.SeveridadMaxima})</span>` : ""}
+                ${u.AccionTipo ? `<span class="umbral-accion">Acción: ${u.AccionTipo}</span>` : ""}
+            </div>
+        </div>
+    `).join("");
+}
+
 // ============================================================
 // Puente con C# (WebView2)
 // Desde C#: webView.CoreWebView2.PostWebMessageAsJson(jsonString)
@@ -150,11 +176,12 @@ if (win.chrome && win.chrome.webview) {
             case "alertas":      renderAlertas(payload); break;
             case "tareas":       renderTareas(payload); break;
             case "finca":        updateFinca(payload); break;
+            case "umbrales":     renderUmbrales(payload.umbrales || []); break;
             default:
                 console.warn("Tipo de mensaje no reconocido:", type);
         }
     });
 
     // Avisamos a C# que el WebView ya cargó y puede empezar a mandar data
-    win.chrome.webview.postMessage({ type: "ready" });
+    win.chrome.webview.postMessage({ type: "ready_dashboard" });
 }

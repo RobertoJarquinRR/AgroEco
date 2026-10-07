@@ -132,7 +132,20 @@ namespace AgroEco.UI
             services.AddScoped<Func<Action<string, object>, DashboardHandler>>(sp => enviar =>
             {
                 var logger = sp.GetRequiredService<ILogger<DashboardHandler>>();
-                return new DashboardHandler(enviar, logger);
+                var getAllAlerts = sp.GetRequiredService<GetAllAlerts>();
+                var getAllJobs = sp.GetRequiredService<GetAllJob>();
+                var getAllUmbrales = sp.GetRequiredService<GetAllUmbralesSensor>();
+                var getAllInsumos = sp.GetRequiredService<GetAllInsumo>();
+                var getAllRegistros = sp.GetRequiredService<GetAllRegistroFinanciero>();
+
+                return new DashboardHandler(
+                    enviar,
+                    getAllAlerts,
+                    getAllJobs,
+                    getAllUmbrales,
+                    getAllInsumos,
+                    getAllRegistros,
+                    logger);
             });
 
             services.AddScoped<Func<Action<string, object>, SensorReadingHandler>>(sp =>
