@@ -23,6 +23,10 @@ public class UmbralSensorRepository : RepositoryBase<UmbralSensor, DataContext>
         existing.InsumoSugeridoId = next.InsumoSugeridoId;
         existing.CantidadInsumoSugerida = next.CantidadInsumoSugerida;
         existing.CostoUnitarioSugerido = next.CostoUnitarioSugerido;
+        existing.AccionTipo = next.AccionTipo;
+        existing.AccionConfigJson = next.AccionConfigJson;
+        existing.CooldownMinutos = next.CooldownMinutos;
+        existing.UltimoDisparo = next.UltimoDisparo;
         existing.FechaActualizacion = DateTime.UtcNow;
     }
 }

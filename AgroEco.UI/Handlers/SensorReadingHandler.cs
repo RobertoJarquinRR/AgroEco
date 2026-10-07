@@ -133,7 +133,10 @@ namespace AgroEco.UI.Handlers
                     dto.InsumoSugeridoId,
                     dto.CantidadInsumoSugerida,
                     dto.CostoUnitarioSugerido,
-                    dto.Activo);
+                    dto.Activo,
+                    dto.AccionTipo,
+                    dto.AccionConfigJson,
+                    dto.CooldownMinutos);
 
                 if (result.Success)
                 {
@@ -184,6 +187,9 @@ namespace AgroEco.UI.Handlers
                 umbral.InsumoSugeridoId = dto.InsumoSugeridoId;
                 umbral.CantidadInsumoSugerida = dto.CantidadInsumoSugerida;
                 umbral.CostoUnitarioSugerido = dto.CostoUnitarioSugerido;
+                umbral.AccionTipo = dto.AccionTipo;
+                umbral.AccionConfigJson = dto.AccionConfigJson;
+                umbral.CooldownMinutos = dto.CooldownMinutos;
                 umbral.FechaActualizacion = DateTime.UtcNow;
 
                 var result = await _updateUmbral.HandleAsync(umbral);
@@ -310,7 +316,10 @@ namespace AgroEco.UI.Handlers
             int? InsumoSugeridoId,
             decimal? CantidadInsumoSugerida,
             decimal? CostoUnitarioSugerido,
-            bool Activo = true);
+            bool Activo = true,
+            string? AccionTipo = null,
+            string? AccionConfigJson = null,
+            int CooldownMinutos = 30);
 
         private record ActualizarUmbralDto(
             int Id,
@@ -326,7 +335,10 @@ namespace AgroEco.UI.Handlers
             string AccionSugerida,
             int? InsumoSugeridoId,
             decimal? CantidadInsumoSugerida,
-            decimal? CostoUnitarioSugerido);
+            decimal? CostoUnitarioSugerido,
+            string? AccionTipo = null,
+            string? AccionConfigJson = null,
+            int CooldownMinutos = 30);
 
         private record EliminarUmbralDto(int Id);
     }

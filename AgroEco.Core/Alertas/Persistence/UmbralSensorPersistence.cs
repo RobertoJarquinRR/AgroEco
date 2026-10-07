@@ -28,7 +28,10 @@ public class CreateUmbralSensor
         int? insumoSugeridoId,
         decimal? cantidadInsumoSugerida,
         decimal? costoUnitarioSugerido,
-        bool activo = true)
+        bool activo = true,
+        string? accionTipo = null,
+        string? accionConfigJson = null,
+        int cooldownMinutos = 30)
     {
         if (string.IsNullOrWhiteSpace(sensorTipo))
             return Result<UmbralSensor>.CreateFailure("Tipo de sensor es obligatorio");
@@ -51,6 +54,9 @@ public class CreateUmbralSensor
             InsumoSugeridoId = insumoSugeridoId,
             CantidadInsumoSugerida = cantidadInsumoSugerida,
             CostoUnitarioSugerido = costoUnitarioSugerido,
+            AccionTipo = accionTipo,
+            AccionConfigJson = accionConfigJson,
+            CooldownMinutos = cooldownMinutos,
             FechaCreacion = DateTime.UtcNow
         };
 

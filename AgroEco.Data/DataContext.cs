@@ -289,6 +289,16 @@ modelBuilder.Entity<DateTimeTrigger>(entity =>{
                 entity.Property(u => u.CostoUnitarioSugerido)
                       .HasColumnType("decimal(18,2)");
                 
+                entity.Property(u => u.AccionTipo)
+                      .HasMaxLength(50);
+                
+                entity.Property(u => u.AccionConfigJson)
+                      .HasColumnType("TEXT");
+                
+                entity.Property(u => u.CooldownMinutos);
+                
+                entity.Property(u => u.UltimoDisparo);
+                
                 entity.HasIndex(u => u.SensorTipo);
                 entity.HasIndex(u => u.FincaId);
                 entity.HasIndex(u => u.Activo);

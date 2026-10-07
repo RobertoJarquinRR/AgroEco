@@ -12,6 +12,8 @@ public static class TiposMensaje
     // Educación
     public const string ListoEducacion = "listo_educacion";
     public const string ObtenerInfoPoda = "obtener_info_poda";
+    public const string ObtenerDatosPoda = "obtenerDatosPoda";
+    public const string ObtenerAlturaMaxima = "obtenerAlturaMaxima";
     public const string ObtenerDatosEtapa = "obtener_datos_etapa";
     public const string ObtenerBioinsumos = "obtener_bioinsumos";
     public const string ObtenerDetalleBioinsumo = "obtener_detalle_bioinsumo";
@@ -20,6 +22,12 @@ public static class TiposMensaje
     // Sensores
     public const string ListoSensores = "listo_sensores";
     public const string LecturaSensor = "lectura_sensor";
+    public const string ObtenerUmbrales = "obtener_umbrales";
+    public const string CrearUmbral = "crear_umbral";
+    public const string ActualizarUmbral = "actualizar_umbral";
+    public const string EliminarUmbral = "eliminar_umbral";
+    public const string ObtenerLecturas = "obtener_lecturas";
+    public const string ObtenerAccionesDisponibles = "obtener_acciones_disponibles";
 
     // Tareas
     public const string ObtenerTareas = "obtener_tareas";
