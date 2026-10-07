@@ -53,10 +53,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const labelName = document.getElementById("pest-name");
     const labelScientific = document.getElementById("pest-scientific");
     const labelDesc = document.getElementById("pest-desc");
+    const labelFav = document.getElementById("pest-favorece");
     
-    const btnAction = document.getElementById("btn-action");
+    
     const tasksContainer = document.getElementById("active-tasks-container");
     const taskCounter = document.getElementById("task-counter");
+    const lbSinTareas =  /** @type {HTMLElement} */ (document.getElementById("lbSinTareas"));
 
     /** @type {number | null} */
     let idCultivo = null;
@@ -107,8 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const contenedorTags = /** @type {HTMLElement | null} */ (
             document.getElementById("quick-tags")
         );
-        
         if (contenedorTags) {
+            contenedorTags.innerHTML = "";
             datos.forEach(plaga => {
                 const boton = document.createElement("button");
                 
@@ -150,58 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (labelName) labelName.textContent = plaga.nombre;
         if (labelScientific) labelScientific.textContent = plaga.cientifico;
         if (labelDesc) labelDesc.textContent = plaga.desc;
-    }
-
-    if (btnAction) {
-        btnAction.addEventListener("click", () => {
-            const tareasActuales = tasksContainer ? tasksContainer.querySelectorAll(".task-item").length : 0;
-            if (tareasActuales >= MAX_TAREAS) {
-                const originalText = btnAction.innerHTML;
-                btnAction.style.backgroundColor = "#e74c3c";
-                btnAction.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Límite (${MAX_TAREAS}) alcanzado`;
-                
-                setTimeout(() => {
-                    btnAction.style.backgroundColor = "";
-                    btnAction.innerHTML = originalText;
-                }, 2000);
-                return;
-            }
-
-            const nombrePlaga = labelName ? labelName.textContent : "Plaga";
-            const lote = "Lote General";
-            const accionPredeterminada = "Aplicación de Tratamiento";
-
-            const nuevaTarea = document.createElement("div");
-            nuevaTarea.className = "task-item";
-            nuevaTarea.innerHTML = `
-                <div class="task-status-dot pending"></div>
-                <div class="task-details">
-                    <h4>${accionPredeterminada}</h4>
-                    <p class="task-sub">${nombrePlaga} · <strong>${lote}</strong></p>
-                    <span class="task-date">Iniciada hace unos instantes</span>
-                </div>
-                <button class="btn-complete-task"><i class="fa-solid fa-check"></i></button>
-            `;
-
-            if (tasksContainer) {
-                tasksContainer.prepend(nuevaTarea);
-                actualizarContador();
-            }
-
-            winObj.chrome.webview.postMessage({
-                screen: "plagas",
-                type: "nueva_tarea_plaga",
-                payload: { plaga: nombrePlaga, lote: lote, accion: accionPredeterminada }
-            });
-
-            const originalText = btnAction.innerHTML;
-            btnAction.style.backgroundColor = "#3b9d85";
-            btnAction.innerHTML = `<i class="fa-solid fa-circle-check"></i> ¡Tarea Asignada!`;
-            setTimeout(() => {
-                btnAction.style.backgroundColor = "";
-                btnAction.innerHTML = originalText;
-            }, 1800);
-        });
+        if (labelFav) labelFav.textContent = plaga.favorece;
     }
 
     if (tasksContainer) {
@@ -282,6 +233,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (taskCounter) {
             taskCounter.textContent = `${total} Activas`;
         }
+        if (total == 0) {
+            lbSinTareas.style.display = "block";
+        }
     }
     
      /** @param {Array<{ idCultivo: number, nombreCultivo: string}>} datos */
@@ -301,7 +255,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="accordion-content">
                         </div>
             `;
-            card.addEventListener("click", () => {
+            const header = /** @type {HTMLElement} */ (card.querySelector(".accordion-header"));
+            header.addEventListener("click", () => {
                 const cards = contenedor.querySelectorAll(".accordion-item");
 
                 cards.forEach(otraCard => {
@@ -334,6 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
  *     nombreCultivo: string,
  *     comoIdentificar: string,
  *     pasosIdentificacion: string[],
+ *     prevencion: string[],
  *     formulaTratamiento: string,
  *     dosisPor20Litros: string,
  *     frecuenciaTratamiento: string
@@ -346,24 +302,34 @@ function mostrarDetallesCultivo(cultivo, card) {
         card.querySelector(".accordion-content")
     );
 
-    const pasosHTML = cultivo.pasosIdentificacion
+    const pasos = Array.isArray(cultivo.pasosIdentificacion)
+        ? cultivo.pasosIdentificacion
+        : [];
+
+    const pasosHTML = pasos
+        .filter(paso => paso)
         .map(paso => `<li>${paso}</li>`)
         .join("");
 
-    contenedor.innerHTML = `
-        <div class="pest-identification">
+    const prevencion = Array.isArray(cultivo.prevencion)
+        ? cultivo.prevencion
+        : [];
 
+    const prevencionHTML = prevencion
+        .filter(prevencion => prevencion)
+        .map(prevencion => `<li>${prevencion}</li>`)
+        .join("");
+
+    const identificacionHTML = cultivo.comoIdentificar || pasosHTML ? `
+        <div class="pest-identification">
             <h3 class="section-sub-title">
                 Cómo identificar la plaga
             </h3>
 
-            <p>
-                ${cultivo.comoIdentificar}
-            </p>
-
+            ${cultivo.comoIdentificar ? `<p> ${cultivo.comoIdentificar } </p> ` : ""}
         </div>
 
-
+        ${pasosHTML ? `
         <div class="pest-steps">
 
             <h4>Pasos de diagnóstico</h4>
@@ -373,13 +339,35 @@ function mostrarDetallesCultivo(cultivo, card) {
             </ul>
 
         </div>
+        ` 
+        : ""}
+    ` : "";
 
+    const tratamientoHTML = cultivo.formulaTratamiento ? `
 
+        ${prevencionHTML ? `
+            <div class="pest-steps">
+
+                <h4>Prevención sin químicos</h4>
+
+                <ul class="steps-list-styled">
+                    ${prevencionHTML}
+                </ul>
+
+            </div>
+            `
+    : ""}
         <div class="pest-treatment">
 
             <h4>
                 Tratamiento sugerido y formulación (20 Litros)
             </h4>
+            <div class= "advertencia">
+                <img src="/images/svg-hackaton/Vector (8).svg" alt="advertencia" width="15px" height="15px">
+                <p class="lbAdvertencia">
+                    Consultar a un técnico agrícola antes de realizar cualquier tratamiento
+                </p>
+            </div>
 
             <div class="pest-treatment-steps">
 
@@ -388,29 +376,96 @@ function mostrarDetallesCultivo(cultivo, card) {
                     ${cultivo.formulaTratamiento}
                 </p>
 
-                <p>
-                    <strong>Dosis por bomba de 20 litros:</strong>
-                    ${cultivo.dosisPor20Litros}
-                </p>
+                 ${cultivo.dosisPor20Litros ? ` 
+                    <p>
+                        <strong>Dosis por bomba de 20 litros:</strong>
+                        ${cultivo.dosisPor20Litros}
+                    </p>
+                ` : ""}
 
-                <p>
-                    <strong>Frecuencia de aplicación:</strong>
-                    ${cultivo.frecuenciaTratamiento}
-                </p>
-
+                ${cultivo.frecuenciaTratamiento ? `
+                    <p>
+                        <strong>Frecuencia de aplicación:</strong>
+                        ${cultivo.frecuenciaTratamiento}
+                    </p>
+                ` : ""}
             </div>
 
         </div>
+        ` : "";
 
+    const tareaHTML = `
 
         <div class="task-action-box">
 
-            <button class="btn-start-task" id="btn-action">
+            <button class="btn-start-task">
                 <i class="fa-solid fa-circle-play"></i>
                 Iniciar Tarea de Mitigación
             </button>
 
         </div>
+       `;
+
+    contenedor.innerHTML = `
+        ${identificacionHTML}
+        ${tratamientoHTML}
+        ${tareaHTML}
     `;
+
+    const btnAction =  /** @type {HTMLButtonElement} */ (contenedor.querySelector(".btn-start-task"));
+    if (btnAction) {
+        btnAction.addEventListener("click", () => {
+            const tareasActuales = tasksContainer ? tasksContainer.querySelectorAll(".task-item").length : 0;
+            lbSinTareas.style.display = "none";
+
+            if (tareasActuales >= MAX_TAREAS) {
+                const originalText = btnAction.innerHTML;
+                btnAction.style.backgroundColor = "#e74c3c";
+                btnAction.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Límite (${MAX_TAREAS}) alcanzado`;
+
+                setTimeout(() => {
+                    btnAction.style.backgroundColor = "";
+                    btnAction.innerHTML = originalText;
+                }, 2000);
+                return;
+            }
+
+            const nombrePlaga = labelName ? labelName.textContent : "Plaga";
+            const nombreCultivo = cultivo.nombreCultivo;
+            const lote = "Lote General";
+            const accionPredeterminada = "Aplicación de Tratamiento";
+
+            const nuevaTarea = document.createElement("div");
+            nuevaTarea.className = "task-item";
+            nuevaTarea.innerHTML = `
+            <div class="task-status-dot pending"></div>
+            <div class="task-details">
+                <h4>${accionPredeterminada}</h4>
+                <p class="task-sub">${nombrePlaga} · ${nombreCultivo} · <strong>${lote}</strong></p>
+                <span class="task-date">Iniciada hace unos instantes</span>
+            </div>
+            <button class="btn-complete-task"><i class="fa-solid fa-check"></i></button>
+        `;
+
+            if (tasksContainer) {
+                tasksContainer.prepend(nuevaTarea);
+                actualizarContador();
+            }
+
+            winObj.chrome.webview.postMessage({
+                screen: "plagas",
+                type: "nueva_tarea_plaga",
+                payload: { plaga: nombrePlaga, lote: lote, cultivo: nombreCultivo, accion: accionPredeterminada }
+            });
+
+            const originalText = btnAction.innerHTML;
+            btnAction.style.backgroundColor = "#3b9d85";
+            btnAction.innerHTML = `<i class="fa-solid fa-circle-check"></i> ¡Tarea Asignada!`;
+            setTimeout(() => {
+                btnAction.style.backgroundColor = "";
+                btnAction.innerHTML = originalText;
+            }, 1800);
+        });
+    }
 }
 });
