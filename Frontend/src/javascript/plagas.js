@@ -40,8 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        winObj.chrome.webview.postMessage({ screen: "plagas",type: "ready_plagas" });
-        winObj.chrome.webview.postMessage({ screen: "plagas", type: "obtenerDetallesPlaga", payload: 1});
+        winObj.chrome.webview.postMessage({ screen: "plagas", type: "listo_plagas" });
+        winObj.chrome.webview.postMessage({ screen: "plagas", type: "obtener_detalle_plaga", payload: 1 });
     }
     
     const MAX_TAREAS = 8;
@@ -86,11 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     li.textContent = plaga.nombre;
                     li.addEventListener("click", () => {
                         idPlaga = plaga.id;
-                        winObj.chrome.webview.postMessage({
-                            screen: "plagas",
-                            type: "obtenerDetallesPlaga",
-                            payload: idPlaga
-                        });
+winObj.chrome.webview.postMessage({
+                        screen: "plagas",
+                        type: "obtener_detalle_plaga",
+                        payload: idPlaga
+                    });
                         if (searchInput instanceof HTMLInputElement) searchInput.value = plaga.nombre;
                         resultsContainer.style.display = "none";
                     });
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     idPlaga = plaga.id;
                     winObj.chrome.webview.postMessage({
                         screen: "plagas",
-                        type: "obtenerDetallesPlaga",
+                        type: "obtener_detalle_plaga",
                         payload: idPlaga
                     });
                 });
@@ -271,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     idCultivo = cultivo.idCultivo;
                     winObj.chrome.webview.postMessage({
                         screen: "plagas",
-                        type: "obtenerDetallesCultivo",
+                        type: "obtener_detalle_cultivo",
                         payload: {
                             idPlaga: idPlaga,
                             idCultivo: cultivo.idCultivo

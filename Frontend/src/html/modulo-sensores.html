@@ -173,8 +173,125 @@
             </div>
         </main>
     </div>
+
+    <!-- Modal Nuevo/Editar Umbral -->
+    <div class="modal-overlay" id="modalUmbral">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalUmbralTitulo">Nuevo Umbral</h2>
+                <button class="modal-close" id="modalUmbralClose">&times;</button>
+            </div>
+            <form id="formUmbral">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="umbralSensorTipo">Tipo de Sensor *</label>
+                        <select id="umbralSensorTipo" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="temperatura_suelo">Temperatura Suelo (°C)</option>
+                            <option value="temperatura_ambiente">Temperatura Ambiente (°C)</option>
+                            <option value="humedad_suelo">Humedad Suelo (%)</option>
+                            <option value="humedad_ambiente">Humedad Ambiente (%)</option>
+                            <option value="luz">Luz Solar (lux)</option>
+                        </select>
+                        <span class="error-message" id="errUmbralSensorTipo">Selecciona un tipo de sensor</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="umbralFinca">Finca (opcional - si vacío aplica a todas)</label>
+                        <select id="umbralFinca">
+                            <option value="">Todas las fincas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="umbralMinimo">Valor Mínimo</label>
+                        <input type="number" id="umbralMinimo" step="0.1" min="0" placeholder="Ej: 15">
+                        <span class="error-message" id="errUmbralMinimo">El mínimo debe ser ≥ 0</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="umbralMaximo">Valor Máximo</label>
+                        <input type="number" id="umbralMaximo" step="0.1" min="0" placeholder="Ej: 35">
+                        <span class="error-message" id="errUmbralMaximo">El máximo debe ser ≥ 0</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="umbralSeveridadMin">Severidad si bajo mínimo</label>
+                        <select id="umbralSeveridadMin">
+                            <option value="baja">Baja</option>
+                            <option value="media" selected>Media</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Crítica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="umbralSeveridadMax">Severidad si supera máximo</label>
+                        <select id="umbralSeveridadMax">
+                            <option value="baja">Baja</option>
+                            <option value="media" selected>Media</option>
+                            <option value="alta">Alta</option>
+                            <option value="critica">Crítica</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="umbralAccion">Acción sugerida (se usará en tarea automática)</label>
+                        <textarea id="umbralAccion" rows="3" placeholder="Ej: Revisar riego, aplicar fertilizante..."></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="umbralGenerarTarea">
+                            <input type="checkbox" id="umbralGenerarTarea" checked>
+                            Generar tarea automática al disparar umbral
+                        </label>
+                    </div>
+                    <div class="form-group" id="grupoInsumo" style="display: none;">
+                        <label for="umbralInsumo">Insumo a usar en tarea</label>
+                        <select id="umbralInsumo">
+                            <option value="">Seleccionar insumo...</option>
+                        </select>
+                    </div>
+                    <div class="form-grid" id="grupoCantidadCosto" style="display: none;">
+                        <div class="form-group">
+                            <label for="umbralCantidad">Cantidad a descontar</label>
+                            <input type="number" id="umbralCantidad" step="0.01" min="0.01" value="1">
+                            <span class="error-message" id="errUmbralCantidad">La cantidad debe ser > 0</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="umbralCosto">Costo unitario</label>
+                            <input type="number" id="umbralCosto" step="0.01" min="0" value="0">
+                            <span class="error-message" id="errUmbralCosto">El costo no puede ser negativo</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid #E8F0EE;">
+                    <button type="button" class="btn-secondary" id="btnCancelarUmbral">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btnGuardarUmbral">
+                        <span id="btnUmbralGuardarText">Crear Umbral</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Eliminar -->
+    <div class="modal-overlay" id="modalEliminar">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Eliminar Umbral</h2>
+                <button class="modal-close" id="modalEliminarClose">&times;</button>
+            </div>
+            <p>¿Estás seguro de eliminar el umbral <strong id="eliminarUmbralNombre"></strong>?</p>
+            <p style="color: #DC2626; font-size: 0.875rem;">Esta acción no se puede deshacer.</p>
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <button class="btn-secondary" id="btnCancelarEliminar">Cancelar</button>
+                <button class="btn-primary" style="background: #DC2626;" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor de Alertas -->
+    <div id="alertas-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000; max-width: 400px;"></div>
+
+    <!-- Contenedor de Umbrales -->
+    <div id="umbralesContainer" style="margin-top: 20px;"></div>
      <!-- el js-->   
     <script src="/src/javascript/sidebar.js"></script>
     <script>updateSidebar();</script>
+    <script src="/src/javascript/sensores.js"></script>
 </body>
 </html>

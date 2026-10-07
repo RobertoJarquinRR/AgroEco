@@ -1,137 +1,310 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const statusButton = document.getElementById("status-button");
-    if (!statusButton) return;
-    
-    const chartTitle = document.getElementById("chart-title");
-    const chartValDisplay = document.getElementById("chart-val-display");
-    const chartUnitDisplay = document.getElementById("chart-unit-display");
-    
-    const metricCards = document.querySelectorAll(".card-metric");
+// ============================================
+// AGROECO - MÓDULO SENSORES
+// Flujo: Firmware (serial) → C# SerialHostedService → SensorReadingHandler → ambiente message → UI
+// Sensores REALES (firmware): temperatura_suelo, temperatura_ambiente, humedad_suelo, humedad_ambiente
+// Sensores SIMULADOS (sin hardware): viento, luz
+// ============================================
 
-    const datasetHistorico = {
-        temperatura: {
-            titulo: "Temperatura",
-            unidad: "°C",
-            valores: [20, 21.5, 23, 26, 27, 25.5, 24, 22.5, 24.5],
-            colorArea: "rgba(250, 165, 51, 0.15)", 
-            colorLinea: "#faa533"
-        },
-        humedad: {
-            titulo: "Humedad Suelo",
-            unidad: "%",
-            valores: [75, 74, 72, 65, 60, 62, 66, 67, 68],
-            colorArea: "rgba(47, 160, 132, 0.15)", 
-            colorLinea: "#2fa084"
-        },
-        viento: {
-            titulo: "Viento",
-            unidad: "km/h",
-            valores: [8, 10, 14, 18, 15, 11, 9, 13, 12],
-            colorArea: "rgba(59, 157, 133, 0.15)", 
-            colorLinea: "#3b9d85"
-        }
+// ============================================
+// AGROECO - MÓDULO SENSORES
+// Flujo: Firmware (serial) → C# SerialHostedService → SensorReadingHandler → ambiente message → UI
+// Sensores REALES (firmware): temperatura_suelo, temperatura_ambiente, humedad_suelo, humedad_ambiente
+// Sensores SIMULADOS (sin hardware): viento, luz
+// ============================================
+
+// ===== CONFIGURACION DE SENSORES: REALES vs SIMULADOS =====
+const SENSORES_CONFIG = {
+    // SENSORES REALES (vienen del firmware via serial/C#)
+    temperatura_suelo: { 
+        real: true, 
+        fuente: "firmware", 
+        sensorName: "temperatura_suelo", 
+        uiId: "live-temp", 
+        unidad: "°C",
+        historicoKey: "temperatura"
+    },
+    temperatura_ambiente: { 
+        real: true, 
+        fuente: "firmware", 
+        sensorName: "temperatura_ambiente", 
+        uiId: "live-temp", 
+        unidad: "°C",
+        historicoKey: "temperatura"
+    },
+    humedad_suelo: { 
+        real: true, 
+        fuente: "firmware", 
+        sensorName: "humedad_suelo", 
+        uiId: "live-hum", 
+        unidad: "%",
+        historicoKey: "humedad"
+    },
+    humedad_ambiente: { 
+        real: true, 
+        fuente: "firmware", 
+        sensorName: "humedad_ambiente", 
+        uiId: "live-hum", 
+        unidad: "%",
+        historicoKey: "humedad"
+    },
+
+    // SENSORES SIMULADOS (no existen en firmware aún)
+    viento: { 
+        real: false, 
+        fuente: "simulado", 
+        sensorName: "viento", 
+        uiId: "live-viento", 
+        unidad: "km/h",
+        historicoKey: "viento",
+        rango: { min: 10, max: 14 } // km/h
+    },
+    luz: { 
+        real: false, 
+        fuente: "simulado", 
+        sensorName: "luz", 
+        uiId: "live-luz", 
+        unidad: "lux",
+        historicoKey: "luz",
+        rango: { min: 0, max: 100000 }
+    }
+};
+
+// Función para obtener info de un sensor
+function getSensorConfig(sensor) {
+    return SENSORES_CONFIG[sensor] || { real: false, fuente: "desconocido" };
+}
+
+// Verificar si un sensor es real
+function esSensorReal(sensor) {
+    const config = getSensorConfig(sensor);
+    return config.real === true;
+}
+
+// Obtener lista de sensores reales
+function getSensoresReales() {
+    return Object.entries(SENSORES_CONFIG)
+        .filter(([_, config]) => config.real)
+        .map(([key, config]) => ({ key, ...config }));
+}
+
+// Obtener lista de sensores simulados
+function getSensoresSimulados() {
+    return Object.entries(SENSORES_CONFIG)
+        .filter(([_, config]) => !config.real)
+        .map(([key, config]) => ({ key, ...config }));
+}
+
+// Exportar para debug/consola
+window.SENSORES_CONFIG = SENSORES_CONFIG;
+window.getSensorConfig = getSensorConfig;
+window.esSensorReal = esSensorReal;
+window.getSensoresReales = getSensoresReales;
+window.getSensoresSimulados = getSensoresSimulados;
+
+// ===== HISTÓRICO DE LECTURAS (para gráficos) =====
+const HISTORICO_MAX_PUNTOS = 50;
+const historicoData = {
+    temperatura: [],
+    humedad: [],
+    viento: []
+};
+
+// Agregar punto al histórico
+function agregarAlHistorico(tipo, valor) {
+    const key = tipo === "temperatura_suelo" || tipo === "temperatura_ambiente" ? "temperatura" :
+                tipo === "humedad_suelo" || tipo === "humedad_ambiente" ? "humedad" :
+                tipo === "viento" ? "viento" : null;
+    
+    if (!key || !historicoData[key]) return;
+    
+    const punto = { 
+        valor: parseFloat(valor), 
+        timestamp: Date.now() 
     };
+    
+    historicoData[key].push(punto);
+    if (historicoData[key].length > HISTORICO_MAX_PUNTOS) {
+        historicoData[key].shift();
+    }
+    
+    // Actualizar gráfico si está activo
+    actualizarGraficoHistorico(tipo);
+}
 
-    const labelsHorarios = ["06:00", "08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "Ahora"];
+// Obtener datos para gráfico (últimos N puntos)
+function obtenerHistoricoParaGrafico(tipo, maxPuntos = 20) {
+    const key = tipo === "temperatura_suelo" || tipo === "temperatura_ambiente" ? "temperatura" :
+                tipo === "humedad_suelo" || tipo === "humedad_ambiente" ? "humedad" :
+                tipo === "viento" ? "viento" : null;
+    
+    if (!key || !historicoData[key]) return { labels: [], valores: [] };
+    
+    const datos = historicoData[key].slice(-maxPuntos);
+    return {
+        labels: datos.map(d => new Date(d.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })),
+        valores: datos.map(d => d.valor)
+    };
+}
 
-    const canvasElement = document.getElementById('historyChart');
-    if (!(canvasElement instanceof HTMLCanvasElement)) return;
-    const ctx = canvasElement.getContext('2d');
-    if (!ctx) return;
+// Actualizar gráfico histórico
+function actualizarGraficoHistorico(tipo) {
+    if (activeMetric !== tipo) return;
+    
+    const datos = obtenerHistoricoParaGrafico(tipo, labelsHorarios.length);
+    if (historyChart && datos.valores.length > 0) {
+        historyChart.data.labels = datos.labels;
+        historyChart.data.datasets[0].data = datos.valores;
+        historyChart.update('none');
+    }
+}
 
-    /** @type {keyof typeof datasetHistorico} */
-    let activeMetric = "temperatura";
+function obtenerHistoricoParaGrafico(tipo, maxPuntos = 20) {
+    const key = tipo === "temperatura_suelo" || tipo === "temperatura_ambiente" ? "temperatura" :
+                tipo === "humedad_suelo" || tipo === "humedad_ambiente" ? "humedad" :
+                tipo === "viento" ? "viento" : null;
+    
+    if (!key || !historicoData[key]) return { labels: [], valores: [] };
+    
+    const datos = historicoData[key].slice(-maxPuntos);
+    return {
+        labels: datos.map(d => new Date(d.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })),
+        valores: datos.map(d => d.valor)
+    };
+}
 
-    // @ts-ignore
-    let historyChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labelsHorarios,
-            datasets: [{
-                data: datasetHistorico[activeMetric].valores,
-                borderColor: datasetHistorico[activeMetric].colorLinea,
-                backgroundColor: datasetHistorico[activeMetric].colorArea,
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4, 
-                pointBackgroundColor: datasetHistorico[activeMetric].colorLinea,
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: {
-                    border: { display: false },
-                    grid: { color: '#f0f0f0' },
-                    ticks: { color: '#bfc6c4', font: { size: 11 } }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#bfc6c4', font: { size: 11 } }
-                }
-            }
-        }
-    });
+function actualizarGraficoHistorico(tipo) {
+    if (activeMetric !== tipo) return;
+    
+    const datos = obtenerHistoricoParaGrafico(tipo, labelsHorarios.length);
+    if (historyChart && datos.valores.length > 0) {
+        historyChart.data.labels = datos.labels;
+        historyChart.data.datasets[0].data = datos.valores;
+        historyChart.update('none');
+    }
+}
 
-    metricCards.forEach(card => {
-        card.addEventListener("click", () => {
-            metricCards.forEach(c => c.classList.remove("active"));
-            card.classList.add("active");
+// Exportar funciones para debug
+window.historicoData = historicoData;
+window.agregarAlHistorico = agregarAlHistorico;
+window.obtenerHistoricoParaGrafico = obtenerHistoricoParaGrafico;
 
-            const metricAttr = card.getAttribute("data-metric");
-            if (!metricAttr || !(metricAttr in datasetHistorico)) return;
-            activeMetric = /** @type {keyof typeof datasetHistorico} */ (metricAttr);
-            
-            const dataConfig = datasetHistorico[activeMetric];
+// ===== CONFIGURACIÓN DE SIMULACIÓN (solo para sensores sin hardware) =====
+const SIMULACION_CONFIG = {
+    viento: {
+        activo: true,
+        intervalo: 4000, // ms
+        generar: () => Math.floor(10 + Math.random() * 4).toString() // 10-14 km/h
+    },
+    luz: {
+        activo: false, // desactivado por ahora
+        intervalo: 10000,
+        generar: () => Math.floor(Math.random() * 100000).toString()
+    }
+};
 
-            if (chartTitle) chartTitle.textContent = dataConfig.titulo;
-            if (chartUnitDisplay) chartUnitDisplay.textContent = dataConfig.unidad;
-            
-            const valorSpan = card.querySelector(".metric-value span:first-child");
-            if (valorSpan && chartValDisplay) {
-                chartValDisplay.textContent = valorSpan.textContent || "";
-            }
+// Variable para controlar simulación de viento
+let simulacionVientoInterval = null;
 
-            historyChart.data.datasets[0].data = dataConfig.valores;
-            historyChart.data.datasets[0].borderColor = dataConfig.colorLinea;
-            historyChart.data.datasets[0].backgroundColor = dataConfig.colorArea;
-            historyChart.data.datasets[0].pointBackgroundColor = dataConfig.colorLinea;
-            historyChart.update();
-        });
-    });
+// Iniciar/parar simulación de sensores sin hardware
+function iniciarSimulacionSensores() {
+    // Solo simular viento (no hay hardware para viento)
+    if (SIMULACION_CONFIG.viento.activo && !simulacionVientoInterval) {
+        simulacionVientoInterval = setInterval(() => {
+            const valor = SIMULACION_CONFIG.viento.generar();
+            actualizarLecturaEnUI("viento", valor);
+            agregarAlHistorico("viento", valor);
+        }, SIMULACION_CONFIG.viento.intervalo);
+    }
+}
 
-    setInterval(() => {
-        if (statusButton.classList.contains("online")) {
-            const nuevaTemp = (23.8 + Math.random() * 1.8).toFixed(1);
-            const liveTempEl = document.getElementById("live-temp");
-            if (liveTempEl) liveTempEl.textContent = nuevaTemp;
-            
-            const nuevaHum = Math.floor(65 + Math.random() * 5).toString();
-            const liveHumEl = document.getElementById("live-hum");
-            if (liveHumEl) liveHumEl.textContent = nuevaHum;
-            
-            const nuevoViento = Math.floor(10 + Math.random() * 4).toString();
-            const liveVientoEl = document.getElementById("live-viento");
-            if (liveVientoEl) liveVientoEl.textContent = nuevoViento;
+function detenerSimulacionSensores() {
+    if (simulacionVientoInterval) {
+        clearInterval(simulacionVientoInterval);
+        simulacionVientoInterval = null;
+    }
+}
 
-            if (activeMetric === "temperatura" && chartValDisplay) {
-                chartValDisplay.textContent = nuevaTemp;
-                historyChart.data.datasets[0].data[labelsHorarios.length - 1] = parseFloat(nuevaTemp);
-            } else if (activeMetric === "humedad" && chartValDisplay) {
-                chartValDisplay.textContent = nuevaHum;
-                historyChart.data.datasets[0].data[labelsHorarios.length - 1] = parseInt(nuevaHum, 10);
-            } else if (activeMetric === "viento" && chartValDisplay) {
-                chartValDisplay.textContent = nuevoViento;
-                historyChart.data.datasets[0].data[labelsHorarios.length - 1] = parseInt(nuevoViento, 10);
-            }
-            historyChart.update('none'); 
-        }
-    }, 4000);
+// Iniciar simulación al cargar (solo viento)
+document.addEventListener("DOMContentLoaded", () => {
+    iniciarSimulacionSensores();
+    
+    // Solicitar configuración inicial al backend
+    winSensores.chrome.webview.postMessage({ type: "ready_sensores" });
 });
+
+// ===== FUNCIONES EXISTENTES (mantenidas) =====
+
+function actualizarLecturaEnUI(sensor, valor) {
+    const config = getSensorConfig(sensor);
+    if (!config || !config.uiId) return;
+    
+    const el = document.getElementById(config.uiId);
+    if (el) {
+        el.textContent = typeof valor === 'number' ? valor.toFixed(1) : valor;
+        
+        // También actualizar el histórico si es sensor real
+        if (config.real) {
+            agregarAlHistorico(config.historicoKey, valor);
+        }
+    }
+}
+
+function agregarAlHistorico(tipo, valor) {
+    const key = tipo === "temperatura_suelo" || tipo === "temperatura_ambiente" ? "temperatura" :
+                tipo === "humedad_suelo" || tipo === "humedad_ambiente" ? "humedad" :
+                tipo === "viento" ? "viento" : null;
+    
+    if (!key || !historicoData[key]) return;
+    
+    const punto = { 
+        valor: parseFloat(valor), 
+        timestamp: Date.now() 
+    };
+    
+    historicoData[key].push(punto);
+    if (historicoData[key].length > HISTORICO_MAX_PUNTOS) {
+        historicoData[key].shift();
+    }
+    
+    // Actualizar gráfico si está activo
+    actualizarGraficoHistorico(tipo);
+}
+
+function actualizarGraficoHistorico(tipo) {
+    if (activeMetric !== tipo) return;
+    
+    const datos = obtenerHistoricoParaGrafico(tipo, labelsHorarios.length);
+    if (historyChart && datos.valores.length > 0) {
+        historyChart.data.labels = datos.labels;
+        historyChart.data.datasets[0].data = datos.valores;
+        historyChart.update('none');
+    }
+}
+
+function obtenerHistoricoParaGrafico(tipo, maxPuntos = 20) {
+    const key = tipo === "temperatura_suelo" || tipo === "temperatura_ambiente" ? "temperatura" :
+                tipo === "humedad_suelo" || tipo === "humedad_ambiente" ? "humedad" :
+                tipo === "viento" ? "viento" : null;
+    
+    if (!key || !historicoData[key]) return { labels: [], valores: [] };
+    
+    const datos = historicoData[key].slice(-maxPuntos);
+    return {
+        labels: datos.map(d => new Date(d.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })),
+        valores: datos.map(d => d.valor)
+    };
+}
+
+function actualizarGraficoHistorico(tipo) {
+    if (activeMetric !== tipo) return;
+    
+    const datos = obtenerHistoricoParaGrafico(tipo, labelsHorarios.length);
+    if (historyChart && datos.valores.length > 0) {
+        historyChart.data.labels = datos.labels;
+        historyChart.data.datasets[0].data = datos.valores;
+        historyChart.update('none');
+    }
+}
 
 // Puente con C# (WebView2) envuelto en un bloque local para evitar colisiones con 'win' de otros archivos
 {
@@ -141,22 +314,25 @@ document.addEventListener("DOMContentLoaded", () => {
             const { type, payload } = event.data;
 
             switch (type) {
-                case "ambiente":    
-                    if (payload.temperatura) {
+                case "ambiente":
+                    if (payload.temperatura !== undefined) {
                         const t = document.getElementById("live-temp");
                         if (t) t.textContent = payload.temperatura;
+                        agregarAlHistorico("temperatura", payload.temperatura);
                     }
-                    if (payload.humedad) {
+                    if (payload.humedad !== undefined) {
                         const h = document.getElementById("live-hum");
                         if (h) h.textContent = payload.humedad;
+                        agregarAlHistorico("humedad", payload.humedad);
                     }
-                    if (payload.viento) {
+                    if (payload.viento !== undefined) {
                         const v = document.getElementById("live-viento");
                         if (v) v.textContent = payload.viento;
+                        agregarAlHistorico("viento", payload.viento);
                     }
                     break;
-                    
-case "estado_conexion":
+
+                case "estado_conexion":
                     const statusButton = document.getElementById("status-button");
                     if (statusButton) {
                         const statusText = statusButton.querySelector(".status-text");
@@ -170,26 +346,24 @@ case "estado_conexion":
                     }
                     break;
 
-                case "alerta":
-                    mostrarAlerta(payload);
+                case "lecturaProcesada":
+                    if (payload.sensor && payload.valor !== undefined) {
+                        actualizarLecturaEnUI(payload.sensor, payload.valor);
+                    }
                     break;
 
-                case "alertaResuelta":
-                    ocultarAlerta(payload.id);
-                    break;
-
-                case "alertasActivas":
-                    cargarAlertasActivas(payload.alertas);
+                case "lecturas":
+                    if (payload.lecturas && Array.isArray(payload.lecturas)) {
+                        payload.lecturas.forEach(l => actualizarLecturaEnUI(l.sensor, l.valor));
+                    }
                     break;
 
                 default:
                     console.warn("Tipo de mensaje no reconocido en Sensores:", type);
             }
         });
- 
-        // Solicitar alertas activas al iniciar
-        winSensores.chrome.webview.postMessage({ type: "obtenerAlertasActivas" });
- 
+
+        // Solicitar configuración inicial al backend
         winSensores.chrome.webview.postMessage({ type: "ready_sensores" });
     }
 }
