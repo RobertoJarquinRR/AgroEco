@@ -1,3 +1,4 @@
+using AgroEco.Core.Configuration;
 using AgroEco.Core.Jobs.Actions.Configuration;
 using AgroEco.Core.Jobs.Actions.Implementations;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,12 +17,12 @@ public sealed class ExecuteTaskActionCreator : IActionCreator
     public ActionDescriptor Descriptor { get; } =
         new("executeTask", "Ejecutar tarea (descuenta inventario y registra gasto)",
         [
-            new("insumoId", "ID del insumo a descontar", "number"),
-            new("cantidadDescontar", "Cantidad a descontar", "number"),
-            new("costoUnitario", "Costo unitario del insumo", "number"),
-            new("descripcion", "Descripción del gasto", "text"),
-            new("cultivo", "Cultivo asociado (opcional)", "text"),
-            new("categoriaInsumo", "Categoría del insumo (opcional)", "text")
+            new ConfigFieldDescriptor("insumoId", "ID del insumo a descontar", "number"),
+            new ConfigFieldDescriptor("cantidadDescontar", "Cantidad a descontar", "number"),
+            new ConfigFieldDescriptor("costoUnitario", "Costo unitario del insumo", "number"),
+            new ConfigFieldDescriptor("descripcion", "Descripción del gasto", "text"),
+            new ConfigFieldDescriptor("cultivo", "Cultivo asociado (opcional)", "text", false),
+            new ConfigFieldDescriptor("categoriaInsumo", "Categoría del insumo (opcional)", "text", false)
         ]);
 
     public Result<Action> Create(string name, ActionConfiguration configuration)

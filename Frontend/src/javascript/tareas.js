@@ -72,16 +72,51 @@ function renderDynamicForm(container, descriptor, currentConfig = {}) {
         const name = descriptorValue(field, 'name');
         const label = descriptorValue(field, 'label');
         const inputType = descriptorValue(field, 'inputType') || 'text';
-        const required = descriptorValue(field, 'required');
-        const input = document.createElement('input');
-        input.type = inputType;
+        const required = descriptorValue(field, 'required') === true;
+        const choices = descriptorValue(field, 'choices') || [];
+        const multiple = descriptorValue(field, 'multiple') === true;
+
+        let input;
+        if (Array.isArray(choices) && choices.length > 0) {
+            input = document.createElement('select');
+            input.multiple = multiple;
+            if (!multiple && !required) {
+                const empty = document.createElement('option');
+                empty.value = '';
+                empty.textContent = '-- Sin especificar --';
+                input.appendChild(empty);
+            }
+            choices.forEach(choice => {
+                const option = document.createElement('option');
+                option.value = descriptorValue(choice, 'value');
+                option.textContent = descriptorValue(choice, 'label');
+                input.appendChild(option);
+            });
+            const current = currentConfig[name] ?? '';
+            const selected = String(current)
+                .split(',')
+                .map(value => value.trim())
+                .filter(value => value !== '');
+            Array.from(input.options).forEach(option => {
+                if (selected.includes(option.value)) option.selected = true;
+            });
+        } else if (inputType === 'textarea') {
+            input = document.createElement('textarea');
+            input.rows = 3;
+            input.value = currentConfig[name] ?? '';
+        } else {
+            input = document.createElement('input');
+            input.type = inputType;
+            input.value = currentConfig[name] ?? '';
+        }
+
         input.name = name;
         input.dataset.configField = name;
-        input.required = required !== false;
-        input.value = currentConfig[name] ?? '';
+        input.dataset.required = required ? 'true' : 'false';
+        input.required = required;
 
         const wrapper = document.createElement('label');
-        wrapper.textContent = label;
+        wrapper.textContent = required ? `${label} *` : `${label} (opcional)`;
         wrapper.appendChild(input);
         container.appendChild(wrapper);
     });
@@ -104,9 +139,25 @@ function renderDescriptorOptions(select, descriptors, container, config = {}) {
 function collectDynamicConfig(container) {
     const config = {};
     container.querySelectorAll('[data-config-field]').forEach(input => {
-        config[input.dataset.configField] = input.value;
+        if (input.tagName === 'SELECT' && input.multiple) {
+            config[input.dataset.configField] = Array.from(input.selectedOptions)
+                .map(option => option.value)
+                .join(',');
+        } else {
+            config[input.dataset.configField] = input.value;
+        }
     });
     return config;
+}
+
+function faltanCamposObligatorios(container) {
+    return Array.from(container.querySelectorAll('[data-config-field][data-required="true"]'))
+        .some(input => {
+            if (input.tagName === 'SELECT' && input.multiple) {
+                return input.selectedOptions.length === 0;
+            }
+            return !input.value || input.value.trim() === '';
+        });
 }
 
 const estadoConfig = {
@@ -367,9 +418,8 @@ btnGuardar.addEventListener('click', () => {
 
     const collectedTriggerConfig = collectDynamicConfig(triggerConfig);
     const collectedActionConfig = collectDynamicConfig(actionConfig);
-    if (Object.values(collectedTriggerConfig).some(value => value === '') ||
-        Object.values(collectedActionConfig).some(value => value === '')) {
-        alert('Completa la configuración del trigger y la action.');
+    if (faltanCamposObligatorios(triggerConfig) || faltanCamposObligatorios(actionConfig)) {
+        alert('Completa los campos obligatorios (*) del trigger y la action.');
         return;
     }
 

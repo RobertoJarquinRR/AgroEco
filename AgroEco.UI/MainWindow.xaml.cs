@@ -7,6 +7,7 @@ using System.Windows;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AgroEco.UI.Handlers;
+using AgroEco.UI.Alerts;
 using AgroEco.UI.Mensajeros;
 
 namespace AgroEco.UI
@@ -25,6 +26,7 @@ namespace AgroEco.UI
             Func<Action<string, object>, SensorReadingHandler> sensorReadingFactory,
             Func<Action<string, object>, InventarioHandler> inventarioFactory,
             Func<Action<string, object>, EducacionHandler> educacionFactory,
+            Func<Action<string, object>, AlertHandler> alertasFactory,
             ILogger<MainWindow> logger)
         {
             InitializeComponent();
@@ -38,10 +40,11 @@ namespace AgroEco.UI
             var sensorReadingHandler = sensorReadingFactory(EnviarAJS);
             var inventarioHandler = inventarioFactory(EnviarAJS);
             var educacionHandler = educacionFactory(EnviarAJS);
+            var alertasHandler = alertasFactory(EnviarAJS);
 
             _router = new MsgRouter(
                 tareasHandler, plagasHandler, finanzasHandler,
-                dashboardHandler, sensoresHandler, sensorReadingHandler, inventarioHandler, educacionHandler,
+                dashboardHandler, sensoresHandler, sensorReadingHandler, inventarioHandler, educacionHandler, alertasHandler,
                 App.ServiceProvider.GetRequiredService<ILogger<MsgRouter>>());
 
             InitializeAsync();

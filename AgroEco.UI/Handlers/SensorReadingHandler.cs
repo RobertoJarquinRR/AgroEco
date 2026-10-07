@@ -15,7 +15,6 @@ namespace AgroEco.UI.Handlers
     {
         private readonly Action<string, object> _enviar;
         private readonly ILogger<SensorReadingHandler> _logger;
-        private readonly AlertEngine _alertEngine;
         private readonly CreateUmbralSensor _createUmbral;
         private readonly GetAllUmbralesSensor _getAllUmbrales;
         private readonly GetByIdUmbralSensor _getByIdUmbral;
@@ -24,7 +23,6 @@ namespace AgroEco.UI.Handlers
 
         public SensorReadingHandler(
             Action<string, object> enviar,
-            AlertEngine alertEngine,
             CreateUmbralSensor createUmbral,
             GetAllUmbralesSensor getAllUmbrales,
             GetByIdUmbralSensor getByIdUmbral,
@@ -33,7 +31,6 @@ namespace AgroEco.UI.Handlers
             ILogger<SensorReadingHandler> logger)
         {
             _enviar = enviar;
-            _alertEngine = alertEngine;
             _createUmbral = createUmbral;
             _getAllUmbrales = getAllUmbrales;
             _getByIdUmbral = getByIdUmbral;
@@ -264,16 +261,6 @@ namespace AgroEco.UI.Handlers
                 _logger.LogInformation("Lectura recibida: {Sensor} = {Valor} en finca {Finca}", 
                     dto.SensorTipo, dto.Valor, dto.FincaNombre);
 
-                // Evaluar contra umbrales
-                await _alertEngine.EvaluarLecturaAsync(
-                    sensorTipo: dto.SensorTipo,
-                    valor: dto.Valor,
-                    fincaId: dto.FincaId,
-                    fincaNombre: dto.FincaNombre,
-                    sensorNombre: dto.SensorNombre,
-                    CancellationToken.None);
-
-                // Enviar confirmación al frontend
                 _enviar("lecturaProcesada", new { exito = true, sensor = dto.SensorTipo, valor = dto.Valor });
             }
             catch (Exception ex)
@@ -293,16 +280,6 @@ namespace AgroEco.UI.Handlers
                 _logger.LogInformation("Lectura externa recibida: {Sensor} = {Valor} en finca {Finca}", 
                     dto.SensorTipo, dto.Valor, dto.FincaNombre);
 
-                // Evaluar contra umbrales
-                _ = _alertEngine.EvaluarLecturaAsync(
-                    sensorTipo: dto.SensorTipo,
-                    valor: dto.Valor,
-                    fincaId: dto.FincaId,
-                    fincaNombre: dto.FincaNombre,
-                    sensorNombre: dto.SensorNombre,
-                    CancellationToken.None);
-
-                // Enviar confirmación al frontend
                 _enviar("lecturaProcesada", new { exito = true, sensor = dto.SensorTipo, valor = dto.Valor });
             }
             catch (Exception ex)

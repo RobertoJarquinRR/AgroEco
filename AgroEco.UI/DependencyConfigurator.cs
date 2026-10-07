@@ -1,4 +1,6 @@
 ﻿using AgroEco.Core;
+using AgroEco.Core.Alerts;
+using AgroEco.Core.Alerts.Persistence;
 using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Actions;
@@ -11,10 +13,12 @@ using AgroEco.Core.Alertas;
 using AgroEco.Core.Alertas.Persistence;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
+using AgroEco.Notifications.Channels;
 using AgroEco.UI.Events;
 using AgroEco.UI.Handlers;
 using AgroEco.UI.Services;
 using AgroEco.Hardware;
+using AgroEco.UI.Alerts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -54,6 +58,16 @@ namespace AgroEco.UI
             services.AddHostedService<SerialHostedService>();
 
             services.AddSingleton<IEventBus, InMemoryEventBus>();
+
+            services.AddSingleton<IAlertChannel>(sp =>
+            {
+                var options = new WindowsToastOptions
+                {
+                    AppId = "AgroEco",
+                    AppLogoPath = "Assets/AppLogo.png"
+                };
+                return new WindowsToastChannel(options);
+            });
 
             services.AddScoped<MainWindow>();
 
@@ -118,7 +132,6 @@ namespace AgroEco.UI
             services.AddScoped<Func<Action<string, object>, SensorReadingHandler>>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<SensorReadingHandler>>();
-                var alertEngine = sp.GetRequiredService<AlertEngine>();
                 var createUmbral = sp.GetRequiredService<CreateUmbralSensor>();
                 var getAllUmbrales = sp.GetRequiredService<GetAllUmbralesSensor>();
                 var getByIdUmbral = sp.GetRequiredService<GetByIdUmbralSensor>();
@@ -127,7 +140,6 @@ namespace AgroEco.UI
 
                 return (Action<string, object> enviar) => new SensorReadingHandler(
                     enviar,
-                    alertEngine,
                     createUmbral,
                     getAllUmbrales,
                     getByIdUmbral,
@@ -165,6 +177,14 @@ namespace AgroEco.UI
             {
                 var logger = sp.GetRequiredService<ILogger<EducacionHandler>>();
                 return new EducacionHandler(enviar, logger);
+            });
+
+            services.AddScoped<Func<Action<string, object>, AlertHandler>>(sp => enviar =>
+            {
+                var logger = sp.GetRequiredService<ILogger<AlertHandler>>();
+                var alertEngine = sp.GetRequiredService<AlertEngine>();
+                var getAllAlerts = sp.GetRequiredService<GetAllAlerts>();
+                return new AlertHandler(enviar, logger, alertEngine, getAllAlerts);
             });
 
             return services.BuildServiceProvider();
