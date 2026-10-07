@@ -5,6 +5,7 @@ using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Actions.Implementations;
 using AgroEco.Core.Inventario;
 using AgroEco.Core.Finanzas;
+using AgroEco.Core.Alertas;
 
 namespace AgroEco.Data
 {
@@ -16,6 +17,8 @@ namespace AgroEco.Data
         public DbSet<Trigger> Triggers { get; set; }
         public DbSet<Insumo> Insumos { get; set; }
         public DbSet<RegistroFinanciero> RegistrosFinancieros { get; set; }
+        public DbSet<Alerta> Alertas { get; set; }
+        public DbSet<UmbralSensor> UmbralesSensor { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
