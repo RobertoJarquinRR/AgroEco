@@ -7,6 +7,7 @@ using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
 using AgroEco.Core.Reportes;
 using AgroEco.Core.Triggers;
+using AgroEco.Core.Alertas;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
 using AgroEco.UI.Events;
@@ -96,6 +97,16 @@ namespace AgroEco.UI
             {
                 var logger = sp.GetRequiredService<ILogger<DashboardHandler>>();
                 return new DashboardHandler(enviar, logger);
+            });
+
+            services.AddScoped<Func<Action<string, object>, SensorReadingHandler>>(sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<SensorReadingHandler>>();
+                var alertEngine = sp.GetRequiredService<AlertEngine>();
+                return (Action<string, object> enviar) => new SensorReadingHandler(
+                    enviar,
+                    alertEngine,
+                    logger);
             });
 
             services.AddScoped<Func<Action<string, object>, SensoresHandler>>(sp => enviar =>
