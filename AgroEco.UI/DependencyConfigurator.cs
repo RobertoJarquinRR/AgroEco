@@ -1,4 +1,6 @@
 ﻿using AgroEco.Core;
+using AgroEco.Core.Alerts;
+using AgroEco.Core.Alerts.Persistence;
 using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Actions;
@@ -8,8 +10,10 @@ using AgroEco.Core.Finanzas.Persistence;
 using AgroEco.Core.Triggers;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
+using AgroEco.Notifications.Channels;
 using AgroEco.UI.Events;
 using AgroEco.UI.Handlers;
+using AgroEco.UI.Alerts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -36,6 +40,16 @@ namespace AgroEco.UI
             services.AddCoreServices();
 
             services.AddSingleton<IEventBus, InMemoryEventBus>();
+
+            services.AddSingleton<IAlertChannel>(sp =>
+            {
+                var options = new WindowsToastOptions
+                {
+                    AppId = "AgroEco",
+                    AppLogoPath = "Assets/AppLogo.png"
+                };
+                return new WindowsToastChannel(options);
+            });
 
             services.AddScoped<MainWindow>();
 
@@ -120,6 +134,14 @@ namespace AgroEco.UI
             {
                 var logger = sp.GetRequiredService<ILogger<EducacionHandler>>();
                 return new EducacionHandler(enviar, logger);
+            });
+
+            services.AddScoped<Func<Action<string, object>, AlertHandler>>(sp => enviar =>
+            {
+                var logger = sp.GetRequiredService<ILogger<AlertHandler>>();
+                var alertEngine = sp.GetRequiredService<AlertEngine>();
+                var getAllAlerts = sp.GetRequiredService<GetAllAlerts>();
+                return new AlertHandler(enviar, logger, alertEngine, getAllAlerts);
             });
 
             return services.BuildServiceProvider();

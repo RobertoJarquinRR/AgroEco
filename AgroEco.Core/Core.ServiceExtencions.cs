@@ -9,6 +9,8 @@ using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Creators;
 using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
+using AgroEco.Core.Alerts;
+using AgroEco.Core.Alerts.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -57,17 +59,24 @@ namespace AgroEco.Core
             services.AddScoped<UpdateRegistroFinanciero>();
             services.AddScoped<DeleteRegistroFinanciero>();
 
+            services.AddScoped<CreateAlert>();
+            services.AddScoped<GetAlertById>();
+            services.AddScoped<GetAllAlerts>();
+            services.AddScoped<UpdateAlert>();
+            services.AddScoped<DeleteAlert>();
+
             services.AddSingleton<ITriggerCreator, DateTimeTriggerCreator>();
             services.AddSingleton<IActionCreator, NoOpActionCreator>();
             services.AddSingleton<IActionCreator, ExecuteTaskActionCreator>();
+            services.AddSingleton<IActionCreator, SendAlertActionCreator>();
             services.AddSingleton<ITriggerFactory, TriggerFactory>();
             services.AddSingleton<IActionFactory, ActionFactory>();
 
             services.AddSingleton<JobEngine>();
             services.AddSingleton<TriggerEngine>();
+            services.AddSingleton<AlertEngine>();
 
-            
-return services;
+            return services;
         }
     }
 }
