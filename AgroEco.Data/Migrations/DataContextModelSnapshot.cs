@@ -15,7 +15,115 @@ namespace AgroEco.Data.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
+
+            modelBuilder.Entity("AgroEco.Core.Finanzas.RegistroFinanciero", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Cultivo")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Fecha")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("FechaCreacion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Monto")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("TaskId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Fecha");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("Tipo");
+
+                    b.ToTable("RegistrosFinancieros", (string)null);
+                });
+
+            modelBuilder.Entity("AgroEco.Core.Inventario.Insumo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateOnly?>("Caducidad")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Cantidad")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Cultivo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("FechaActualizacion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("FechaCreacion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Finca")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("StockMin")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Unidad")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Categoria");
+
+                    b.HasIndex("Nombre");
+
+                    b.ToTable("Insumos", (string)null);
+                });
 
             modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Action", b =>
                 {
@@ -105,6 +213,13 @@ namespace AgroEco.Data.Migrations
                     b.ToTable("ActionTests", (string)null);
                 });
 
+            modelBuilder.Entity("AgroEco.Core.Triggers.Implementations.CronTrigger", b =>
+                {
+                    b.HasBaseType("AgroEco.Core.Triggers.Trigger");
+
+                    b.ToTable("CronTrigger", (string)null);
+                });
+
             modelBuilder.Entity("AgroEco.Core.Triggers.Implementations.DateTimeTrigger", b =>
                 {
                     b.HasBaseType("AgroEco.Core.Triggers.Trigger");
@@ -144,6 +259,50 @@ namespace AgroEco.Data.Migrations
                         .WithOne()
                         .HasForeignKey("AgroEco.Core.Jobs.Actions.Implementations.NoOpAction", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AgroEco.Core.Triggers.Implementations.CronTrigger", b =>
+                {
+                    b.HasOne("AgroEco.Core.Triggers.Trigger", null)
+                        .WithOne()
+                        .HasForeignKey("AgroEco.Core.Triggers.Implementations.CronTrigger", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("AgroEco.Core.Triggers.Configuration.CronTriggerConfiguration", "Config", b1 =>
+                        {
+                            b1.Property<int>("CronTriggerId")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<string>("CronExpression")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("CronExpression");
+
+                            b1.Property<DateOnly?>("EndDate")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("EndDate");
+
+                            b1.Property<DateOnly?>("StartDate")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("StartDate");
+
+                            b1.Property<string>("TimeZone")
+                                .HasMaxLength(50)
+                                .HasColumnType("TEXT")
+                                .HasColumnName("TimeZone");
+
+                            b1.HasKey("CronTriggerId");
+
+                            b1.ToTable("CronTrigger");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CronTriggerId");
+                        });
+
+                    b.Navigation("Config")
                         .IsRequired();
                 });
 

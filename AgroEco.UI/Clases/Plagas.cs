@@ -18,6 +18,8 @@ namespace AgroEco.UI.Clases
         public string? Riesgo { get; set; } = "Medio"; //Bajo, Medio, Alto"
         [JsonPropertyName("desc")]
         public string? Descripcion { get; set; } = "";
+        [JsonPropertyName("favorece")]
+        public string? Favorece { get; set; } = "";
         [JsonPropertyName("cultivos")]
         public List<CultivoAfectado> CultivosAfectados { get; set; } = new();
     }

@@ -17,7 +17,7 @@
                 </div>
                 <ul>
                    <div class="sb_1">
-                        <li><a href="/src/html/dasboard.html"><img class = "icon" src = "/images/svg-hackaton/objects-column 1.svg" alt="Dashboard" width = "25px" height = "25px"> <span id = "home">DashBoard</span></a></li>
+                        <li><a href="/src/html/dasboard.html"><img class = "icon"src = "/images/svg-hackaton/objects-column 1.svg" alt="Dashboard" width = "25px" height = "25px"> <span id = "home">DashBoard</span></a></li>
                         <li><a href="/src/html/modulo-tareas.html"><img class = "icon"src = "/images/svg-hackaton/signal-stream 1.svg" alt="GestorTareas" width = "25px" height = "25px"> <span id = "tareas">Tareas</span></a></li>
                         <li><a href="/src/html/modulo-sensores.html" ><img class = "icon"src = "/images/svg-hackaton/Vector.svg" alt="Sensores" width = "25px" height = "25px"> <span id = "sensores">Sensores</span></a></li>
                         <li><a href="/src/html/modulo-plagas.html"><img class = "icon"src = "/images/svg-hackaton/Group 141.svg" alt="Plagas" width = "25px" height = "25px"> <span id = "plagas">Plagas</span></a></li>
@@ -49,15 +49,16 @@
                             <ul class="search-results" id="search-results"></ul>
                         </div>
                         <div class="quick-tags" id="quick-tags">
+                            <span>Plagas:</span>
                         </div>
                     </div>
 
                     <div class="card-pest-info scrollable-pest-card" id="pest-info-card">
                         <div class="pest-info-header">
                             <div class="pest-title-block">
-                                <span class="badge" id="pest-risk"></span>
-                                <h3 id="pest-name"></h3>
-                                <em id="pest-scientific"></em>
+                                <span class="badge-danger" id="pest-risk">Alto Riesgo</span>
+                                <h3 id="pest-name">Roya del Café</h3>
+                                <em id="pest-scientific">Hemileia vastatrix</em>
                             </div>
                             <div class="pest-avatar">
                                 <i class="fa-solid fa-bug-slash"></i>
@@ -66,7 +67,12 @@
 
                         <div class="pest-description">
                             <h4>Descripción de la plaga</h4>
-                            <p id="pest-desc"></p>
+                            <p id="pest-desc">Hongo que ataca las hojas del cafeto provocando la caída prematura de las mismas, lo que reduce drásticamente la capacidad fotosintética de la planta y la cosecha final.</p>
+                        </div>
+
+                        <div class="pest-description">
+                            <h4>¿Qué favorece esta plaga?</h4>
+                            <p id="pest-favorece"></p>
                         </div>
 
                         <h4>Identificacion y tratamiento para:</h4>
@@ -83,6 +89,7 @@
                             <span class="task-count" id="task-counter">0 Activas</span>
                         </div>
                         <div class="tasks-list" id="active-tasks-container">
+                            <p id="lbSinTareas">Sin tareas activas.</p>
                         </div>
                     </div>
                 </div>

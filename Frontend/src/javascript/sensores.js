@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                     break;
                     
-                case "estado_conexion":
+case "estado_conexion":
                     const statusButton = document.getElementById("status-button");
                     if (statusButton) {
                         const statusText = statusButton.querySelector(".status-text");
@@ -170,11 +170,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                     break;
 
+                case "alerta":
+                    mostrarAlerta(payload);
+                    break;
+
+                case "alertaResuelta":
+                    ocultarAlerta(payload.id);
+                    break;
+
+                case "alertasActivas":
+                    cargarAlertasActivas(payload.alertas);
+                    break;
+
                 default:
                     console.warn("Tipo de mensaje no reconocido en Sensores:", type);
             }
         });
-
+ 
+        // Solicitar alertas activas al iniciar
+        winSensores.chrome.webview.postMessage({ type: "obtenerAlertasActivas" });
+ 
         winSensores.chrome.webview.postMessage({ type: "ready_sensores" });
     }
 }

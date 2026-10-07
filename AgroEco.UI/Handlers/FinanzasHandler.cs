@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AgroEco.UI.Clases;
+using System.Threading.Tasks;
+using AgroEco.Core.Finanzas;
+using AgroEco.Core.Finanzas.Persistence;
 using AgroEco.UI.Mensajeros;
 
 namespace AgroEco.UI.Handlers
@@ -11,76 +13,187 @@ namespace AgroEco.UI.Handlers
     {
         private readonly Action<string, object> _enviar;
         private readonly ILogger<FinanzasHandler> _logger;
-        private readonly List<RegistroFinanciero> _registros = new();
-        private long _siguienteId = 1;
+        private readonly GetAllRegistroFinanciero _getAllRegistros;
+        private readonly CreateRegistroFinanciero _createRegistro;
+        private readonly DeleteRegistroFinanciero _deleteRegistro;
 
-        public FinanzasHandler(Action<string, object> enviar, ILogger<FinanzasHandler> logger)
+        public FinanzasHandler(
+            Action<string, object> enviar,
+            GetAllRegistroFinanciero getAllRegistros,
+            CreateRegistroFinanciero createRegistro,
+            DeleteRegistroFinanciero deleteRegistro,
+            ILogger<FinanzasHandler> logger)
         {
             _enviar = enviar;
+            _getAllRegistros = getAllRegistros;
+            _createRegistro = createRegistro;
+            _deleteRegistro = deleteRegistro;
             _logger = logger;
         }
 
-        public void ManejarMensaje(Mensaje msg)
+        public async void ManejarMensaje(Mensaje msg)
         {
             switch (msg.Type)
             {
                 case "ready_finanzas":
-                    EnviarResumen();
-                    EnviarRegistros();
+                    await EnviarResumenAsync();
+                    await EnviarRegistrosAsync();
+                    break;
+
+                case "obtenerRegistros":
+                    await EnviarRegistrosAsync();
                     break;
 
                 case "nuevoRegistroFinanciero":
-                    GuardarRegistro(msg);
+                    await GuardarRegistroAsync(msg);
+                    break;
+
+                case "eliminarRegistro":
+                    await EliminarRegistroAsync(msg);
                     break;
             }
         }
 
-        private void GuardarRegistro(Mensaje msg)
+        private async Task GuardarRegistroAsync(Mensaje msg)
         {
-            var registro = msg.LeerPayload<RegistroFinanciero>();
-            if (registro is null) return;
-
-            if (registro.Monto <= 0) return;
-            if (registro.Tipo != "ingreso" && registro.Tipo != "costo") return;
-
-            registro.Id = _siguienteId++;
-            _registros.Add(registro);
-
-            EnviarResumen();
-            EnviarRegistros();
-        }
-
-        private void EnviarResumen()
-        {
-            decimal ingresos = 0;
-            decimal costos = 0;
-
-            foreach (var r in _registros)
+            try
             {
-                if (r.Tipo == "ingreso") ingresos += r.Monto;
-                else if (r.Tipo == "costo") costos += r.Monto;
+                var registro = msg.LeerPayload<RegistroFinancieroDto>();
+                if (registro is null) return;
+
+                if (registro.Monto <= 0) return;
+                if (registro.Tipo != "ingreso" && registro.Tipo != "costo") return;
+
+                var result = await _createRegistro.HandleAsync(
+                    registro.Tipo,
+                    registro.Cultivo,
+                    registro.Categoria,
+                    registro.Monto,
+                    registro.Fecha,
+                    registro.Descripcion,
+                    registro.TaskId);
+
+                if (result.Success)
+                {
+                    _logger.LogInformation("Registro financiero creado: {Tipo} {Monto} - {Descripcion}", 
+                        result.Value.Tipo, result.Value.Monto, result.Value.Descripcion);
+                    await EnviarResumenAsync();
+                    await EnviarRegistrosAsync();
+                }
+                else
+                {
+                    _enviar("finanzasError", new { mensaje = result.Message });
+                }
             }
-
-            decimal ganancias = ingresos - costos;
-            decimal gananciaNeta = ingresos == 0
-                ? 0
-                : Math.Round(ganancias / ingresos * 100, 1);
-
-            _enviar("finanzas_cargadas", new { ingresos, costos, ganancias, gananciaNeta });
-        }
-
-        private void EnviarRegistros()
-        {
-            var lista = _registros.Select(r => new
+            catch (Exception ex)
             {
-                id = r.Id,
-                descripcion = r.Descripcion,
-                monto = r.Monto,
-                fecha = r.Fecha.ToString("dd/MM/yyyy"),
-                tipo = r.Tipo
-            }).ToList();
-
-            _enviar("cargar_registros", lista);
+                _logger.LogError(ex, "Error guardando registro financiero");
+                _enviar("finanzasError", new { mensaje = ex.Message });
+            }
         }
+
+        private async Task EliminarRegistroAsync(Mensaje msg)
+        {
+            try
+            {
+                var dto = msg.LeerPayload<EliminarRegistroDto>();
+                if (dto == null || dto.Id <= 0)
+                {
+                    _enviar("finanzasError", new { mensaje = "ID inválido" });
+                    return;
+                }
+
+                var result = await _deleteRegistro.HandleAsync(dto.Id);
+                if (result.Success)
+                {
+                    _logger.LogInformation("Registro financiero eliminado (Id: {Id})", dto.Id);
+                    await EnviarResumenAsync();
+                    await EnviarRegistrosAsync();
+                }
+                else
+                {
+                    _enviar("finanzasError", new { mensaje = result.Message });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error eliminando registro financiero");
+                _enviar("finanzasError", new { mensaje = ex.Message });
+            }
+        }
+
+        private async Task EnviarResumenAsync()
+        {
+            try
+            {
+                var result = await _getAllRegistros.HandleAsync();
+                if (!result.Success || result.Value == null)
+                {
+                    _enviar("finanzas_cargadas", new { ingresos = 0m, costos = 0m, ganancias = 0m, gananciaNeta = 0m });
+                    return;
+                }
+
+                decimal ingresos = 0;
+                decimal costos = 0;
+
+                foreach (var r in result.Value)
+                {
+                    if (r.Tipo == "ingreso") ingresos += r.Monto;
+                    else if (r.Tipo == "costo") costos += r.Monto;
+                }
+
+                decimal ganancias = ingresos - costos;
+                decimal gananciaNeta = ingresos == 0
+                    ? 0
+                    : Math.Round(ganancias / ingresos * 100, 1);
+
+                _enviar("finanzas_cargadas", new { ingresos, costos, ganancias, gananciaNeta });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error enviando resumen financiero");
+                _enviar("finanzas_cargadas", new { ingresos = 0m, costos = 0m, ganancias = 0m, gananciaNeta = 0m });
+            }
+        }
+
+        private async Task EnviarRegistrosAsync()
+        {
+            try
+            {
+                var result = await _getAllRegistros.HandleAsync();
+                if (!result.Success || result.Value == null)
+                {
+                    _enviar("cargar_registros", new List<object>());
+                    return;
+                }
+
+                var lista = result.Value.Select(r => new
+                {
+                    id = r.Id,
+                    descripcion = r.Descripcion,
+                    monto = r.Monto,
+                    fecha = r.Fecha.ToString("dd/MM/yyyy"),
+                    tipo = r.Tipo
+                }).ToList();
+
+                _enviar("cargar_registros", lista);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error enviando registros financieros");
+                _enviar("cargar_registros", new List<object>());
+            }
+        }
+
+        private record RegistroFinancieroDto(
+            string Tipo,
+            string? Cultivo,
+            string Categoria,
+            decimal Monto,
+            DateOnly Fecha,
+            string Descripcion,
+            int? TaskId = null);
+
+        private record EliminarRegistroDto(int Id);
     }
 }

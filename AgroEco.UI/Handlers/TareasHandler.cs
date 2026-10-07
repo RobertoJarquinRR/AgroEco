@@ -12,6 +12,8 @@ using AgroEco.Core.Triggers.Configuration;
 using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Actions;
 using AgroEco.Core.Jobs.Actions.Configuration;
+using AgroEco.Core.Inventario.Persistence;
+using AgroEco.Core.Reportes;
 using CoreAction = AgroEco.Core.Jobs.Actions.Action;
 using AgroEco.UI.Mensajeros;
 using Microsoft.Extensions.Logging;
@@ -30,6 +32,8 @@ namespace AgroEco.UI.Handlers
         private readonly JobEngine _jobEngine;
         private readonly ITriggerFactory _triggerFactory;
         private readonly IActionFactory _actionFactory;
+        private readonly GetByIdInsumo _getByIdInsumo;
+        private readonly IExportService _exportService;
         private readonly ILogger<TareasHandler> _logger;
 
         public TareasHandler(
@@ -43,6 +47,8 @@ namespace AgroEco.UI.Handlers
             JobEngine jobEngine,
             ITriggerFactory triggerFactory,
             IActionFactory actionFactory,
+            GetByIdInsumo getByIdInsumo,
+            IExportService exportService,
             ILogger<TareasHandler> logger)
         {
             _enviar = enviar;
@@ -55,6 +61,8 @@ namespace AgroEco.UI.Handlers
             _jobEngine = jobEngine;
             _triggerFactory = triggerFactory;
             _actionFactory = actionFactory;
+            _getByIdInsumo = getByIdInsumo;
+            _exportService = exportService;
             _logger = logger;
             _jobEngine.JobExecutionCompleted += OnJobExecutionCompleted;
         }
@@ -75,6 +83,11 @@ namespace AgroEco.UI.Handlers
                         mensaje = failureMessage
                             ?? $"La tarea '{job.Name}' falló durante la ejecución."
                     });
+            }
+            else if (job.Status == Status.Succeeded || job.Status == Status.CompletedWithErrors)
+            {
+                // La acción ExecuteTaskAction ya hace el trabajo (descuenta inventario y registra gasto)
+                // Solo refrescamos la lista
             }
 
             _ = ObtenerTareasAsync();
@@ -97,6 +110,9 @@ namespace AgroEco.UI.Handlers
                 "actualizarEstadoTarea" => ActualizarEstadoTareaAsync(msg),
                 "eliminarTarea" => EliminarTareaAsync(msg),
                 "ejecutarTarea" => EjecutarTareaAsync(msg),
+                "obtenerTareaDetalle" => ObtenerTareaDetalleAsync(msg),
+                "obtenerHistorialTarea" => ObtenerHistorialTareaAsync(msg),
+                "exportarTareasCsv" => ExportarTareasCsvAsync(msg),
                 _ => Task.CompletedTask
             };
         }
@@ -122,6 +138,109 @@ namespace AgroEco.UI.Handlers
             }
         }
 
+        private async Task ObtenerTareaDetalleAsync(Mensaje msg)
+        {
+            try
+            {
+                var dto = msg.LeerPayload<ObtenerTareaDetalleDto>();
+                if (dto == null || dto.Id <= 0)
+                {
+                    _enviar("tareaError", new { mensaje = "ID inválido" });
+                    return;
+                }
+
+                var jobResult = await _getByIdJob.HandleAsync(dto.Id);
+                if (!jobResult.Success || jobResult.Value == null)
+                {
+                    _enviar("tareaError", new { mensaje = "Tarea no encontrada" });
+                    return;
+                }
+
+                var job = jobResult.Value;
+                var detail = MappearJobADetalle(job);
+                _enviar("tareaDetalle", detail);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo detalle de tarea");
+                _enviar("tareaError", new { mensaje = ex.Message });
+            }
+        }
+
+        private object MappearJobADetalle(Job job)
+        {
+            object? triggerConfig = job.Trigger switch
+            {
+                DateTimeTrigger dt => new { type = "datetime", targetTime = dt.TargetTime },
+                CronTrigger ct => new { type = "cron", cronExpression = ct.Config.CronExpression, timeZone = ct.Config.TimeZone, startDate = ct.Config.StartDate, endDate = ct.Config.EndDate },
+                _ => null
+            };
+
+            var actionConfig = job.Actions.Count > 0 ? job.Actions[0].Configuration : null;
+
+            return new
+            {
+                id = job.Id,
+                nombre = job.Name,
+                descripcion = job.Description ?? "",
+                prioridad = job.Priority switch { 1 => "alta", 2 => "media", _ => "baja" },
+                estado = job.Status.ToString().ToLower(),
+                trigger = triggerConfig,
+                action = actionConfig != null ? new
+                {
+                    typeId = job.Actions[0].GetType().Name == "ExecuteTaskAction" ? "executeTask" : "noop",
+                    config = actionConfig
+                } : null
+            };
+        }
+
+        private record ObtenerTareaDetalleDto(int Id);
+
+        private async Task ObtenerHistorialTareaAsync(Mensaje msg)
+        {
+            try
+            {
+                var dto = msg.LeerPayload<ObtenerHistorialTareaDto>();
+                if (dto == null || dto.Id <= 0)
+                {
+                    _enviar("tareaError", new { mensaje = "ID inválido" });
+                    return;
+                }
+
+                var jobResult = await _getByIdJob.HandleAsync(dto.Id);
+                if (!jobResult.Success || jobResult.Value == null)
+                {
+                    _enviar("tareaError", new { mensaje = "Tarea no encontrada" });
+                    return;
+                }
+
+                var job = jobResult.Value;
+                var historial = new
+                {
+                    ejecuciones = job.Results.Select((r, index) => new
+                    {
+                        ejecutadoEn = job.Date?.ToString("o") ?? DateTime.Now.ToString("o"),
+                        estado = job.Status.ToString(),
+                        mensaje = r.Message,
+                        acciones = job.Actions.Select(a => new
+                        {
+                            nombre = a.Name,
+                            estado = a.Status.ToString()
+                        }).ToList()
+                    }).ToList()
+                };
+
+                _enviar("historialTarea", historial);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo historial de tarea");
+                _enviar("tareaError", new { mensaje = ex.Message });
+            }
+        }
+
+        private record ObtenerHistorialTareaDto(int Id);
+
         private async Task CrearTareaAsync(Mensaje msg)
         {
             try
@@ -131,6 +250,17 @@ namespace AgroEco.UI.Handlers
                 {
                     _enviar("tareaError", new { mensaje = "Datos inválidos" });
                     return;
+                }
+
+                // Validar acción executeTask
+                if (dto.ActionTypeId == "executeTask")
+                {
+                    var validationResult = await ValidarConfiguracionExecuteTask(dto.ActionConfig);
+                    if (!validationResult.Success)
+                    {
+                        _enviar("tareaError", new { mensaje = validationResult.Message });
+                        return;
+                    }
                 }
 
                 string triggerTypeId = string.IsNullOrWhiteSpace(dto.TriggerTypeId)
@@ -195,6 +325,60 @@ namespace AgroEco.UI.Handlers
             }
         }
 
+        private async Task<Result> ValidarConfiguracionExecuteTask(JsonElement actionConfig)
+        {
+            if (!actionConfig.TryGetProperty("insumoId", out var insumoIdEl) || insumoIdEl.ValueKind != JsonValueKind.Number)
+            {
+                return Result.CreateFailure("insumoId es obligatorio y debe ser un número");
+            }
+
+            int insumoId = insumoIdEl.GetInt32();
+            if (insumoId <= 0)
+            {
+                return Result.CreateFailure("insumoId debe ser mayor a 0");
+            }
+
+            // Verificar que el insumo existe
+            var insumoResult = await _getByIdInsumo.HandleAsync(insumoId);
+            if (!insumoResult.Success || insumoResult.Value == null)
+            {
+                return Result.CreateFailure($"Insumo con ID {insumoId} no encontrado");
+            }
+
+            var insumo = insumoResult.Value;
+
+            if (!actionConfig.TryGetProperty("cantidadDescontar", out var cantidadEl) || cantidadEl.ValueKind != JsonValueKind.Number)
+            {
+                return Result.CreateFailure("cantidadDescontar es obligatoria y debe ser un número");
+            }
+
+            decimal cantidadDescontar = cantidadEl.GetDecimal();
+            if (cantidadDescontar <= 0)
+            {
+                return Result.CreateFailure("cantidadDescontar debe ser mayor a 0");
+            }
+
+            // Validar stock suficiente
+            if (insumo.Cantidad < cantidadDescontar)
+            {
+                return Result.CreateFailure(
+                    $"Stock insuficiente para '{insumo.Nombre}'. Disponible: {insumo.Cantidad} {insumo.Unidad}, Requerido: {cantidadDescontar} {insumo.Unidad}");
+            }
+
+            if (!actionConfig.TryGetProperty("costoUnitario", out var costoEl) || costoEl.ValueKind != JsonValueKind.Number)
+            {
+                return Result.CreateFailure("costoUnitario es obligatorio y debe ser un número");
+            }
+
+            decimal costoUnitario = costoEl.GetDecimal();
+            if (costoUnitario < 0)
+            {
+                return Result.CreateFailure("costoUnitario no puede ser negativo");
+            }
+
+            return Result.CreateSuccess();
+        }
+
         private async Task ActualizarTareaAsync(Mensaje msg)
         {
             try
@@ -232,34 +416,49 @@ namespace AgroEco.UI.Handlers
                     return;
                 }
 
-                if (job.Trigger is not DateTimeTrigger dateTimeTrigger
-                    || !TryReadTargetTime(
-                        dto.TriggerConfig,
-                        out DateTimeOffset targetTime))
+                // Handle different trigger types
+                if (job.Trigger is DateTimeTrigger dateTimeTrigger)
                 {
-                    _enviar(
-                        "tareaError",
-                        new
-                        {
-                            mensaje = "The 'targetTime' configuration value must be a valid date and time."
-                        });
-                    return;
+                    if (!TryReadTargetTime(dto.TriggerConfig, out DateTimeOffset targetTime))
+                    {
+                        _enviar("tareaError", new { mensaje = "La hora objetivo debe ser una fecha y hora válida." });
+                        return;
+                    }
+
+                    if (targetTime <= DateTimeOffset.UtcNow)
+                    {
+                        _enviar("tareaError", new { mensaje = "La hora objetivo debe estar en el futuro." });
+                        return;
+                    }
+
+                    Result triggerUpdateResult = dateTimeTrigger.UpdateConfiguration(new DateTimeTriggerConfiguration(targetTime));
+                    if (!triggerUpdateResult.Success)
+                    {
+                        _enviar("tareaError", new { mensaje = triggerUpdateResult.Message });
+                        return;
+                    }
+                }
+                else if (job.Trigger is CronTrigger cronTrigger)
+                {
+                    // Handle CronTrigger update
+                    var cronConfig = ParseCronTriggerConfiguration(dto.TriggerConfig);
+                    Result triggerUpdateResult = cronTrigger.UpdateConfiguration(cronConfig);
+                    if (!triggerUpdateResult.Success)
+                    {
+                        _enviar("tareaError", new { mensaje = triggerUpdateResult.Message });
+                        return;
+                    }
                 }
 
-                if (targetTime <= DateTimeOffset.UtcNow)
+                // Handle action configuration update
+                if (dto.ActionConfig.ValueKind == JsonValueKind.Object)
                 {
-                    _enviar(
-                        "tareaError",
-                        new { mensaje = "La hora objetivo debe estar en el futuro." });
-                    return;
-                }
-
-                Result triggerUpdateResult = dateTimeTrigger.UpdateConfiguration(
-                    new DateTimeTriggerConfiguration(targetTime));
-                if (!triggerUpdateResult.Success)
-                {
-                    _enviar("tareaError", new { mensaje = triggerUpdateResult.Message });
-                    return;
+                    var actionConfigResult = ParseActionConfiguration(dto.ActionConfig);
+                    if (job.Actions.Count > 0)
+                    {
+                        var action = job.Actions[0];
+                        action.Configuration = actionConfigResult;
+                    }
                 }
 
                 var result = await _updateJob.HandleAsync(job);
@@ -278,6 +477,41 @@ namespace AgroEco.UI.Handlers
                 _logger.LogError(ex, "Error actualizando tarea");
                 _enviar("tareaError", new { mensaje = ex.Message });
             }
+        }
+
+        private CronTriggerConfiguration ParseCronTriggerConfiguration(JsonElement config)
+        {
+            string cronExpression = "";
+            string timeZone = "UTC";
+            DateOnly? startDate = null;
+            DateOnly? endDate = null;
+
+            if (config.TryGetProperty("cronExpression", out var cronEl) && cronEl.ValueKind == JsonValueKind.String)
+            {
+                cronExpression = cronEl.GetString() ?? "";
+            }
+            if (config.TryGetProperty("timeZone", out var tzEl) && tzEl.ValueKind == JsonValueKind.String)
+            {
+                timeZone = tzEl.GetString() ?? "UTC";
+            }
+            if (config.TryGetProperty("startDate", out var startEl) && startEl.ValueKind == JsonValueKind.String)
+            {
+                if (DateOnly.TryParse(startEl.GetString(), out var parsed))
+                    startDate = parsed;
+            }
+            if (config.TryGetProperty("endDate", out var endEl) && endEl.ValueKind == JsonValueKind.String)
+            {
+                if (DateOnly.TryParse(endEl.GetString(), out var parsed))
+                    endDate = parsed;
+            }
+
+            return new CronTriggerConfiguration
+            {
+                CronExpression = cronExpression,
+                TimeZone = timeZone,
+                StartDate = startDate,
+                EndDate = endDate
+            };
         }
 
         private async Task EliminarTareaAsync(Mensaje msg)
@@ -491,9 +725,63 @@ namespace AgroEco.UI.Handlers
 
         private static ActionConfiguration ParseActionConfiguration(
             JsonElement config)
-            => new NoOpActionConfiguration();
+        {
+            int insumoId = 0;
+            decimal cantidadDescontar = 0;
+            decimal costoUnitario = 0;
+            string? descripcion = null;
+            string? categoriaInsumo = null;
+
+            if (config.TryGetProperty("insumoId", out var insumoIdEl) && insumoIdEl.ValueKind == JsonValueKind.Number)
+            {
+                insumoId = insumoIdEl.GetInt32();
+            }
+            if (config.TryGetProperty("cantidadDescontar", out var cantidadEl) && cantidadEl.ValueKind == JsonValueKind.Number)
+            {
+                cantidadDescontar = cantidadEl.GetDecimal();
+            }
+            if (config.TryGetProperty("costoUnitario", out var costoEl) && costoEl.ValueKind == JsonValueKind.Number)
+            {
+                costoUnitario = costoEl.GetDecimal();
+            }
+            if (config.TryGetProperty("descripcion", out var descEl) && descEl.ValueKind == JsonValueKind.String)
+            {
+                descripcion = descEl.GetString();
+            }
+            if (config.TryGetProperty("categoriaInsumo", out var catEl) && catEl.ValueKind == JsonValueKind.String)
+            {
+                categoriaInsumo = catEl.GetString();
+            }
+
+            return new ExecuteTaskActionConfiguration
+            {
+                InsumoId = insumoId,
+                CantidadDescontar = cantidadDescontar,
+                CostoUnitario = costoUnitario,
+                Descripcion = descripcion,
+                CategoriaInsumo = categoriaInsumo
+            };
+        }
 
         private sealed record InvalidTriggerConfiguration
             : TriggerConfiguration;
+
+        private async Task ExportarTareasCsvAsync(Mensaje msg)
+        {
+            try
+            {
+                var csv = await _exportService.ExportJobsToCsvAsync(_getAllJob.GetType().GetProperty("Repository")?.GetValue(_getAllJob) as dynamic ?? 
+                    (await _getAllJob.HandleAsync()).Value?.FirstOrDefault()?.GetType().Assembly.GetTypes()
+                    .FirstOrDefault(t => t.Name == "JobRepository")?.GetProperty("Context")?.GetValue(null), 
+                    CancellationToken.None);
+                
+                _enviar("exportarCsv", new { contenido = csv, nombreArchivo = $"tareas_{DateTime.Now:yyyyMMdd_HHmmss}.csv" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error exportando tareas a CSV");
+                _enviar("tareaError", new { mensaje = "Error al exportar: " + ex.Message });
+            }
+        }
     }
 }

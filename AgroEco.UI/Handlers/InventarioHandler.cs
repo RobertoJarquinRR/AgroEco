@@ -2,7 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AgroEco.UI.Clases;
+using System.Threading.Tasks;
+using AgroEco.Core.Inventario;
+using AgroEco.Core.Inventario.Persistence;
+using AgroEco.Core.Interfaces;
 using AgroEco.UI.Mensajeros;
 
 namespace AgroEco.UI.Handlers
@@ -11,35 +14,97 @@ namespace AgroEco.UI.Handlers
     {
         private readonly Action<string, object> _enviar;
         private readonly ILogger<InventarioHandler> _logger;
-        private readonly List<Insumo> _insumos = new();
-        private long _siguienteId = 1;
+        private readonly GetAllInsumo _getAllInsumo;
+        private readonly CreateInsumo _createInsumo;
+        private readonly DeleteInsumo _deleteInsumo;
+        private readonly GetByIdInsumo _getByIdInsumo;
+        private readonly UpdateInsumo _updateInsumo;
 
-        public InventarioHandler(Action<string, object> enviar, ILogger<InventarioHandler> logger)
+        public InventarioHandler(
+            Action<string, object> enviar,
+            GetAllInsumo getAllInsumo,
+            CreateInsumo createInsumo,
+            DeleteInsumo deleteInsumo,
+            GetByIdInsumo getByIdInsumo,
+            UpdateInsumo updateInsumo,
+            ILogger<InventarioHandler> logger)
         {
             _enviar = enviar;
+            _getAllInsumo = getAllInsumo;
+            _createInsumo = createInsumo;
+            _deleteInsumo = deleteInsumo;
+            _getByIdInsumo = getByIdInsumo;
+            _updateInsumo = updateInsumo;
             _logger = logger;
         }
 
-        public void ManejarMensaje(Mensaje msg)
+        public async void ManejarMensaje(Mensaje msg)
         {
             switch (msg.Type)
             {
                 case "ready_inventario":
                     EnviarFincas();
-                    EnviarInsumos();
+                    await EnviarInsumosAsync();
+                    break;
+
+                case "obtenerInsumos":
+                    await EnviarInsumosParaSelectAsync();
+                    break;
+
+                case "obtenerFincas":
+                    EnviarFincas();
                     break;
 
                 case "crearInsumo":
-                    CrearInsumo(msg);
+                    await CrearInsumoAsync(msg);
+                    break;
+
+                case "actualizarInsumo":
+                    await ActualizarInsumoAsync(msg);
                     break;
 
                 case "eliminarInsumo":
-                    EliminarInsumo(msg);
+                    await EliminarInsumoAsync(msg);
                     break;
             }
         }
 
-        private void CrearInsumo(Mensaje msg)
+        private async Task EnviarInsumosParaSelectAsync()
+        {
+            try
+            {
+                var result = await _getAllInsumo.HandleAsync();
+                if (!result.Success || result.Value == null)
+                {
+                    _enviar("insumos", new { insumos = new List<object>() });
+                    return;
+                }
+
+                var lista = result.Value.Where(i => i.Cantidad > 0).Select(i => new
+                {
+                    id = i.Id,
+                    nombre = i.Nombre,
+                    categoria = i.Categoria,
+                    cultivo = i.Cultivo,
+                    cantidad = i.Cantidad,
+                    unidad = i.Unidad,
+                    minimo = i.StockMin,
+                    caducidad = i.Caducidad?.ToString("yyyy-MM-dd") ?? "",
+                    finca = i.Finca,
+                    descripcion = i.Descripcion,
+                    fechaCreacion = i.FechaCreacion.ToString("yyyy-MM-dd")
+                }).ToList();
+
+                _enviar("insumos", new { insumos = lista });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error enviando insumos para select");
+                _enviar("insumos", new { insumos = new List<object>() });
+            }
+        }
+
+        private async Task CrearInsumoAsync(Mensaje msg)
         {
             try
             {
@@ -56,24 +121,26 @@ namespace AgroEco.UI.Handlers
                     caducidad = parsed;
                 }
 
-                var insumo = new Insumo
+                var result = await _createInsumo.HandleAsync(
+                    dto.Nombre,
+                    dto.Categoria,
+                    dto.Cultivo,
+                    dto.Cantidad,
+                    dto.Unidad,
+                    dto.StockMin,
+                    caducidad,
+                    dto.Finca,
+                    dto.Descripcion);
+
+                if (result.Success)
                 {
-                    Id = _siguienteId++,
-                    Nombre = dto.Nombre,
-                    Categoria = dto.Categoria,
-                    Cultivo = dto.Cultivo,
-                    Cantidad = dto.Cantidad,
-                    Unidad = dto.Unidad,
-                    StockMin = dto.StockMin,
-                    Caducidad = caducidad,
-                    Finca = dto.Finca,
-                    Descripcion = dto.Descripcion
-                };
-
-                _insumos.Add(insumo);
-                _logger.LogInformation("Insumo creado: {Nombre} (Id: {Id})", insumo.Nombre, insumo.Id);
-
-                EnviarInsumos();
+                    _logger.LogInformation("Insumo creado: {Nombre} (Id: {Id})", result.Value.Nombre, result.Value.Id);
+                    await EnviarInsumosAsync();
+                }
+                else
+                {
+                    _enviar("inventarioError", new { mensaje = result.Message });
+                }
             }
             catch (Exception ex)
             {
@@ -82,7 +149,61 @@ namespace AgroEco.UI.Handlers
             }
         }
 
-        private void EliminarInsumo(Mensaje msg)
+        private async Task ActualizarInsumoAsync(Mensaje msg)
+        {
+            try
+            {
+                var dto = msg.LeerPayload<ActualizarInsumoDto>();
+                if (dto == null || dto.Id <= 0)
+                {
+                    _enviar("inventarioError", new { mensaje = "ID inválido" });
+                    return;
+                }
+
+                var existingResult = await _getByIdInsumo.HandleAsync(dto.Id);
+                if (!existingResult.Success || existingResult.Value == null)
+                {
+                    _enviar("inventarioError", new { mensaje = "Insumo no encontrado" });
+                    return;
+                }
+
+                DateOnly? caducidad = null;
+                if (!string.IsNullOrWhiteSpace(dto.Caducidad) && DateOnly.TryParse(dto.Caducidad, out var parsed))
+                {
+                    caducidad = parsed;
+                }
+
+                var insumo = existingResult.Value;
+                insumo.Nombre = dto.Nombre;
+                insumo.Categoria = dto.Categoria;
+                insumo.Cultivo = dto.Cultivo;
+                insumo.Cantidad = dto.Cantidad;
+                insumo.Unidad = dto.Unidad;
+                insumo.StockMin = dto.StockMin;
+                insumo.Caducidad = caducidad;
+                insumo.Finca = dto.Finca;
+                insumo.Descripcion = dto.Descripcion;
+                insumo.FechaActualizacion = DateOnly.FromDateTime(DateTime.Today);
+
+                var result = await _updateInsumo.HandleAsync(insumo);
+                if (result.Success)
+                {
+                    _logger.LogInformation("Insumo actualizado: {Nombre} (Id: {Id})", insumo.Nombre, insumo.Id);
+                    await EnviarInsumosAsync();
+                }
+                else
+                {
+                    _enviar("inventarioError", new { mensaje = result.Message });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error actualizando insumo");
+                _enviar("inventarioError", new { mensaje = ex.Message });
+            }
+        }
+
+        private async Task EliminarInsumoAsync(Mensaje msg)
         {
             try
             {
@@ -93,17 +214,16 @@ namespace AgroEco.UI.Handlers
                     return;
                 }
 
-                var insumo = _insumos.FirstOrDefault(i => i.Id == dto.Id);
-                if (insumo == null)
+                var result = await _deleteInsumo.HandleAsync(dto.Id);
+                if (result.Success)
                 {
-                    _enviar("inventarioError", new { mensaje = "Insumo no encontrado" });
-                    return;
+                    _logger.LogInformation("Insumo eliminado (Id: {Id})", dto.Id);
+                    await EnviarInsumosAsync();
                 }
-
-                _insumos.Remove(insumo);
-                _logger.LogInformation("Insumo eliminado: {Nombre} (Id: {Id})", insumo.Nombre, insumo.Id);
-
-                EnviarInsumos();
+                else
+                {
+                    _enviar("inventarioError", new { mensaje = result.Message });
+                }
             }
             catch (Exception ex)
             {
@@ -112,24 +232,39 @@ namespace AgroEco.UI.Handlers
             }
         }
 
-        private void EnviarInsumos()
+        private async Task EnviarInsumosAsync()
         {
-            var lista = _insumos.Select(i => new
+            try
             {
-                id = i.Id,
-                nombre = i.Nombre,
-                categoria = i.Categoria,
-                cultivo = i.Cultivo,
-                cantidad = i.Cantidad,
-                unidad = i.Unidad,
-                minimo = i.StockMin,
-                caducidad = i.Caducidad?.ToString("yyyy-MM-dd") ?? "",
-                finca = i.Finca,
-                descripcion = i.Descripcion,
-                fechaCreacion = i.FechaCreacion.ToString("yyyy-MM-dd")
-            }).ToList();
+                var result = await _getAllInsumo.HandleAsync();
+                if (!result.Success || result.Value == null)
+                {
+                    _enviar("listaInsumos", new List<object>());
+                    return;
+                }
 
-            _enviar("listaInsumos", lista);
+                var lista = result.Value.Select(i => new
+                {
+                    id = i.Id,
+                    nombre = i.Nombre,
+                    categoria = i.Categoria,
+                    cultivo = i.Cultivo,
+                    cantidad = i.Cantidad,
+                    unidad = i.Unidad,
+                    minimo = i.StockMin,
+                    caducidad = i.Caducidad?.ToString("yyyy-MM-dd") ?? "",
+                    finca = i.Finca,
+                    descripcion = i.Descripcion,
+                    fechaCreacion = i.FechaCreacion.ToString("yyyy-MM-dd")
+                }).ToList();
+
+                _enviar("listaInsumos", lista);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error enviando insumos");
+                _enviar("listaInsumos", new List<object>());
+            }
         }
 
         private void EnviarFincas()
@@ -155,6 +290,18 @@ namespace AgroEco.UI.Handlers
             string Finca,
             string Descripcion);
 
-        private record EliminarInsumoDto(long Id);
+        private record ActualizarInsumoDto(
+            int Id,
+            string Nombre,
+            string Categoria,
+            string Cultivo,
+            decimal Cantidad,
+            string Unidad,
+            decimal StockMin,
+            string Caducidad,
+            string Finca,
+            string Descripcion);
+
+        private record EliminarInsumoDto(int Id);
     }
 }

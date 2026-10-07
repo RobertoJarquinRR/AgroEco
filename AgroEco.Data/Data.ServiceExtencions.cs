@@ -3,6 +3,9 @@ using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Actions;
 using Action = AgroEco.Core.Jobs.Actions.Action;
 using AgroEco.Core.Triggers;
+using AgroEco.Core.Inventario;
+using AgroEco.Core.Finanzas;
+using AgroEco.Core.Alertas;
 using AgroEco.Data.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -20,6 +23,10 @@ namespace AgroEco.Data
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<IRepository<Trigger>, TriggerRepository>();
             services.AddScoped<IRepository<Action>, ActionRepository>();
+            services.AddScoped<IRepository<Insumo>, InsumoRepository>();
+            services.AddScoped<IRepository<RegistroFinanciero>, RegistroFinancieroRepository>();
+            services.AddScoped<IRepository<Alerta>, AlertaRepository>();
+            services.AddScoped<IRepository<UmbralSensor>, UmbralSensorRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork<DataContext>>();
 
 
