@@ -14,16 +14,16 @@ using Microsoft.Extensions.Logging;
 namespace AgroEco.Core.Alertas;
 
 public class AlertEngine
-{
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<AlertEngine> _logger;
-    private readonly TimeSpan _evaluationInterval = TimeSpan.FromMinutes(5);
-
-    public AlertEngine(IServiceScopeFactory scopeFactory, ILogger<AlertEngine> logger)
     {
-        _scopeFactory = scopeFactory;
-        _logger = logger;
-    }
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger<AlertEngine> _logger;
+        private readonly TimeSpan _evaluationInterval = TimeSpan.FromMinutes(5);
+
+        public AlertEngine(IServiceScopeFactory scopeFactory, ILogger<AlertEngine> logger)
+        {
+            _scopeFactory = scopeFactory;
+            _logger = logger;
+        }
 
     public async Task StartAsync(CancellationToken cancellationToken = default)
     {
