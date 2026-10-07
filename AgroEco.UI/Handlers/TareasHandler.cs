@@ -184,7 +184,7 @@ namespace AgroEco.UI.Handlers
                 Result<CoreAction> actionResult = _actionFactory.Create(
                     actionTypeId,
                     $"Accion_{dto.Nombre}",
-                    ParseActionConfiguration(actionConfig));
+                    ActionConfigurationParser.Parse(actionTypeId, actionConfig));
                 if (!actionResult.Success || actionResult.Value is null)
                 {
                     _enviar("tareaError", new { mensaje = actionResult.Message });
@@ -561,52 +561,6 @@ namespace AgroEco.UI.Handlers
             return TryReadTargetTime(config, out DateTimeOffset targetTime)
                 ? new DateTimeTriggerConfiguration(targetTime)
                 : new InvalidTriggerConfiguration();
-        }
-
-        private static ActionConfiguration ParseActionConfiguration(
-            JsonElement config)
-        {
-            int insumoId = 0;
-            decimal cantidadDescontar = 0;
-            decimal costoUnitario = 0;
-            string? descripcion = null;
-            string? cultivo = null;
-            string? categoriaInsumo = null;
-
-            if (config.TryGetProperty("insumoId", out var insumoIdEl) && insumoIdEl.ValueKind == JsonValueKind.Number)
-            {
-                insumoId = insumoIdEl.GetInt32();
-            }
-            if (config.TryGetProperty("cantidadDescontar", out var cantidadEl) && cantidadEl.ValueKind == JsonValueKind.Number)
-            {
-                cantidadDescontar = cantidadEl.GetDecimal();
-            }
-            if (config.TryGetProperty("costoUnitario", out var costoEl) && costoEl.ValueKind == JsonValueKind.Number)
-            {
-                costoUnitario = costoEl.GetDecimal();
-            }
-            if (config.TryGetProperty("descripcion", out var descEl) && descEl.ValueKind == JsonValueKind.String)
-            {
-                descripcion = descEl.GetString();
-            }
-            if (config.TryGetProperty("cultivo", out var cultivoEl) && cultivoEl.ValueKind == JsonValueKind.String)
-            {
-                cultivo = cultivoEl.GetString();
-            }
-            if (config.TryGetProperty("categoriaInsumo", out var catEl) && catEl.ValueKind == JsonValueKind.String)
-            {
-                categoriaInsumo = catEl.GetString();
-            }
-
-            return new ExecuteTaskActionConfiguration
-            {
-                InsumoId = insumoId,
-                CantidadDescontar = cantidadDescontar,
-                CostoUnitario = costoUnitario,
-                Descripcion = descripcion,
-                Cultivo = cultivo,
-                CategoriaInsumo = categoriaInsumo
-            };
         }
 
         private sealed record InvalidTriggerConfiguration
