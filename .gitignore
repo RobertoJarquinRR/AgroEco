@@ -437,3 +437,8 @@ obj
 Frontend/node_modules/
 AgroEco.UI/Frontend/*
 !AgroEco.UI/Frontend/.gitkeep
+
+# Local SQLite database (not source; created at runtime)
+*.db
+*.db-shm
+*.db-wal
