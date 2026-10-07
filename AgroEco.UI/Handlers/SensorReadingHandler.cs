@@ -54,10 +54,6 @@ namespace AgroEco.UI.Handlers
                     await ProcesarLecturaSensor(msg);
                     break;
 
-                case "configurarSensor":
-                    await ConfigurarSensor(msg);
-                    break;
-
                 case "obtenerUmbrales":
                     await ObtenerUmbralesAsync();
                     break;

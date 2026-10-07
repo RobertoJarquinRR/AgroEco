@@ -42,7 +42,7 @@ namespace AgroEco.UI
             services.AddCoreServices();
 
             // Serial settings
-            services.Configure<SerialSettings>(options =>
+            services.Configure<SerialHostedService.SerialSettings>(options =>
             {
                 options.PortName = "COM3";
                 options.BaudRate = 115200;

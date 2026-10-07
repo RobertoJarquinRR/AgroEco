@@ -1,26 +1,26 @@
 using AgroEco.Hardware;
 using AgroEco.Core.Hardware;
+using AgroEco.UI.Handlers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 namespace AgroEco.UI.Services;
 
 public class SerialHostedService : BackgroundService
 {
-    private readonly SerialConnection _serialConnection;
+    private SerialConnection? _serialConnection;
     private readonly ILogger<SerialHostedService> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly SerialSettings _settings;
 
     public SerialHostedService(
-        SerialConnection serialConnection,
         ILogger<SerialHostedService> logger,
         IServiceProvider serviceProvider,
         IOptions<SerialSettings> settings)
     {
-        _serialConnection = serialConnection;
         _logger = logger;
         _serviceProvider = serviceProvider;
         _settings = settings.Value;
@@ -38,12 +38,12 @@ public class SerialHostedService : BackgroundService
         {
             try
             {
-                if (!_serialConnection.Connected)
+                if (_serialConnection == null || !_serialConnection.Connected)
                 {
                     await ConectarAsync(stoppingToken);
                 }
 
-                if (_serialConnection.Connected)
+                if (_serialConnection != null && _serialConnection.Connected)
                 {
                     var listenResult = _serialConnection.StartListening();
                     if (listenResult.Success)
@@ -80,9 +80,8 @@ public class SerialHostedService : BackgroundService
             return;
         }
 
-        var conn = connResult.Value;
-        _serialConnection = conn;
-        conn.MessageReceived += OnHardwareMessageReceived;
+        _serialConnection = connResult.Value;
+        _serialConnection.MessageReceived += OnHardwareMessageReceived;
         
         _logger.LogInformation("Conectado a puerto serial {Port}", _settings.PortName);
     }
@@ -96,17 +95,20 @@ public class SerialHostedService : BackgroundService
             if (message.Type.Equals("sensor_reading", StringComparison.OrdinalIgnoreCase) ||
                 message.Type.Equals("sensor_data", StringComparison.OrdinalIgnoreCase))
             {
-                var dto = JsonSerializer.Deserialize<SensorReadingDto>(JsonSerializer.Serialize(message.Payload));
-                if (dto != null)
+                if (message.Value.HasValue)
                 {
-                    // Usar el service provider para obtener el handler y enviar la lectura
-                    using var scope = _serviceProvider.CreateScope();
-                    var handler = scope.ServiceProvider.GetRequiredService<SensorReadingHandler>();
-                    handler.ProcesarLecturaExterna(dto);
+                    var dto = JsonSerializer.Deserialize<SensorReadingHandler.LecturaSensorDto>(message.Value.Value.GetRawText());
+                    if (dto != null)
+                    {
+                        // Usar el service provider para obtener el handler y enviar la lectura
+                        using var scope = _serviceProvider.CreateScope();
+                        var handler = scope.ServiceProvider.GetRequiredService<SensorReadingHandler>();
+                        handler.ProcesarLecturaExterna(dto);
+                    }
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log error
         }
@@ -118,19 +120,11 @@ public class SerialHostedService : BackgroundService
         base.Dispose();
     }
 
-    private record SensorReadingDto(
-        string SensorTipo,
-        decimal Valor,
-        int? FincaId,
-        string FincaNombre,
-        string SensorNombre,
-        DateTime? Timestamp = null);
-}
-
-public class SerialSettings
-{
-    public string PortName { get; set; } = "COM3";
-    public int BaudRate { get; set; } = 115200;
-    public bool AutoConnect { get; set; } = true;
-    public int ReconnectDelayMs { get; set; } = 5000;
+    public class SerialSettings
+    {
+        public string PortName { get; set; } = "COM3";
+        public int BaudRate { get; set; } = 115200;
+        public bool AutoConnect { get; set; } = true;
+        public int ReconnectDelayMs { get; set; } = 5000;
+    }
 }
