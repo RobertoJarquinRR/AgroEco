@@ -393,22 +393,24 @@ namespace AgroEco.UI.Handlers
             {
                 using var scope = _scopeFactory.CreateScope();
                 var actionFactory = scope.ServiceProvider.GetRequiredService<IActionFactory>();
-                
-                ActionConfiguration? config = null;
-                if (!string.IsNullOrEmpty(umbral.AccionConfigJson))
+
+                if (string.IsNullOrWhiteSpace(umbral.AccionConfigJson))
                 {
-                    try
-                    {
-                        config = JsonSerializer.Deserialize<ActionConfiguration>(umbral.AccionConfigJson, 
-                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    }
-                    catch (JsonException ex)
-                    {
-                        _logger.LogError(ex, "Error deserializando config de acción para umbral {Id}", umbral.Id);
-                    }
+                    _logger.LogWarning("Umbral {Id} no tiene configuración para la acción {Tipo}; no se ejecuta", umbral.Id, umbral.AccionTipo);
+                    return;
                 }
 
-                config ??= new NoOpActionConfiguration();
+                ActionConfiguration config;
+                try
+                {
+                    using var document = JsonDocument.Parse(umbral.AccionConfigJson);
+                    config = ActionConfigurationParser.Parse(umbral.AccionTipo, document.RootElement);
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogError(ex, "Configuración de acción inválida para umbral {Id}", umbral.Id);
+                    return;
+                }
 
                 var createResult = actionFactory.Create(umbral.AccionTipo!, $"Umbral_{umbral.Id}_{direccion}", config);
                 if (!createResult.Success)
