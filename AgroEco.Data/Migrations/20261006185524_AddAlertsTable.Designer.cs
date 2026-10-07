@@ -3,6 +3,7 @@ using System;
 using AgroEco.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,53 +11,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgroEco.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20261006185524_AddAlertsTable")]
+    partial class AddAlertsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
-
-            modelBuilder.Entity("AgroEco.Core.Alerts.AlertDeliveryEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("AlertEntityId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("AlertId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("AttemptedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ChannelType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasMaxLength(2000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("Success")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AlertEntityId");
-
-                    b.HasIndex("AlertId");
-
-                    b.HasIndex("ChannelType");
-
-                    b.ToTable("AlertDeliveries", (string)null);
-                });
 
             modelBuilder.Entity("AgroEco.Core.Alerts.AlertEntity", b =>
                 {
@@ -86,9 +48,6 @@ namespace AgroEco.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -99,8 +58,6 @@ namespace AgroEco.Data.Migrations
                     b.HasIndex("CreatedAt");
 
                     b.HasIndex("Level");
-
-                    b.HasIndex("Status");
 
                     b.ToTable("Alerts", (string)null);
                 });
@@ -219,11 +176,6 @@ namespace AgroEco.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ActionType")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("JobId")
                         .HasColumnType("INTEGER");
 
@@ -242,9 +194,7 @@ namespace AgroEco.Data.Migrations
 
                     b.ToTable("Actions", (string)null);
 
-                    b.HasDiscriminator<string>("ActionType").HasValue("Action");
-
-                    b.UseTphMappingStrategy();
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("AgroEco.Core.Jobs.Job", b =>
@@ -301,35 +251,11 @@ namespace AgroEco.Data.Migrations
                     b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Implementations.ExecuteTaskAction", b =>
-                {
-                    b.HasBaseType("AgroEco.Core.Jobs.Actions.Action");
-
-                    b.Property<string>("Config")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("ExecuteTaskConfig");
-
-                    b.HasDiscriminator().HasValue("executeTask");
-                });
-
             modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Implementations.NoOpAction", b =>
                 {
                     b.HasBaseType("AgroEco.Core.Jobs.Actions.Action");
 
-                    b.HasDiscriminator().HasValue("noop");
-                });
-
-            modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Implementations.SendAlertAction", b =>
-                {
-                    b.HasBaseType("AgroEco.Core.Jobs.Actions.Action");
-
-                    b.Property<string>("Config")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("SendAlertConfig");
-
-                    b.HasDiscriminator().HasValue("sendAlert");
+                    b.ToTable("ActionTests", (string)null);
                 });
 
             modelBuilder.Entity("AgroEco.Core.Triggers.Implementations.DateTimeTrigger", b =>
@@ -343,13 +269,6 @@ namespace AgroEco.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.ToTable("DateTimeTrigger", (string)null);
-                });
-
-            modelBuilder.Entity("AgroEco.Core.Alerts.AlertDeliveryEntity", b =>
-                {
-                    b.HasOne("AgroEco.Core.Alerts.AlertEntity", null)
-                        .WithMany("Deliveries")
-                        .HasForeignKey("AlertEntityId");
                 });
 
             modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Action", b =>
@@ -372,6 +291,15 @@ namespace AgroEco.Data.Migrations
                     b.Navigation("Trigger");
                 });
 
+            modelBuilder.Entity("AgroEco.Core.Jobs.Actions.Implementations.NoOpAction", b =>
+                {
+                    b.HasOne("AgroEco.Core.Jobs.Actions.Action", null)
+                        .WithOne()
+                        .HasForeignKey("AgroEco.Core.Jobs.Actions.Implementations.NoOpAction", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("AgroEco.Core.Triggers.Implementations.DateTimeTrigger", b =>
                 {
                     b.HasOne("AgroEco.Core.Triggers.Trigger", null)
@@ -379,11 +307,6 @@ namespace AgroEco.Data.Migrations
                         .HasForeignKey("AgroEco.Core.Triggers.Implementations.DateTimeTrigger", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("AgroEco.Core.Alerts.AlertEntity", b =>
-                {
-                    b.Navigation("Deliveries");
                 });
 
             modelBuilder.Entity("AgroEco.Core.Jobs.Job", b =>
