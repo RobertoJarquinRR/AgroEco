@@ -105,6 +105,27 @@ modelBuilder.Entity<DateTimeTrigger>(entity =>{
                 
    
             });
+
+            modelBuilder.Entity<CronTrigger>(entity =>{
+                entity.ToTable("CronTrigger");
+
+                entity.OwnsOne(t => t.Config, config =>
+                {
+                    config.Property(c => c.CronExpression)
+                          .HasMaxLength(100)
+                          .HasColumnName("CronExpression");
+                    
+                    config.Property(c => c.TimeZone)
+                          .HasMaxLength(50)
+                          .HasColumnName("TimeZone");
+                    
+                    config.Property(c => c.StartDate)
+                          .HasColumnName("StartDate");
+                    
+                    config.Property(c => c.EndDate)
+                          .HasColumnName("EndDate");
+                });
+            });
             
             // Mapeo Insumos
             modelBuilder.Entity<Insumo>(entity =>

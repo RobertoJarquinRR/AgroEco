@@ -4,11 +4,14 @@ using AgroEco.Core.Jobs.Actions;
 using AgroEco.Core.Jobs.Actions.Creators;
 using AgroEco.Core.Jobs.Actions.Persistence;
 using AgroEco.Core.Jobs.Persistence;
+using AgroEco.Core.Jobs.Persistence.Queries;
 using AgroEco.Core.Triggers.Persistence;
 using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Creators;
+using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
+using AgroEco.Core.Reportes;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -29,6 +32,8 @@ namespace AgroEco.Core
             services.AddScoped<DeleteJob>();
             services.AddScoped<GetByIdJobWithDetails>();
             services.AddScoped<UpdateJob>();
+            services.AddScoped<GetJobsFiltered>();
+            services.AddScoped<GetJobExecutionHistory>();
             //Trigger persistence
             services.AddScoped<CreateTrigger>();
             services.AddScoped<DeleteTrigger>();
@@ -57,7 +62,11 @@ namespace AgroEco.Core
             services.AddScoped<UpdateRegistroFinanciero>();
             services.AddScoped<DeleteRegistroFinanciero>();
 
+            // Reportes
+            services.AddScoped<IExportService, ExportService>();
+
             services.AddSingleton<ITriggerCreator, DateTimeTriggerCreator>();
+            services.AddSingleton<ITriggerCreator, CronTriggerCreator>();
             services.AddSingleton<IActionCreator, NoOpActionCreator>();
             services.AddSingleton<IActionCreator, ExecuteTaskActionCreator>();
             services.AddSingleton<ITriggerFactory, TriggerFactory>();
@@ -67,7 +76,7 @@ namespace AgroEco.Core
             services.AddSingleton<TriggerEngine>();
 
             
-return services;
+            return services;
         }
     }
 }

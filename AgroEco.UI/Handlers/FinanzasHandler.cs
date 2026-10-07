@@ -15,16 +15,19 @@ namespace AgroEco.UI.Handlers
         private readonly ILogger<FinanzasHandler> _logger;
         private readonly GetAllRegistroFinanciero _getAllRegistros;
         private readonly CreateRegistroFinanciero _createRegistro;
+        private readonly DeleteRegistroFinanciero _deleteRegistro;
 
         public FinanzasHandler(
             Action<string, object> enviar,
             GetAllRegistroFinanciero getAllRegistros,
             CreateRegistroFinanciero createRegistro,
+            DeleteRegistroFinanciero deleteRegistro,
             ILogger<FinanzasHandler> logger)
         {
             _enviar = enviar;
             _getAllRegistros = getAllRegistros;
             _createRegistro = createRegistro;
+            _deleteRegistro = deleteRegistro;
             _logger = logger;
         }
 
@@ -37,8 +40,16 @@ namespace AgroEco.UI.Handlers
                     await EnviarRegistrosAsync();
                     break;
 
+                case "obtenerRegistros":
+                    await EnviarRegistrosAsync();
+                    break;
+
                 case "nuevoRegistroFinanciero":
                     await GuardarRegistroAsync(msg);
+                    break;
+
+                case "eliminarRegistro":
+                    await EliminarRegistroAsync(msg);
                     break;
             }
         }
@@ -77,6 +88,36 @@ namespace AgroEco.UI.Handlers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error guardando registro financiero");
+                _enviar("finanzasError", new { mensaje = ex.Message });
+            }
+        }
+
+        private async Task EliminarRegistroAsync(Mensaje msg)
+        {
+            try
+            {
+                var dto = msg.LeerPayload<EliminarRegistroDto>();
+                if (dto == null || dto.Id <= 0)
+                {
+                    _enviar("finanzasError", new { mensaje = "ID inválido" });
+                    return;
+                }
+
+                var result = await _deleteRegistro.HandleAsync(dto.Id);
+                if (result.Success)
+                {
+                    _logger.LogInformation("Registro financiero eliminado (Id: {Id})", dto.Id);
+                    await EnviarResumenAsync();
+                    await EnviarRegistrosAsync();
+                }
+                else
+                {
+                    _enviar("finanzasError", new { mensaje = result.Message });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error eliminando registro financiero");
                 _enviar("finanzasError", new { mensaje = ex.Message });
             }
         }
@@ -152,5 +193,7 @@ namespace AgroEco.UI.Handlers
             DateOnly Fecha,
             string Descripcion,
             int? TaskId = null);
+
+        private record EliminarRegistroDto(int Id);
     }
 }

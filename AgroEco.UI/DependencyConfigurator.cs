@@ -5,6 +5,7 @@ using AgroEco.Core.Jobs.Actions;
 using AgroEco.Core.Jobs.Persistence;
 using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
+using AgroEco.Core.Reportes;
 using AgroEco.Core.Triggers;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
@@ -52,6 +53,7 @@ namespace AgroEco.UI
                 var triggerFactory = sp.GetRequiredService<ITriggerFactory>();
                 var actionFactory = sp.GetRequiredService<IActionFactory>();
                 var getByIdInsumo = sp.GetRequiredService<GetByIdInsumo>();
+                var exportService = sp.GetRequiredService<IExportService>();
 
                 return (Action<string, object> enviar) => new TareasHandler(
                     enviar,
@@ -65,6 +67,7 @@ namespace AgroEco.UI
                     triggerFactory,
                     actionFactory,
                     getByIdInsumo,
+                    exportService,
                     logger);
             });
 
@@ -79,11 +82,13 @@ namespace AgroEco.UI
                 var logger = sp.GetRequiredService<ILogger<FinanzasHandler>>();
                 var getAllRegistros = sp.GetRequiredService<GetAllRegistroFinanciero>();
                 var createRegistro = sp.GetRequiredService<CreateRegistroFinanciero>();
+                var deleteRegistro = sp.GetRequiredService<DeleteRegistroFinanciero>();
 
                 return (Action<string, object> enviar) => new FinanzasHandler(
                     enviar,
                     getAllRegistros,
                     createRegistro,
+                    deleteRegistro,
                     logger);
             });
 
@@ -106,6 +111,7 @@ namespace AgroEco.UI
                 var createInsumo = sp.GetRequiredService<CreateInsumo>();
                 var deleteInsumo = sp.GetRequiredService<DeleteInsumo>();
                 var getByIdInsumo = sp.GetRequiredService<GetByIdInsumo>();
+                var updateInsumo = sp.GetRequiredService<UpdateInsumo>();
 
                 return (Action<string, object> enviar) => new InventarioHandler(
                     enviar,
@@ -113,6 +119,7 @@ namespace AgroEco.UI
                     createInsumo,
                     deleteInsumo,
                     getByIdInsumo,
+                    updateInsumo,
                     logger);
             });
 

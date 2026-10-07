@@ -59,7 +59,7 @@ public class ExecuteTaskAction : Action
         var registro = new RegistroFinanciero
         {
             Tipo = "costo",
-            Cultivo = _config.Cultivo ?? insumo.Cultivo,
+            Cultivo = insumo.Cultivo,
             Categoria = _config.CategoriaInsumo ?? insumo.Categoria,
             Monto = montoTotal,
             Fecha = DateOnly.FromDateTime(DateTime.Today),

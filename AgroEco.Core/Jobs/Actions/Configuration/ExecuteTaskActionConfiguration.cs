@@ -6,6 +6,5 @@ public sealed record ExecuteTaskActionConfiguration : ActionConfiguration
     public decimal CantidadDescontar { get; init; }
     public decimal CostoUnitario { get; init; }
     public string? Descripcion { get; init; }
-    public string? Cultivo { get; init; }
     public string? CategoriaInsumo { get; init; }
 }
