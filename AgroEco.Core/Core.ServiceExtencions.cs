@@ -11,6 +11,8 @@ using AgroEco.Core.Triggers.Creators;
 using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
+using AgroEco.Core.Alertas.Persistence;
+using AgroEco.Core.Alertas;
 using AgroEco.Core.Reportes;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -62,6 +64,18 @@ namespace AgroEco.Core
             services.AddScoped<UpdateRegistroFinanciero>();
             services.AddScoped<DeleteRegistroFinanciero>();
 
+            // Alertas persistence
+            services.AddScoped<CreateAlerta>();
+            services.AddScoped<GetAllAlertas>();
+            services.AddScoped<GetByIdAlerta>();
+            services.AddScoped<UpdateAlerta>();
+            services.AddScoped<ResolverAlerta>();
+            services.AddScoped<CreateUmbralSensor>();
+            services.AddScoped<GetAllUmbralesSensor>();
+            services.AddScoped<GetByIdUmbralSensor>();
+            services.AddScoped<UpdateUmbralSensor>();
+            services.AddScoped<DeleteUmbralSensor>();
+
             // Reportes
             services.AddScoped<IExportService, ExportService>();
 
@@ -74,6 +88,7 @@ namespace AgroEco.Core
 
             services.AddSingleton<JobEngine>();
             services.AddSingleton<TriggerEngine>();
+            services.AddSingleton<AlertEngine>();
 
             
             return services;
