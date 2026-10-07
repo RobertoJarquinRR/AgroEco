@@ -51,6 +51,15 @@ public class Alerta : IEntity
     public DateTime? FechaResuelta { get; set; }
     
     public DateTime? FechaUltimaNotificacion { get; set; }
+    
+    [MaxLength(500)]
+    public string AccionSugerida { get; set; } = "";
+    
+    public int? InsumoSugeridoId { get; set; }
+    
+    public decimal? CantidadInsumoSugerida { get; set; }
+    
+    public decimal? CostoUnitarioSugerido { get; set; }
 }
 
 public class UmbralSensor : IEntity

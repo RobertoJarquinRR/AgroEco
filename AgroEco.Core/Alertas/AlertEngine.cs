@@ -1,9 +1,13 @@
 using AgroEco.Core.Alertas;
+using AgroEco.Core.Alertas.Persistence;
 using AgroEco.Core.Interfaces;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Actions;
 using AgroEco.Core.Jobs.Actions.Configuration;
 using AgroEco.Core.Jobs.Persistence;
+using AgroEco.Core.Triggers;
+using AgroEco.Core.Triggers.Configuration;
+using AgroEco.Core.Inventario.Persistence;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -54,9 +58,6 @@ public class AlertEngine
         var umbralRepo = scope.ServiceProvider.GetRequiredService<IRepository<UmbralSensor>>();
         var alertaRepo = scope.ServiceProvider.GetRequiredService<IRepository<Alerta>>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        var createJob = scope.ServiceProvider.GetRequiredService<CreateJob>();
-        var triggerFactory = scope.ServiceProvider.GetRequiredService<ITriggerFactory>();
-        var actionFactory = scope.ServiceProvider.GetRequiredService<IActionFactory>();
 
         // Obtener umbrales activos
         var umbralesResult = await umbralRepo.GetAllAsync();
@@ -95,7 +96,7 @@ public class AlertEngine
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
         var createAlerta = scope.ServiceProvider.GetRequiredService<CreateAlerta>();
         var createJob = scope.ServiceProvider.GetRequiredService<CreateJob>();
-        var triggerFactory = scope.ServiceProvider.GetRequiredService<ITriggerFactory>();
+        var triggerFactory = scope.ServiceProvider.GetRequiredService<AgroEco.Core.Triggers.ITriggerFactory>();
         var actionFactory = scope.ServiceProvider.GetRequiredService<IActionFactory>();
 
         // Buscar umbrales que coincidan
@@ -135,7 +136,7 @@ public class AlertEngine
                     umbral, valor, umbralValor, tipoAlerta, severidad,
                     fincaId, fincaId?.ToString() ?? "Sin finca", 
                     sensorNombre ?? umbral.SensorTipo,
-                    serviceProvider, cancellationToken);
+                    scope.ServiceProvider, cancellationToken);
             }
         }
     }
@@ -156,7 +157,7 @@ public class AlertEngine
         var createAlerta = serviceProvider.GetRequiredService<CreateAlerta>();
         var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWork>();
         var createJob = serviceProvider.GetRequiredService<CreateJob>();
-        var triggerFactory = serviceProvider.GetRequiredService<ITriggerFactory>();
+        var triggerFactory = serviceProvider.GetRequiredService<AgroEco.Core.Triggers.ITriggerFactory>();
         var actionFactory = serviceProvider.GetRequiredService<IActionFactory>();
 
         // Verificar si ya hay una alerta activa para este mismo sensor/umbral
@@ -218,7 +219,7 @@ public class AlertEngine
         IServiceProvider serviceProvider,
         CancellationToken ct)
     {
-        var triggerFactory = serviceProvider.GetRequiredService<ITriggerFactory>();
+        var triggerFactory = serviceProvider.GetRequiredService<AgroEco.Core.Triggers.ITriggerFactory>();
         var actionFactory = serviceProvider.GetRequiredService<IActionFactory>();
         var createJob = serviceProvider.GetRequiredService<CreateJob>();
         var getByIdInsumo = serviceProvider.GetRequiredService<GetByIdInsumo>();
@@ -270,10 +271,10 @@ public class AlertEngine
 
             // Crear job
             var jobResult = await createJob.HandleAsync(
-                nombre: $"Auto: {alerta.Titulo}",
-                descripcion: $"Tarea generada automáticamente por alerta: {alerta.Descripcion}",
-                prioridad: alerta.Severidad switch { "critica" => 1, "alta" => 1, "media" => 2, _ => 3 },
-                acciones: new List<Action> { actionResult.Value },
+                name: $"Auto: {alerta.Titulo}",
+                description: $"Tarea generada automáticamente por alerta: {alerta.Descripcion}",
+                priority: alerta.Severidad switch { "critica" => 1, "alta" => 1, "media" => 2, _ => 3 },
+                actions: new List<AgroEco.Core.Jobs.Actions.Action> { actionResult.Value },
                 trigger: triggerResult.Value);
 
             if (jobResult.Success)
@@ -283,7 +284,7 @@ public class AlertEngine
                 // con el ID de la tarea generada
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log error
         }

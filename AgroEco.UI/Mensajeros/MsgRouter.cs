@@ -11,6 +11,7 @@ namespace AgroEco.UI.Mensajeros
         private readonly FinanzasHandler _finanzas;
         private readonly DashboardHandler _dashboard;
         private readonly SensoresHandler _sensores;
+        private readonly SensorReadingHandler _sensorReading;
         private readonly InventarioHandler _inventario;
         private readonly EducacionHandler _educacion;
         private readonly ILogger<MsgRouter> _logger;
@@ -21,6 +22,7 @@ namespace AgroEco.UI.Mensajeros
             FinanzasHandler finanzas,
             DashboardHandler dashboard,
             SensoresHandler sensores,
+            SensorReadingHandler sensorReading,
             InventarioHandler inventario,
             EducacionHandler educacion,
             ILogger<MsgRouter> logger)
@@ -30,6 +32,7 @@ namespace AgroEco.UI.Mensajeros
             _finanzas = finanzas;
             _dashboard = dashboard;
             _sensores = sensores;
+            _sensorReading = sensorReading;
             _inventario = inventario;
             _educacion = educacion;
             _logger = logger;
@@ -46,6 +49,7 @@ namespace AgroEco.UI.Mensajeros
                     "finanzas" => HandleScreen(_finanzas.ManejarMensaje, mensaje),
                     "dashboard" => HandleScreen(_dashboard.ManejarMensaje, mensaje),
                     "sensores" => HandleScreen(_sensores.ManejarMensaje, mensaje),
+                    "sensorReading" => HandleScreen(_sensorReading.ManejarMensaje, mensaje),
                     "inventario" => HandleScreen(_inventario.ManejarMensaje, mensaje),
                     "educacion" => HandleScreen(_educacion.ManejarMensaje, mensaje),
                     _ => false

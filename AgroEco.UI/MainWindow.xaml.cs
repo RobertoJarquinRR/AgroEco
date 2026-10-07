@@ -22,6 +22,7 @@ namespace AgroEco.UI
             Func<Action<string, object>, FinanzasHandler> finanzasFactory,
             Func<Action<string, object>, DashboardHandler> dashboardFactory,
             Func<Action<string, object>, SensoresHandler> sensoresFactory,
+            Func<Action<string, object>, SensorReadingHandler> sensorReadingFactory,
             Func<Action<string, object>, InventarioHandler> inventarioFactory,
             Func<Action<string, object>, EducacionHandler> educacionFactory,
             ILogger<MainWindow> logger)
@@ -34,12 +35,13 @@ namespace AgroEco.UI
             var finanzasHandler = finanzasFactory(EnviarAJS);
             var dashboardHandler = dashboardFactory(EnviarAJS);
             var sensoresHandler = sensoresFactory(EnviarAJS);
+            var sensorReadingHandler = sensorReadingFactory(EnviarAJS);
             var inventarioHandler = inventarioFactory(EnviarAJS);
             var educacionHandler = educacionFactory(EnviarAJS);
 
             _router = new MsgRouter(
                 tareasHandler, plagasHandler, finanzasHandler,
-                dashboardHandler, sensoresHandler, inventarioHandler, educacionHandler,
+                dashboardHandler, sensoresHandler, sensorReadingHandler, inventarioHandler, educacionHandler,
                 App.ServiceProvider.GetRequiredService<ILogger<MsgRouter>>());
 
             InitializeAsync();

@@ -8,13 +8,17 @@ using AgroEco.Core.Finanzas.Persistence;
 using AgroEco.Core.Reportes;
 using AgroEco.Core.Triggers;
 using AgroEco.Core.Alertas;
+using AgroEco.Core.Alertas.Persistence;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
 using AgroEco.UI.Events;
 using AgroEco.UI.Handlers;
+using AgroEco.UI.Services;
+using AgroEco.Hardware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AgroEco.UI
 {
@@ -36,6 +40,18 @@ namespace AgroEco.UI
             services.AddLogging();
             services.AddDataServices();
             services.AddCoreServices();
+
+            // Serial settings
+            services.Configure<SerialSettings>(options =>
+            {
+                options.PortName = "COM3";
+                options.BaudRate = 115200;
+                options.AutoConnect = true;
+                options.ReconnectDelayMs = 5000;
+            });
+
+            services.AddSingleton<SerialConnection>();
+            services.AddHostedService<SerialHostedService>();
 
             services.AddSingleton<IEventBus, InMemoryEventBus>();
 
@@ -103,9 +119,20 @@ namespace AgroEco.UI
             {
                 var logger = sp.GetRequiredService<ILogger<SensorReadingHandler>>();
                 var alertEngine = sp.GetRequiredService<AlertEngine>();
+                var createUmbral = sp.GetRequiredService<CreateUmbralSensor>();
+                var getAllUmbrales = sp.GetRequiredService<GetAllUmbralesSensor>();
+                var getByIdUmbral = sp.GetRequiredService<GetByIdUmbralSensor>();
+                var updateUmbral = sp.GetRequiredService<UpdateUmbralSensor>();
+                var deleteUmbral = sp.GetRequiredService<DeleteUmbralSensor>();
+
                 return (Action<string, object> enviar) => new SensorReadingHandler(
                     enviar,
                     alertEngine,
+                    createUmbral,
+                    getAllUmbrales,
+                    getByIdUmbral,
+                    updateUmbral,
+                    deleteUmbral,
                     logger);
             });
 
