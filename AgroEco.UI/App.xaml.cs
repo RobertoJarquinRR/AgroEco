@@ -15,7 +15,7 @@ namespace AgroEco.UI
         public static IServiceProvider ServiceProvider { get; private set; } = default!;
         
 
-protected override void OnStartup(StartupEventArgs e)
+        protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
             
@@ -50,43 +50,7 @@ protected override void OnStartup(StartupEventArgs e)
             {
                 using var scope = ServiceProvider.CreateScope();
                 var database = scope.ServiceProvider.GetRequiredService<DataContext>();
-                var conn = database.Database.GetDbConnection();
-                conn.Open();
-                
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = @"
-                        CREATE TABLE IF NOT EXISTS UmbralesSensor (
-                            Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            SensorTipo TEXT NOT NULL,
-                            FincaId INTEGER,
-                            FincaNombre TEXT NOT NULL DEFAULT '',
-                            Minimo REAL,
-                            Maximo REAL,
-                            SeveridadMinima TEXT NOT NULL DEFAULT 'media',
-                            SeveridadMaxima TEXT NOT NULL DEFAULT 'media',
-                            Activo INTEGER NOT NULL DEFAULT 1,
-                            GenerarTareaAuto INTEGER NOT NULL DEFAULT 1,
-                            AccionSugerida TEXT NOT NULL DEFAULT '',
-                            InsumoSugeridoId INTEGER,
-                            CantidadInsumoSugerida REAL,
-                            CostoUnitarioSugerido REAL,
-                            AccionTipo TEXT,
-                            AccionConfigJson TEXT,
-                            CooldownMinutos INTEGER NOT NULL DEFAULT 30,
-                            UltimoDisparo TEXT,
-                            FechaCreacion TEXT NOT NULL,
-                            FechaActualizacion TEXT
-                        );
-                        
-                        CREATE INDEX IF NOT EXISTS IX_UmbralesSensor_SensorTipo ON UmbralesSensor(SensorTipo);
-                        CREATE INDEX IF NOT EXISTS IX_UmbralesSensor_FincaId ON UmbralesSensor(FincaId);
-                        CREATE INDEX IF NOT EXISTS IX_UmbralesSensor_Activo ON UmbralesSensor(Activo);
-                    ";
-                    cmd.ExecuteNonQuery();
-                }
-                
-                logger.LogInformation("Database schema ensured via raw SQL");
+                database.Database.Migrate();
             }
             catch (Exception exception)
             {

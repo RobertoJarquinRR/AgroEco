@@ -29,7 +29,7 @@ namespace AgroEco.Data.Migrations
                 table: "UmbralesSensor",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 30);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "UltimoDisparo",

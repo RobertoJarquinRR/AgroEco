@@ -20,7 +20,6 @@ using AgroEco.UI.Services;
 using AgroEco.Hardware;
 using AgroEco.UI.Alerts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -40,11 +39,6 @@ namespace AgroEco.UI
             services.AddDbContext<DataContext>(db =>
             {
                 db.UseSqlite($"Data source={databasePath}");
-                db.ConfigureWarnings(w => 
-                {
-                    w.Ignore(RelationalEventId.PendingModelChangesWarning);
-                    w.Default(WarningBehavior.Log);
-                });
             });
 
             services.AddLogging();
