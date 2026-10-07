@@ -108,8 +108,8 @@ namespace AgroEco.UI.Handlers
                 var itemsBajoMinimo = insumos.Where(i => i.Cantidad < i.StockMin).Count();
 
                 var registros = registrosTask.Result.Success ? registrosTask.Result.Value : new List<AgroEco.Core.Finanzas.RegistroFinanciero>();
-                var ingresos = registros.Where(r => r.Tipo == "Ingreso").Sum(r => r.Monto);
-                var costos = registros.Where(r => r.Tipo == "Gasto").Sum(r => r.Monto);
+                var ingresos = registros.Where(r => r.Tipo == "ingreso").Sum(r => r.Monto);
+                var costos = registros.Where(r => r.Tipo == "costo").Sum(r => r.Monto);
                 var balance = ingresos - costos;
 
                 _enviar("ambiente", new
