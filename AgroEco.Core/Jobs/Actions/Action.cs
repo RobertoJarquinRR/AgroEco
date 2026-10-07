@@ -23,7 +23,7 @@ namespace AgroEco.Core.Jobs.Actions
 
         public abstract Task<Result> Execute();
 
-        public virtual void AttachServices(IServiceProvider services)
+        internal virtual void AttachServices(IServiceProvider services)
         {
         }
 
