@@ -43,15 +43,14 @@ public class UmbralSensor : IEntity
     
     public decimal? CostoUnitarioSugerido { get; set; }
     
-    // Nuevos campos para ejecución de acciones automáticas
     [MaxLength(50)]
-    public string? AccionTipo { get; set; } // "sendAlert", "activateHardware", "executeTask", null = ninguna
-    
-    public string? AccionConfigJson { get; set; } // JSON con configuración de la acción
-    
-    public int CooldownMinutos { get; set; } = 30; // minutos de espera entre disparos
-    
-    public DateTime? UltimoDisparo { get; set; } // último disparo exitoso
+    public string? AccionTipo { get; set; }
+
+    public string? AccionConfigJson { get; set; }
+
+    public int CooldownMinutos { get; set; } = 30;
+
+    public DateTime? UltimoDisparo { get; set; }
     
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
     

@@ -164,38 +164,38 @@ namespace AgroEco.UI.Handlers
                 }
 
                 var result = await _createUmbral.HandleAsync(
-                dto.SensorTipo,
-                dto.FincaId,
-                dto.FincaNombre,
-                dto.Minimo,
-                dto.Maximo,
-                dto.SeveridadMinima,
-                dto.SeveridadMaxima,
-                dto.GenerarTareaAuto,
-                dto.AccionSugerida,
-                dto.InsumoSugeridoId,
-                dto.CantidadInsumoSugerida,
-                dto.CostoUnitarioSugerido,
-                dto.Activo,
-                dto.AccionTipo,
-                dto.AccionConfigJson,
-                dto.CooldownMinutos);
+                    dto.SensorTipo,
+                    dto.FincaId,
+                    dto.FincaNombre,
+                    dto.Minimo,
+                    dto.Maximo,
+                    dto.SeveridadMinima,
+                    dto.SeveridadMaxima,
+                    dto.GenerarTareaAuto,
+                    dto.AccionSugerida,
+                    dto.InsumoSugeridoId,
+                    dto.CantidadInsumoSugerida,
+                    dto.CostoUnitarioSugerido,
+                    dto.Activo,
+                    dto.AccionTipo,
+                    dto.AccionConfigJson,
+                    dto.CooldownMinutos);
 
-            if (result.Success)
-            {
-                _logger.LogInformation("Umbral creado: {SensorTipo} para {Finca}", result.Value.SensorTipo, result.Value.FincaNombre);
-                _enviar("umbralCreado", new { success = true, umbral = result.Value });
+                if (result.Success)
+                {
+                    _logger.LogInformation("Umbral creado: {SensorTipo} para {Finca}", result.Value.SensorTipo, result.Value.FincaNombre);
+                    _enviar("umbralCreado", new { success = true, umbral = result.Value });
+                }
+                else
+                {
+                    _enviar("umbralError", new { mensaje = result.Message });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _enviar("umbralError", new { mensaje = result.Message });
+                _logger.LogError(ex, "Error creando umbral");
+                _enviar("umbralError", new { mensaje = ex.Message });
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error creando umbral");
-            _enviar("umbralError", new { mensaje = ex.Message });
-        }
         }
 
         private async Task ActualizarUmbralAsync(Mensaje msg)
