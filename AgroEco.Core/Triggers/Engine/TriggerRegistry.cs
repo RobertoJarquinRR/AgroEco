@@ -7,11 +7,6 @@ public sealed class TriggerRegistry
     private readonly Registry<int, Trigger> _registry = new();
     private readonly SemaphoreSlim _lock = new(1, 1);
 
-    public Trigger? Get(int id)
-    {
-        return _registry.Get(id);
-    }
-
     public void Register(int id, Trigger trigger)
     {
         _registry.Register(id, trigger);
