@@ -1,77 +1,90 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace AgroEco.Core.Triggers.Engine;
 
 public sealed class TriggerRunner
 {
     private readonly TriggerRegistry _registry;
+    private readonly ILogger<TriggerRunner>? _logger;
+    private readonly TriggerNotifier _notifier;
 
     public event Func<TriggerExecutionReport, Task>? ExecutionCompleted;
 
-    public TriggerRunner(TriggerRegistry registry)
+    public TriggerRunner(TriggerRegistry registry, ILogger<TriggerRunner>? logger = null)
     {
         _registry = registry;
+        _logger = logger;
+        _notifier = new TriggerNotifier(logger as ILogger<TriggerNotifier> ?? NullLogger<TriggerNotifier>.Instance);
     }
 
-    public async Task ExecuteAsync(int triggerId, Trigger trigger)
+    public async Task RunAsync(int triggerId, Trigger trigger, CancellationToken cancellationToken)
     {
-        TriggerExecutionReport report;
+        trigger.RuntimeStatus = TriggerRuntimeStatus.Running;
 
         try
         {
-            report = await trigger.ExecuteAsync();
+            while (trigger.Enabled && !cancellationToken.IsCancellationRequested)
+            {
+                if (trigger.HasReachedMaxExecutions)
+                {
+                    trigger.Disable();
+                    break;
+                }
+
+                Result ready = await trigger.WaitAsync(trigger.ExecutionToken);
+                if (!ready.Success)
+                {
+                    _logger?.LogInformation(
+                        "Trigger {TriggerId} stopped waiting: {Message}",
+                        triggerId,
+                        ready.Message);
+                    if (trigger.Enabled)
+                    {
+                        trigger.Disable();
+                    }
+                    break;
+                }
+
+                if (!trigger.Enabled)
+                {
+                    break;
+                }
+
+                TriggerExecutionReport report;
+                try
+                {
+                    report = await trigger.ExecuteReadyAsync();
+                }
+                catch (Exception exception)
+                {
+                    var errorResult = Result.CreateFailure(
+                        $"Trigger '{trigger.Name}' failed during execution.",
+                        exception);
+                    report = new TriggerExecutionReport(
+                        TriggerId: trigger.Id,
+                        TriggerName: trigger.Name ?? string.Empty,
+                        RuntimeStatus: TriggerRuntimeStatus.Running,
+                        SubscriberReports: [],
+                        OverallResult: errorResult);
+                }
+
+                if (ExecutionCompleted is not null)
+                {
+                    await _notifier.InvokeEventSafelyAsync(ExecutionCompleted, report);
+                }
+
+                Result registered = trigger.RegisterFiring(DateTimeOffset.UtcNow);
+                if (!registered.Success)
+                {
+                    trigger.Disable();
+                    break;
+                }
+            }
         }
-        catch (Exception exception)
+        finally
         {
-            var errorResult = Result.CreateFailure(
-                $"Trigger '{trigger.Name}' failed during execution.",
-                exception);
-            report = new TriggerExecutionReport(
-                TriggerId: trigger.Id,
-                TriggerName: trigger.Name ?? string.Empty,
-                RuntimeStatus: TriggerRuntimeStatus.Faulted,
-                SubscriberReports: [],
-                OverallResult: errorResult);
+            trigger.RuntimeStatus = TriggerRuntimeStatus.Idle;
         }
-
-        trigger.CompleteExecution(report.OverallResult);
-
-        bool isCanceled = report.OverallResult.Message?.Contains("canceled", StringComparison.OrdinalIgnoreCase) == true;
-        if (!trigger.LastExecutionWasStopped
-            && !isCanceled
-            && report.RuntimeStatus != TriggerRuntimeStatus.Stopped
-            && trigger.RuntimeStatus != TriggerRuntimeStatus.Stopped
-            && ExecutionCompleted is not null)
-        {
-            await TriggerNotifier.InvokeEventSafelyAsync(ExecutionCompleted, report);
-        }
-
-        RemoveIfInactive(triggerId, trigger);
-    }
-
-    public void RemoveIfInactive(int triggerId, Trigger trigger)
-    {
-        if (trigger.RuntimeStatus is TriggerRuntimeStatus.Completed
-            or TriggerRuntimeStatus.Faulted)
-        {
-            _registry.Unregister(triggerId);
-            return;
-        }
-
-        if (trigger.RuntimeStatus == TriggerRuntimeStatus.Stopped)
-        {
-            return;
-        }
-
-        if (trigger.HasTriggerables
-            || trigger.RuntimeStatus == TriggerRuntimeStatus.Notifying)
-        {
-            return;
-        }
-
-        if (trigger.RuntimeStatus == TriggerRuntimeStatus.Active)
-        {
-            trigger.StopExecution();
-        }
-
-        _registry.Unregister(triggerId);
     }
 }

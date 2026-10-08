@@ -8,14 +8,17 @@ namespace AgroEco.Core.Triggers
         private readonly object _subscriptionLock = new();
         private readonly List<ITriggerable> _triggerables = new();
         private CancellationTokenSource? _executionCancellation;
-        private bool _stoppedDuringExecution;
-        private bool _lastExecutionWasStopped;
 
         public int Id { get; private set; }
 
         public string? Name { get; private set; }
         [NotMapped]
-        public TriggerRuntimeStatus RuntimeStatus { get; private set; } = TriggerRuntimeStatus.Created;
+        public TriggerRuntimeStatus RuntimeStatus { get; internal set; } = TriggerRuntimeStatus.Idle;
+        public bool Enabled { get; private set; }
+        public int? MaxExecutions { get; private set; }
+        public int FiredCount { get; private set; }
+        public DateTimeOffset? LastFiredAt { get; private set; }
+        public bool HasReachedMaxExecutions => MaxExecutions.HasValue && FiredCount >= MaxExecutions.Value;
         public bool HasTriggerables
         {
             get
@@ -26,8 +29,6 @@ namespace AgroEco.Core.Triggers
                 }
             }
         }
-
-        public bool LastExecutionWasStopped => _lastExecutionWasStopped;
 
         public event Func<TriggerRuntimeChange, Task>? RuntimeStatusChanged;
         public event Func<TriggerExecutionReport, Task>? ExecutionCompleted;
@@ -58,15 +59,6 @@ namespace AgroEco.Core.Triggers
 
             lock (_subscriptionLock)
             {
-                if (RuntimeStatus is TriggerRuntimeStatus.Notifying
-                    or TriggerRuntimeStatus.Completed
-                    or TriggerRuntimeStatus.Stopped
-                    or TriggerRuntimeStatus.Faulted)
-                {
-                    return Result.CreateFailure(
-                        $"Trigger '{Name}' cannot accept subscriptions in state {RuntimeStatus}.");
-                }
-
                 bool added = false;
                 if (!_triggerables.Contains(triggerable))
                 {
@@ -105,98 +97,88 @@ namespace AgroEco.Core.Triggers
             }
         }
 
-        internal Result BeginExecution()
+        public Result Enable()
         {
-            lock (_subscriptionLock)
+            if (Enabled)
             {
-                if (RuntimeStatus is TriggerRuntimeStatus.Active
-                    or TriggerRuntimeStatus.Notifying)
-                {
-                    return Result.CreateFailure(
-                        $"Trigger '{Name}' is already active.");
-                }
-
-                if (RuntimeStatus is TriggerRuntimeStatus.Completed
-                    or TriggerRuntimeStatus.Stopped
-                    or TriggerRuntimeStatus.Faulted)
-                {
-                    return Result.CreateFailure(
-                        $"Trigger '{Name}' cannot be started from state {RuntimeStatus}.");
-                }
-
-                var previousStatus = RuntimeStatus;
-                RuntimeStatus = TriggerRuntimeStatus.Active;
-                _executionCancellation = new CancellationTokenSource();
-                _ = NotifyRuntimeStatusChangedAsync(previousStatus, RuntimeStatus);
-                return Result.CreateSuccess();
+                return Result.CreateFailure($"Trigger '{Name}' is already enabled.");
             }
+
+            Enabled = true;
+            _executionCancellation = new CancellationTokenSource();
+            return Result.CreateSuccess($"Trigger '{Name}' enabled.");
+        }
+
+        public Result Disable()
+        {
+            if (!Enabled)
+            {
+                return Result.CreateFailure($"Trigger '{Name}' is already disabled.");
+            }
+
+            Enabled = false;
+            _executionCancellation?.Cancel();
+            _executionCancellation?.Dispose();
+            _executionCancellation = null;
+            return Result.CreateSuccess($"Trigger '{Name}' disabled.");
+        }
+
+        public Result SetMaxExecutions(int? maxExecutions)
+        {
+            if (maxExecutions.HasValue && maxExecutions.Value <= 0)
+            {
+                return Result.CreateFailure("MaxExecutions must be positive or null for infinite.");
+            }
+
+            MaxExecutions = maxExecutions;
+            return Result.CreateSuccess();
+        }
+
+        internal Result RegisterFiring(DateTimeOffset at)
+        {
+            if (HasReachedMaxExecutions)
+            {
+                return Result.CreateFailure($"Trigger '{Name}' has reached maximum executions ({MaxExecutions.Value}).");
+            }
+
+            FiredCount++;
+            LastFiredAt = at;
+            return Result.CreateSuccess();
         }
 
         internal CancellationToken ExecutionToken
             => _executionCancellation?.Token ?? CancellationToken.None;
 
-        internal Result StopExecution()
+        internal async Task<Result> WaitAsync(CancellationToken cancellationToken)
         {
-            lock (_subscriptionLock)
+            try
             {
-                if (RuntimeStatus is not (TriggerRuntimeStatus.Active
-                    or TriggerRuntimeStatus.Notifying))
-                {
-                    return Result.CreateFailure(
-                        $"Trigger '{Name}' is not active.");
-                }
-
-                var previousStatus = RuntimeStatus;
-                _executionCancellation?.Cancel();
-                _stoppedDuringExecution = true;
-                RuntimeStatus = TriggerRuntimeStatus.Stopped;
-                _ = NotifyRuntimeStatusChangedAsync(previousStatus, RuntimeStatus);
-                return Result.CreateSuccess($"Trigger '{Name}' stopped.");
+                return await WaitUntilReadyAsync(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return Result.CreateFailure("The trigger execution was canceled.");
             }
         }
 
-        internal void CompleteExecution(Result executionResult)
+        public virtual async Task<TriggerExecutionReport> ExecuteAsync()
         {
-            lock (_subscriptionLock)
+            Result readyResult = await WaitUntilReadyAsync(ExecutionToken);
+            if (!readyResult.Success)
             {
-                if (RuntimeStatus == TriggerRuntimeStatus.Stopped)
-                {
-                    _executionCancellation?.Dispose();
-                    _executionCancellation = null;
-                    return;
-                }
-
-                var previousStatus = RuntimeStatus;
-                RuntimeStatus = executionResult.Success
-                    ? TriggerRuntimeStatus.Completed
-                    : TriggerRuntimeStatus.Faulted;
-                _executionCancellation?.Dispose();
-                _executionCancellation = null;
-                _ = NotifyRuntimeStatusChangedAsync(previousStatus, RuntimeStatus);
+                TriggerExecutionReport notReadyReport = BuildExecutionReport(readyResult);
+                await PublishExecutionCompletedAsync(notReadyReport);
+                return notReadyReport;
             }
+
+            return await ExecuteReadyAsync();
         }
 
-        public async Task<TriggerExecutionReport> ExecuteAsync()
+        internal async Task<TriggerExecutionReport> ExecuteReadyAsync()
         {
             TriggerExecutionReport report;
             try
             {
-                Result readyResult = await WaitUntilReadyAsync(ExecutionToken);
-                if (!readyResult.Success)
-                {
-                    lock (_subscriptionLock)
-                    {
-                        report = BuildExecutionReport(readyResult);
-                        if (RuntimeStatus == TriggerRuntimeStatus.Stopped || _stoppedDuringExecution)
-                        {
-                            report = report with { RuntimeStatus = TriggerRuntimeStatus.Stopped };
-                            _lastExecutionWasStopped = true;
-                        }
-                    }
-                    await PublishExecutionCompletedAsync(report);
-                    return report;
-                }
-
                 var subscriberReports = await NotifyTriggerablesAsync();
                 Result overallResult = subscriberReports.Count == 0
                     ? Result.CreateFailure("No triggerable subscribers are registered.")
@@ -210,17 +192,8 @@ namespace AgroEco.Core.Triggers
             }
             catch (OperationCanceledException)
             {
-                // When canceled (stopped), don't publish ExecutionCompleted - the RuntimeStatusChanged to Stopped is sufficient
-                var cancelResult = Result.CreateFailure("The trigger execution was canceled.");
-                lock (_subscriptionLock)
-                {
-                    report = BuildExecutionReport(cancelResult);
-                    if (RuntimeStatus == TriggerRuntimeStatus.Stopped || _stoppedDuringExecution)
-                    {
-                        report = report with { RuntimeStatus = TriggerRuntimeStatus.Stopped };
-                    }
-                }
-                _lastExecutionWasStopped = true;
+                report = BuildExecutionReport(
+                    Result.CreateFailure("The trigger execution was canceled."));
                 return report;
             }
             catch (Exception exception)
@@ -232,19 +205,10 @@ namespace AgroEco.Core.Triggers
                 await PublishExecutionCompletedAsync(report);
                 return report;
             }
-            finally
-            {
-                _stoppedDuringExecution = false;
-            }
         }
 
         private async Task PublishExecutionCompletedAsync(TriggerExecutionReport report)
         {
-            if (_stoppedDuringExecution || report.RuntimeStatus == TriggerRuntimeStatus.Stopped)
-            {
-                return;
-            }
-
             if (ExecutionCompleted is not null)
             {
                 await InvokeEventSafelyAsync(ExecutionCompleted, report);
@@ -257,12 +221,9 @@ namespace AgroEco.Core.Triggers
 
             lock (_subscriptionLock)
             {
-                RuntimeStatus = TriggerRuntimeStatus.Notifying;
+                RuntimeStatus = TriggerRuntimeStatus.Running;
                 subscribers = _triggerables.ToArray();
             }
-
-            var previousStatus = TriggerRuntimeStatus.Active;
-            _ = NotifyRuntimeStatusChangedAsync(previousStatus, TriggerRuntimeStatus.Notifying);
 
             var reports = new List<TriggerableExecutionReport>();
             if (subscribers.Length == 0)
@@ -361,28 +322,6 @@ namespace AgroEco.Core.Triggers
             }
         }
 
-        private async Task NotifyRuntimeStatusChangedAsync(
-            TriggerRuntimeStatus previousStatus,
-            TriggerRuntimeStatus newStatus)
-        {
-            IReadOnlyList<TriggerSubscriberSnapshot> subscribers;
-            lock (_subscriptionLock)
-            {
-                subscribers = GetSubscriberSnapshots();
-            }
-
-            if (RuntimeStatusChanged is not null)
-            {
-                var change = new TriggerRuntimeChange(
-                    TriggerId: Id,
-                    TriggerName: Name ?? string.Empty,
-                    PreviousStatus: previousStatus,
-                    NewStatus: newStatus,
-                    Subscribers: subscribers);
-                await InvokeEventSafelyAsync(RuntimeStatusChanged, change);
-            }
-        }
-
         private static async Task InvokeEventSafelyAsync<T>(Func<T, Task> eventDelegate, T args)
         {
             var handlers = eventDelegate.GetInvocationList();
@@ -400,7 +339,6 @@ namespace AgroEco.Core.Triggers
             }
             catch
             {
-                // Observer exceptions must not break trigger execution
             }
         }
 

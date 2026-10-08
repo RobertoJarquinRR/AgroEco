@@ -1,6 +1,8 @@
 using AgroEco.Core.Triggers.Engine;
 using AgroEco.Core.Triggers.Persistence;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AgroEco.Core.Triggers;
 
@@ -9,15 +11,20 @@ public sealed class TriggerEngine
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly TriggerRegistry _registry;
     private readonly TriggerRunner _runner;
+    private readonly ILogger<TriggerEngine>? _logger;
+    private readonly CancellationTokenSource _runCancellation = new();
 
     public event Func<TriggerRuntimeChange, Task>? RuntimeStatusChanged;
     public event Func<TriggerExecutionReport, Task>? ExecutionCompleted;
 
-    public TriggerEngine(IServiceScopeFactory scopeFactory)
+    public TriggerEngine(IServiceScopeFactory scopeFactory, ILogger<TriggerEngine>? logger = null)
     {
         _scopeFactory = scopeFactory;
+        _logger = logger ?? NullLogger<TriggerEngine>.Instance;
         _registry = new TriggerRegistry();
-        _runner = new TriggerRunner(_registry);
+        var runnerLogger = _logger as ILogger<TriggerRunner> ?? NullLogger<TriggerRunner>.Instance;
+        var notifierLogger = _logger as ILogger<TriggerNotifier> ?? NullLogger<TriggerNotifier>.Instance;
+        _runner = new TriggerRunner(_registry, runnerLogger);
         _runner.ExecutionCompleted += OnExecutionCompletedAsync;
     }
 
@@ -80,9 +87,7 @@ public sealed class TriggerEngine
             return Result.CreateFailure(triggerResult.Message, triggerResult.Exception);
         }
 
-        Result result = triggerResult.Value.Unsubscribe(triggerable);
-        _runner.RemoveIfInactive(triggerId, triggerResult.Value);
-        return result;
+        return triggerResult.Value.Unsubscribe(triggerable);
     }
 
     public async Task<Result> StartAsync(
@@ -99,26 +104,26 @@ public sealed class TriggerEngine
         }
 
         Trigger trigger = triggerResult.Value;
-        if (trigger.RuntimeStatus is TriggerRuntimeStatus.Active
-            or TriggerRuntimeStatus.Notifying)
+        if (trigger.RuntimeStatus == TriggerRuntimeStatus.Running)
         {
             return Result.CreateSuccess(
-                $"Trigger '{trigger.Name}' is already active.");
+                $"Trigger '{trigger.Name}' is already running.");
         }
 
-        if (!trigger.HasTriggerables)
+        Result enableResult = trigger.Enable();
+        if (!enableResult.Success)
         {
-            return Result.CreateFailure(
-                $"Trigger '{trigger.Name}' has no subscribers.");
+            return enableResult;
         }
 
-        Result beginResult = trigger.BeginExecution();
-        if (!beginResult.Success)
+        var task = Task.Run(() => _runner.RunAsync(triggerId, trigger, _runCancellation.Token), cancellationToken);
+        _ = task.ContinueWith(t =>
         {
-            return beginResult;
-        }
-
-        _ = _runner.ExecuteAsync(triggerId, trigger);
+            if (t.IsFaulted)
+            {
+                _logger?.LogError(t.Exception, "Trigger runner faulted for trigger {TriggerId}", triggerId);
+            }
+        }, TaskScheduler.Default);
         return Result.CreateSuccess($"Trigger '{trigger.Name}' started.");
     }
 
@@ -135,9 +140,7 @@ public sealed class TriggerEngine
             return Result.CreateFailure(triggerResult.Message, triggerResult.Exception);
         }
 
-        Result result = triggerResult.Value.StopExecution();
-        _runner.RemoveIfInactive(triggerId, triggerResult.Value);
-        return result;
+        return triggerResult.Value.Disable();
     }
 
     public IReadOnlyList<TriggerRuntimeSnapshot> GetRuntimeSnapshots()
@@ -158,8 +161,7 @@ public sealed class TriggerEngine
 
     public IEnumerable<Trigger> GetActiveTriggers()
         => _registry.Where(trigger =>
-            trigger.RuntimeStatus is TriggerRuntimeStatus.Active
-                or TriggerRuntimeStatus.Notifying);
+            trigger.RuntimeStatus == TriggerRuntimeStatus.Running);
 
     private void SubscribeToTriggerEvents(Trigger trigger)
     {
@@ -170,7 +172,9 @@ public sealed class TriggerEngine
     {
         if (RuntimeStatusChanged is not null)
         {
-            await TriggerNotifier.InvokeEventSafelyAsync(RuntimeStatusChanged, change);
+            var notifierLogger = _logger as ILogger<TriggerNotifier> ?? NullLogger<TriggerNotifier>.Instance;
+            var notifier = new TriggerNotifier(notifierLogger);
+            await notifier.InvokeEventSafelyAsync(RuntimeStatusChanged, change);
         }
     }
 
@@ -178,7 +182,9 @@ public sealed class TriggerEngine
     {
         if (ExecutionCompleted is not null)
         {
-            await TriggerNotifier.InvokeEventSafelyAsync(ExecutionCompleted, report);
+            var notifierLogger = _logger as ILogger<TriggerNotifier> ?? NullLogger<TriggerNotifier>.Instance;
+            var notifier = new TriggerNotifier(notifierLogger);
+            await notifier.InvokeEventSafelyAsync(ExecutionCompleted, report);
         }
     }
 }

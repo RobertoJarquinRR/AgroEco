@@ -37,22 +37,7 @@ public sealed class TriggerRegistry
         await _lock.WaitAsync(cancellationToken);
         try
         {
-            Trigger? registeredTrigger = _registry.Get(id);
-            if (registeredTrigger is not null)
-            {
-                if (registeredTrigger.RuntimeStatus is TriggerRuntimeStatus.Completed
-                    or TriggerRuntimeStatus.Faulted
-                    || (registeredTrigger.RuntimeStatus == TriggerRuntimeStatus.Stopped
-                        && !registeredTrigger.HasTriggerables))
-                {
-                    _registry.Unregister(id);
-                    return null;
-                }
-
-                return registeredTrigger;
-            }
-
-            return null;
+            return _registry.Get(id);
         }
         finally
         {

@@ -1,8 +1,18 @@
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace AgroEco.Core.Triggers.Engine;
 
-public static class TriggerNotifier
+public sealed class TriggerNotifier
 {
-    public static async Task InvokeEventSafelyAsync<T>(Func<T, Task>? eventDelegate, T args)
+    private readonly ILogger _logger;
+
+    public TriggerNotifier(ILogger<TriggerNotifier>? logger = null)
+    {
+        _logger = logger ?? NullLogger<TriggerNotifier>.Instance;
+    }
+
+    public async Task InvokeEventSafelyAsync<T>(Func<T, Task>? eventDelegate, T args)
     {
         if (eventDelegate is null)
         {
@@ -16,14 +26,15 @@ public static class TriggerNotifier
         await Task.WhenAll(tasks);
     }
 
-    public static async Task InvokeHandlerSafelyAsync<T>(Func<T, Task> handler, T args)
+    private async Task InvokeHandlerSafelyAsync<T>(Func<T, Task> handler, T args)
     {
         try
         {
             await handler(args);
         }
-        catch
+        catch (Exception exception)
         {
+            _logger.LogError(exception, "Exception in event handler");
         }
     }
 }
