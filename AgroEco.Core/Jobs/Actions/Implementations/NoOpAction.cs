@@ -14,7 +14,7 @@ namespace AgroEco.Core.Jobs.Actions.Implementations
        
         public override Task<Result> Execute()
         {
-            Console.WriteLine("ejecutando la accion");
+            
             return Task.FromResult(
                 Result.CreateSuccess("tarea de practica"));
         }

@@ -24,7 +24,6 @@ namespace AgroEco.Core.Jobs
 
         public Trigger Trigger { get; private set; } = null!;
 
-
         public List<Result> Results { get; private set; } = [];
 
         Job(
@@ -108,12 +107,24 @@ namespace AgroEco.Core.Jobs
             return Result.CreateSuccess();
         }
 
-        public async Task<Result> OnTrigger()
-        {   
-            
-            Console.WriteLine("Ejecutando el Job...");
+        public Result PrepareForRun()
+        {
+            if (Status is Status.Succeeded or Status.CompletedWithErrors or Status.Faulted or Status.Canceled or Status.Running)
+            {
+                Status = Status.Created;
+                foreach (var action in Actions)
+                {
+                    action.ChangeStatus(Status.Created);
+                }
+                return Result.CreateSuccess();
+            }
 
-            if(Status == Status.Succeeded)
+            return Result.CreateSuccess();
+        }
+
+        public async Task<Result> OnTrigger()
+        {
+            if (Status == Status.Succeeded)
             {
                 return Result.CreateSuccess($"Job {Name} executes successfully");
             }
@@ -225,7 +236,7 @@ namespace AgroEco.Core.Jobs
                 Status.Succeeded
                     or Status.CompletedWithErrors
                     or Status.Faulted
-                    or Status.Canceled => false,
+                    or Status.Canceled => status is Status.Created,
                 _ => false
             };
 
@@ -239,14 +250,15 @@ namespace AgroEco.Core.Jobs
             return Result.CreateSuccess();
         }
 
-        public Result Rehydrate(){
+        public Result Rehydrate()
+        {
             
             try{
                 if(Trigger == null)
                 {
                     return Result.CreateFailure(
                         $"Job '{Name}' has no trigger definition.");
-
+                
                 }
 
                 return Result.CreateSuccess($"Job '{Name}' rehydrated successfully.");
@@ -264,9 +276,5 @@ namespace AgroEco.Core.Jobs
                 or Status.CompletedWithErrors
                 or Status.Faulted
                 or Status.Canceled;
-
-
-
     }
-
 }

@@ -3,6 +3,7 @@ using System;
 using AgroEco.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,12 +11,99 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgroEco.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20261008021820_AddJobRunsAndTriggerEvents")]
+    partial class AddJobRunsAndTriggerEvents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
+
+            modelBuilder.Entity("AgroEco.Core.Alertas.UmbralSensor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AccionConfigJson")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AccionSugerida")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AccionTipo")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal?>("CantidadInsumoSugerida")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CooldownMinutos")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal?>("CostoUnitarioSugerido")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("FechaActualizacion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("FincaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FincaNombre")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("GenerarTareaAuto")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("InsumoSugeridoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal?>("Maximo")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Minimo")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SensorTipo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeveridadMaxima")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeveridadMinima")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UltimoDisparo")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Activo");
+
+                    b.HasIndex("FincaId");
+
+                    b.HasIndex("SensorTipo");
+
+                    b.ToTable("UmbralesSensor", (string)null);
+                });
 
             modelBuilder.Entity("AgroEco.Core.Alerts.AlertDeliveryEntity", b =>
                 {

@@ -5,14 +5,14 @@ using AgroEco.Core.Jobs.Actions.Creators;
 using AgroEco.Core.Jobs.Actions.Persistence;
 using AgroEco.Core.Jobs.Persistence;
 using AgroEco.Core.Jobs.Persistence.Queries;
+using AgroEco.Core.Jobs.Runs.Persistence;
 using AgroEco.Core.Triggers.Persistence;
 using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Creators;
 using AgroEco.Core.Triggers.Implementations;
+using AgroEco.Core.Triggers.Events.Persistence;
 using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
-using AgroEco.Core.Alertas.Persistence;
-using AgroEco.Core.Alertas;
 using AgroEco.Core.Alerts;
 using AgroEco.Core.Alerts.Persistence;
 using AgroEco.Core.Reportes;
@@ -38,6 +38,9 @@ namespace AgroEco.Core
             services.AddScoped<UpdateJob>();
             services.AddScoped<GetJobsFiltered>();
             services.AddScoped<GetJobExecutionHistory>();
+            // JobRun persistence
+            services.AddScoped<CreateJobRun>();
+            services.AddScoped<GetJobRunsByJob>();
             //Trigger persistence
             services.AddScoped<CreateTrigger>();
             services.AddScoped<DeleteTrigger>();
@@ -66,13 +69,6 @@ namespace AgroEco.Core
             services.AddScoped<UpdateRegistroFinanciero>();
             services.AddScoped<DeleteRegistroFinanciero>();
 
-            // Umbrales de sensores
-            services.AddScoped<CreateUmbralSensor>();
-            services.AddScoped<GetAllUmbralesSensor>();
-            services.AddScoped<GetByIdUmbralSensor>();
-            services.AddScoped<UpdateUmbralSensor>();
-            services.AddScoped<DeleteUmbralSensor>();
-
             // Reportes
             services.AddScoped<IExportService, ExportService>();
 
@@ -82,6 +78,10 @@ namespace AgroEco.Core
             services.AddScoped<GetAllAlerts>();
             services.AddScoped<UpdateAlert>();
             services.AddScoped<DeleteAlert>();
+
+            // TriggerEvent persistence
+            services.AddScoped<CreateTriggerEvent>();
+            services.AddScoped<GetTriggerEventsByTrigger>();
 
             services.AddSingleton<ITriggerCreator, DateTimeTriggerCreator>();
             services.AddSingleton<ITriggerCreator, CronTriggerCreator>();

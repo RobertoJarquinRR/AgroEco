@@ -46,6 +46,18 @@ public class CronTrigger : Trigger
         }
     }
 
+    public override TriggerConfiguration GetConfiguration()
+        => Config;
+
+    public override Result UpdateConfiguration(TriggerConfiguration configuration)
+    {
+        if (configuration is not CronTriggerConfiguration cronConfig)
+        {
+            return Result.CreateFailure("Invalid configuration type for CronTrigger.");
+        }
+        return UpdateConfiguration(cronConfig);
+    }
+
     protected override async Task<Result> WaitUntilReadyAsync(
         CancellationToken cancellationToken)
     {

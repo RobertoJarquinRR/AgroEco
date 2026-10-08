@@ -1,7 +1,8 @@
 using AgroEco.Core;
 using AgroEco.Core.Jobs;
+using AgroEco.Core.Jobs.Runs;
+using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Configuration;
-using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Persistence.Queries;
 using Microsoft.EntityFrameworkCore;
 namespace AgroEco.Data.Repositories
@@ -9,8 +10,13 @@ namespace AgroEco.Data.Repositories
     public class JobRepository : RepositoryBase<Job, DataContext>, IJobRepository
     {
         private readonly IServiceProvider? _services;
+        private readonly IJobRunRepository _jobRunRepository;
 
-        public JobRepository(DataContext context, IServiceProvider? services = null) : base(context) { _services = services; }
+        public JobRepository(DataContext context, IServiceProvider? services = null, IJobRunRepository? jobRunRepository = null) : base(context) 
+        { 
+            _services = services;
+            _jobRunRepository = jobRunRepository!;
+        }
 
         private void AttachActionServices(Job job)
         {
@@ -57,23 +63,30 @@ namespace AgroEco.Data.Repositories
                     $"Job '{existingEntity.Name}' must have a trigger.");
             }
 
-            if (existingEntity.Trigger is not DateTimeTrigger existingDateTime
-                || newEntity.Trigger is not DateTimeTrigger newDateTime)
+            if (existingEntity.Trigger.GetType() != newEntity.Trigger.GetType())
             {
                 throw new InvalidOperationException(
-                    "The trigger type cannot be updated through the current repository.");
+                    $"Trigger type cannot be changed from {existingEntity.Trigger.GetType().Name} to {newEntity.Trigger.GetType().Name}.");
             }
 
-            _context.Entry(existingDateTime)
-                .Property(trigger => trigger.TargetTime)
-                .CurrentValue = newDateTime.TargetTime;
+            var configResult = existingEntity.Trigger.UpdateConfiguration(newEntity.Trigger.GetConfiguration());
+            if (!configResult.Success)
+            {
+                throw new InvalidOperationException(configResult.Message);
+            }
+
+            var nameResult = existingEntity.Trigger.UpdateDetails(newEntity.Trigger.Name);
+            if (!nameResult.Success)
+            {
+                throw new InvalidOperationException(nameResult.Message);
+            }
         }
 
         public async Task<List<Job>> GetRunningJobsAsync(
             CancellationToken ct = default)
         {
             List<Job> jobs = await _context.Jobs
-            .Where(j => j.Status == Status.Running)
+            .Where(j => j.Trigger.Enabled)
             .AsNoTracking()
             .Include(j => j.Trigger)
             .Include(j => j.Actions)
@@ -172,65 +185,29 @@ namespace AgroEco.Data.Repositories
             int jobId,
             CancellationToken ct = default)
         {
-            var job = await _context.Jobs
-                .AsNoTracking()
-                .Include(j => j.Trigger)
-                .Include(j => j.Actions)
-                .FirstOrDefaultAsync(j => j.Id == jobId, ct);
-
-            if (job == null)
-                return new List<JobExecutionRecord>();
+            var jobRuns = await _jobRunRepository.GetByJobIdAsync(jobId);
 
             var records = new List<JobExecutionRecord>();
-            var executedAt = job.Date ?? DateTime.MinValue;
 
-            if (job.Results.Any())
+            foreach (var jobRun in jobRuns.OrderByDescending(r => r.StartedAt))
             {
-                foreach (var result in job.Results)
-                {
-                    var actionRecords = new List<ActionExecutionRecord>();
-                    foreach (var action in job.Actions)
-                    {
-                        actionRecords.Add(new ActionExecutionRecord(
-                            action.Name,
-                            action.Status,
-                            null,
-                            executedAt,
-                            action.Status != Status.Created && action.Status != Status.Enqueued 
-                                ? executedAt 
-                                : null));
-                    }
-
-                    records.Add(new JobExecutionRecord(
-                        job.Id,
-                        job.Name,
-                        executedAt,
-                        job.Status,
-                        result.Message,
-                        actionRecords));
-                }
-            }
-            else if (job.Status != Status.Created && job.Status != Status.Enqueued)
-            {
-                var actionRecords = job.Actions.Select(a => new ActionExecutionRecord(
-                    a.Name,
+                var actionRecords = jobRun.Actions.Select(a => new ActionExecutionRecord(
+                    a.ActionName,
                     a.Status,
-                    null,
-                    executedAt,
-                    a.Status != Status.Created && a.Status != Status.Enqueued 
-                        ? executedAt 
-                        : null)).ToList();
+                    a.Message,
+                    jobRun.StartedAt.DateTime,
+                    jobRun.FinishedAt?.DateTime)).ToList();
 
                 records.Add(new JobExecutionRecord(
-                    job.Id,
-                    job.Name,
-                    executedAt,
-                    job.Status,
-                    $"Job {job.Status}",
+                    jobRun.JobId,
+                    "", // JobName not stored in JobRun, would need to join
+                    jobRun.StartedAt.DateTime,
+                    jobRun.Status,
+                    jobRun.Message,
                     actionRecords));
             }
 
-            return records.OrderByDescending(r => r.ExecutedAt).ToList();
+            return records;
         }
     }
 }

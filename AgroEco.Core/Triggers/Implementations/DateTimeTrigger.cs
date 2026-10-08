@@ -36,6 +36,18 @@ namespace AgroEco.Core.Triggers.Implementations
             return Result.CreateSuccess();
         }
 
+        public override TriggerConfiguration GetConfiguration()
+            => new DateTimeTriggerConfiguration(TargetTime);
+
+        public override Result UpdateConfiguration(TriggerConfiguration configuration)
+        {
+            if (configuration is not DateTimeTriggerConfiguration dtConfig)
+            {
+                return Result.CreateFailure("Invalid configuration type for DateTimeTrigger.");
+            }
+            return UpdateConfiguration(dtConfig);
+        }
+
         private TimeSpan CalculateAdaptiveInterval(TimeSpan remaining)
         {
             if (remaining.TotalDays > 30) return TimeSpan.FromDays(1);

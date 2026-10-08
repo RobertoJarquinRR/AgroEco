@@ -51,7 +51,7 @@ namespace AgroEco.Core.Jobs.Actions
                 Status.Created => next is Status.Enqueued or Status.Running or Status.Canceled,
                 Status.Enqueued => next is Status.Running or Status.Canceled,
                 Status.Running => next is Status.Succeeded or Status.Faulted or Status.Canceled,
-                Status.Succeeded or Status.Faulted or Status.Canceled => false,
+                Status.Succeeded or Status.Faulted or Status.Canceled => next is Status.Created,
                 _ => false
             };
         }

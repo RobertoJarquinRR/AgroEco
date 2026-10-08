@@ -1,6 +1,9 @@
 ﻿using System.Linq;
 using System.Collections.Concurrent;
 using AgroEco.Core.Jobs.Persistence;
+using AgroEco.Core.Jobs.Runs;
+using AgroEco.Core.Jobs.Runs.Persistence;
+using AgroEco.Core.Jobs.Engine;
 using AgroEco.Core.Triggers;
 using AgroEco.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +44,9 @@ namespace AgroEco.Core.Jobs
             using IServiceScope scope = _scopeFactory.CreateScope();
             UpdateJob updateJob = scope.ServiceProvider
                 .GetRequiredService<UpdateJob>();
+            CreateJobRun createJobRun = scope.ServiceProvider
+                .GetRequiredService<CreateJobRun>();
+            var jobRunner = new JobRunner();
 
             foreach (var subscriberReport in report.SubscriberReports)
             {
@@ -55,18 +61,15 @@ namespace AgroEco.Core.Jobs
                     continue;
                 }
 
-                if (!job.IsCompleted && !report.OverallResult.Success)
+                var jobRun = await jobRunner.RunAsync(job, report.TriggerId, TriggeredBy.Schedule);
+                var createRunResult = await createJobRun.HandleAsync(jobRun);
+                if (!createRunResult.Success)
                 {
-                    job.Results.Add(report.OverallResult);
-                    Result faultResult = job.ChangeStatus(Status.Faulted);
-                    if (!faultResult.Success)
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
-                Result persistenceResult = await updateJob.HandleAsync(job);
-                if (persistenceResult.Success)
+                var updateResult = await updateJob.HandleAsync(job);
+                if (updateResult.Success)
                 {
                     JobExecutionCompleted?.Invoke(job);
                 }

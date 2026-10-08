@@ -9,8 +9,6 @@ using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
 using AgroEco.Core.Reportes;
 using AgroEco.Core.Triggers;
-using AgroEco.Core.Alertas;
-using AgroEco.Core.Alertas.Persistence;
 using AgroEco.Data;
 using AgroEco.Data.Repositories;
 using AgroEco.Notifications.Channels;
@@ -128,7 +126,6 @@ namespace AgroEco.UI
                 var logger = sp.GetRequiredService<ILogger<DashboardHandler>>();
                 var getAllAlerts = sp.GetRequiredService<GetAllAlerts>();
                 var getAllJobs = sp.GetRequiredService<GetAllJob>();
-                var getAllUmbrales = sp.GetRequiredService<GetAllUmbralesSensor>();
                 var getAllInsumos = sp.GetRequiredService<GetAllInsumo>();
                 var getAllRegistros = sp.GetRequiredService<GetAllRegistroFinanciero>();
 
@@ -136,7 +133,6 @@ namespace AgroEco.UI
                     enviar,
                     getAllAlerts,
                     getAllJobs,
-                    getAllUmbrales,
                     getAllInsumos,
                     getAllRegistros,
                     logger);
@@ -145,20 +141,10 @@ namespace AgroEco.UI
             services.AddScoped<Func<Action<string, object>, SensorReadingHandler>>(sp =>
             {
                 var logger = sp.GetRequiredService<ILogger<SensorReadingHandler>>();
-                var createUmbral = sp.GetRequiredService<CreateUmbralSensor>();
-                var getAllUmbrales = sp.GetRequiredService<GetAllUmbralesSensor>();
-                var getByIdUmbral = sp.GetRequiredService<GetByIdUmbralSensor>();
-                var updateUmbral = sp.GetRequiredService<UpdateUmbralSensor>();
-                var deleteUmbral = sp.GetRequiredService<DeleteUmbralSensor>();
                 var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
 
                 return (Action<string, object> enviar) => new SensorReadingHandler(
                     enviar,
-                    createUmbral,
-                    getAllUmbrales,
-                    getByIdUmbral,
-                    updateUmbral,
-                    deleteUmbral,
                     scopeFactory,
                     logger);
             });

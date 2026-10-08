@@ -7,8 +7,6 @@ using AgroEco.Core.Alerts;
 using AgroEco.Core.Alerts.Persistence;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Persistence;
-using AgroEco.Core.Alertas;
-using AgroEco.Core.Alertas.Persistence;
 using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
 using AgroEco.UI.Mensajes;
@@ -22,7 +20,6 @@ namespace AgroEco.UI.Handlers
         private readonly ILogger<DashboardHandler> _logger;
         private readonly GetAllAlerts _getAllAlerts;
         private readonly GetAllJob _getAllJobs;
-        private readonly GetAllUmbralesSensor _getAllUmbrales;
         private readonly GetAllInsumo _getAllInsumos;
         private readonly GetAllRegistroFinanciero _getAllRegistros;
 
@@ -30,7 +27,6 @@ namespace AgroEco.UI.Handlers
             Action<string, object> enviar,
             GetAllAlerts getAllAlerts,
             GetAllJob getAllJobs,
-            GetAllUmbralesSensor getAllUmbrales,
             GetAllInsumo getAllInsumos,
             GetAllRegistroFinanciero getAllRegistros,
             ILogger<DashboardHandler> logger)
@@ -38,7 +34,6 @@ namespace AgroEco.UI.Handlers
             _enviar = enviar;
             _getAllAlerts = getAllAlerts;
             _getAllJobs = getAllJobs;
-            _getAllUmbrales = getAllUmbrales;
             _getAllInsumos = getAllInsumos;
             _getAllRegistros = getAllRegistros;
             _logger = logger;
@@ -63,11 +58,10 @@ namespace AgroEco.UI.Handlers
 
                 var alertasTask = _getAllAlerts.HandleAsync(limit: 20, status: AlertStatus.Pending);
                 var jobsTask = _getAllJobs.HandleAsync();
-                var umbralesTask = _getAllUmbrales.HandleAsync(soloActivos: true);
                 var insumosTask = _getAllInsumos.HandleAsync();
                 var registrosTask = _getAllRegistros.HandleAsync();
 
-                await Task.WhenAll(alertasTask, jobsTask, umbralesTask, insumosTask, registrosTask);
+                await Task.WhenAll(alertasTask, jobsTask, insumosTask, registrosTask);
 
                 var alertas = alertasTask.Result.Success ? alertasTask.Result.Value : new List<Alert>();
                 var alertasPendientes = alertas.Where(a => a.Status == AlertStatus.Pending).ToList();
@@ -89,21 +83,6 @@ namespace AgroEco.UI.Handlers
                     estado = j.Status.ToString()
                 }).ToList();
 
-                var umbrales = umbralesTask.Result.Success ? umbralesTask.Result.Value : new List<UmbralSensor>();
-                var umbralesParaUI = umbrales.Take(10).Select(u => new
-                {
-                    Id = u.Id,
-                    SensorTipo = u.SensorTipo,
-                    FincaNombre = string.IsNullOrEmpty(u.FincaNombre) ? null : u.FincaNombre,
-                    Minimo = u.Minimo,
-                    Maximo = u.Maximo,
-                    SeveridadMinima = u.SeveridadMinima,
-                    SeveridadMaxima = u.SeveridadMaxima,
-                    AccionTipo = u.AccionTipo,
-                    CooldownMinutos = u.CooldownMinutos,
-                    Activo = u.Activo
-                }).ToList();
-
                 var insumos = insumosTask.Result.Success ? insumosTask.Result.Value : new List<AgroEco.Core.Inventario.Insumo>();
                 var itemsBajoMinimo = insumos.Where(i => i.Cantidad < i.StockMin).Count();
 
@@ -122,14 +101,14 @@ namespace AgroEco.UI.Handlers
 
                 _enviar("stats", new
                 {
-                    sensoresActivos = umbrales.Count(u => u.Activo),
+                    sensoresActivos = 0,
                     alertas = alertasPendientes.Count,
                     tareasActivas = tareasPendientes.Count,
                     tareasCompletadas = tareasCompletadas.Count,
                     plagas = 0
                 });
 
-                _enviar("umbrales", new { umbrales = umbralesParaUI });
+                _enviar("umbrales", new { umbrales = new List<object>() });
 
                 _enviar("plagas", new
                 {
@@ -142,8 +121,8 @@ namespace AgroEco.UI.Handlers
 
                 _enviar("tareas", tareasParaUI);
 
-                _logger.LogInformation("Dashboard completo enviado: {Alertas} alertas, {Tareas} tareas, {Umbrales} umbrales",
-                    alertasPendientes.Count, tareasPendientes.Count, umbrales.Count);
+                _logger.LogInformation("Dashboard completo enviado: {Alertas} alertas, {Tareas} tareas",
+                    alertasPendientes.Count, tareasPendientes.Count);
             }
             catch (Exception ex)
             {

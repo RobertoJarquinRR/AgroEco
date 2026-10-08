@@ -36,7 +36,7 @@ public sealed class TriggerEngineTests
     }
 
     [Fact]
-    public async Task StartAsync_WhenTriggerHasNoSubscribers_ReturnsFailure()
+    public async Task StartAsync_WhenTriggerHasNoSubscribers_Succeeds()
     {
         // Arrange
         Mock<IRepository<Trigger>> repository = new();
@@ -53,9 +53,9 @@ public sealed class TriggerEngineTests
         Result result = await engine.StartAsync(7);
 
         // Assert
-        Assert.False(result.Success);
-        Assert.Contains("has no subscribers", result.Message);
-        Assert.Empty(engine.GetActiveTriggers());
+        Assert.True(result.Success);
+        Assert.Contains("started", result.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Single(engine.GetActiveTriggers());
     }
 
     [Fact]
@@ -98,7 +98,7 @@ public sealed class TriggerEngineTests
     }
 
     [Fact]
-    public async Task StopAsync_WhileExecutionIsFinishing_KeepsTriggerRegisteredUntilCompletion()
+    public async Task StopAsync_WhileExecutionIsFinishing_KeepsTriggerRegistered()
     {
         // Arrange
         Mock<IRepository<Trigger>> repository = new();
@@ -121,13 +121,14 @@ public sealed class TriggerEngineTests
         Assert.True(stopResult.Success);
         Assert.True(registeredResult.Success);
         Assert.Same(trigger, registeredResult.Value);
+        Assert.False(trigger.Enabled);
         repository.Verify(
             value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
     [Fact]
-    public async Task StartAsync_WithDateTimeJob_CompletesJobAfterTargetTime()
+    public async Task StartAsync_WithDateTimeJob_NotifiesSubscribersOnFire()
     {
         // Arrange
         Mock<IRepository<Trigger>> triggerRepository = new();
@@ -174,39 +175,51 @@ public sealed class TriggerEngineTests
         // Assert
         Assert.True(startResult.Success);
         Assert.True(completedReport.OverallResult.Success);
-        Assert.Equal(Status.Succeeded, job.Status);
-        Assert.Equal(Status.Succeeded, job.Actions.Single().Status);
+        Assert.Single(completedReport.SubscriberReports);
+        Assert.Equal(nameof(Job), completedReport.SubscriberReports[0].SubscriberType);
+        Assert.True(completedReport.SubscriberReports[0].Result.Success);
     }
 
     [Fact]
-    public async Task StartAsync_WhenTriggerFails_PreservesFailureResultOnJob()
+    public async Task StartAsync_WhenWaitFails_StopsWithoutFiring()
     {
         // Arrange
-        Mock<IRepository<Trigger>> triggerRepository = new();
-        Mock<IRepository<Job>> jobRepository = new();
-        Mock<IUnitOfWork> unitOfWork = new();
+        Mock<IRepository<Trigger>> repository = new();
         FailingTrigger trigger = new("Test trigger");
-        Result<Job> jobResult = await Job.CreateJob(
-            "Test job",
-            "Timer failure test",
-            Status.Created,
-            1,
-            [new NoOpAction("Test action")],
-            trigger);
-        Assert.True(jobResult.Success);
-        Job job = jobResult.Value!;
-        triggerRepository
+        repository
             .Setup(value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()))
             .ReturnsAsync(trigger);
-        jobRepository
-            .Setup(value => value.GetByIdAsync(
-                It.IsAny<int>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(job);
-        using ServiceProvider provider = BuildProvider(
-            triggerRepository.Object,
-            jobRepository.Object,
-            unitOfWork.Object);
+        using ServiceProvider provider = BuildProvider(repository.Object);
+        TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
+        Mock<ITriggerable> triggerable = new();
+        triggerable
+            .Setup(value => value.OnTrigger())
+            .ReturnsAsync(Result.CreateSuccess());
+        await engine.SubscribeAsync(7, triggerable.Object);
+
+        // Act
+        Result startResult = await engine.StartAsync(7);
+        await Task.Delay(200);
+
+        // Assert
+        Assert.True(startResult.Success);
+        Assert.Equal(0, trigger.FiredCount);
+        Assert.False(trigger.Enabled);
+        triggerable.Verify(value => value.OnTrigger(), Times.Never);
+        Assert.Empty(engine.GetActiveTriggers());
+    }
+
+    [Fact]
+    public async Task StartAsync_WhenSubscriberFails_PublishesFailureReport()
+    {
+        // Arrange
+        Mock<IRepository<Trigger>> repository = new();
+        AlwaysReadyTrigger trigger = new("Test trigger");
+        trigger.SetMaxExecutions(1);
+        repository
+            .Setup(value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trigger);
+        using ServiceProvider provider = BuildProvider(repository.Object);
         TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
         TaskCompletionSource<TriggerExecutionReport> completion =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -215,7 +228,11 @@ public sealed class TriggerEngineTests
             completion.TrySetResult(report);
             return Task.CompletedTask;
         };
-        await engine.SubscribeAsync(7, job);
+        Mock<ITriggerable> triggerable = new();
+        triggerable
+            .Setup(value => value.OnTrigger())
+            .ReturnsAsync(Result.CreateFailure("Test trigger failure"));
+        await engine.SubscribeAsync(7, triggerable.Object);
 
         // Act
         Result startResult = await engine.StartAsync(7);
@@ -224,31 +241,27 @@ public sealed class TriggerEngineTests
         // Assert
         Assert.True(startResult.Success);
         Assert.False(completedReport.OverallResult.Success);
-        Assert.Contains("Test trigger failure", completedReport.OverallResult.Message);
+        Assert.Contains("One or more triggerables failed", completedReport.OverallResult.Message);
     }
 
     [Fact]
-    public async Task SubscribeAsync_AfterCompletedTrigger_CreatesFreshTrigger()
+    public async Task SubscribeAsync_AfterTriggerStopped_KeepsSameTrigger()
     {
         // Arrange
         Mock<IRepository<Trigger>> repository = new();
-        DateTimeTrigger completedTrigger = new(
-            "Test trigger",
-            DateTimeOffset.UtcNow);
-        DateTimeTrigger freshTrigger = new(
+        DateTimeTrigger trigger = new(
             "Test trigger",
             DateTimeOffset.UtcNow.AddHours(1));
         repository
-            .SetupSequence(value => value.GetByIdAsync(
+            .Setup(value => value.GetByIdAsync(
                 7,
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(completedTrigger)
-            .ReturnsAsync(freshTrigger);
+            .ReturnsAsync(trigger);
         using ServiceProvider provider = BuildProvider(repository.Object);
         TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
         await engine.SubscribeAsync(7, Mock.Of<ITriggerable>());
         await engine.StartAsync(7);
-        await Task.Delay(100);
+        await engine.StopAsync(7);
 
         // Act
         Result result = await engine.SubscribeAsync(7, Mock.Of<ITriggerable>());
@@ -257,7 +270,105 @@ public sealed class TriggerEngineTests
         Assert.True(result.Success);
         repository.Verify(
             value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()),
-            Times.Exactly(2));
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Trigger_FiresMultipleTimes_WhenEnabled()
+    {
+        // Arrange
+        Mock<IRepository<Trigger>> repository = new();
+        AlwaysReadyTrigger trigger = new("Test trigger");
+        repository
+            .Setup(value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trigger);
+        using ServiceProvider provider = BuildProvider(repository.Object);
+        TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
+        Mock<ITriggerable> triggerable = new();
+        triggerable
+            .Setup(value => value.OnTrigger())
+            .ReturnsAsync(Result.CreateSuccess());
+        await engine.SubscribeAsync(7, triggerable.Object);
+
+        // Act
+        await engine.StartAsync(7);
+        await Task.Delay(200); // Allow multiple firings
+        await engine.StopAsync(7);
+
+        // Assert
+        Assert.True(trigger.FiredCount >= 2);
+        triggerable.Verify(value => value.OnTrigger(), Times.AtLeast(2));
+    }
+
+    [Fact]
+    public async Task Trigger_DisablesAfterMaxExecutions()
+    {
+        // Arrange
+        Mock<IRepository<Trigger>> repository = new();
+        AlwaysReadyTrigger trigger = new("Test trigger");
+        trigger.SetMaxExecutions(3);
+        repository
+            .Setup(value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trigger);
+        using ServiceProvider provider = BuildProvider(repository.Object);
+        TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
+        Mock<ITriggerable> triggerable = new();
+        triggerable
+            .Setup(value => value.OnTrigger())
+            .ReturnsAsync(Result.CreateSuccess());
+        await engine.SubscribeAsync(7, triggerable.Object);
+
+        // Act
+        await engine.StartAsync(7);
+        await Task.Delay(500); // Allow all firings
+        // Trigger should auto-disable after 3 executions
+
+        // Assert
+        Assert.Equal(3, trigger.FiredCount);
+        Assert.False(trigger.Enabled);
+        triggerable.Verify(value => value.OnTrigger(), Times.Exactly(3));
+    }
+
+    [Fact]
+    public async Task Trigger_CanBeRestartedAfterDisable()
+    {
+        // Arrange
+        Mock<IRepository<Trigger>> repository = new();
+        BlockingTrigger trigger = new("Test trigger");
+        repository
+            .Setup(value => value.GetByIdAsync(7, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(trigger);
+        using ServiceProvider provider = BuildProvider(repository.Object);
+        TriggerEngine engine = new(provider.GetRequiredService<IServiceScopeFactory>());
+        Mock<ITriggerable> triggerable = new();
+        triggerable
+            .Setup(value => value.OnTrigger())
+            .ReturnsAsync(Result.CreateSuccess());
+        await engine.SubscribeAsync(7, triggerable.Object);
+
+        // Act - Start, stop while waiting, restart
+        await engine.StartAsync(7).WaitAsync(TimeSpan.FromSeconds(5));
+        await trigger.WaitStarted.WaitAsync(TimeSpan.FromSeconds(5));
+        await engine.StopAsync(7);
+        trigger.Complete(); // Allow first wait to complete
+        await trigger.WaitCompletion;
+        await Task.Delay(50); // Allow first RunAsync to fully exit
+        
+        // Restart
+        await engine.StartAsync(7).WaitAsync(TimeSpan.FromSeconds(5));
+        await trigger.WaitStarted.WaitAsync(TimeSpan.FromSeconds(5));
+        trigger.Complete(); // Allow second wait to complete
+        await trigger.WaitCompletion;
+        // Wait for firing to complete
+        for (int i = 0; i < 50 && trigger.FiredCount == 0; i++)
+        {
+            await Task.Delay(20);
+        }
+        await engine.StopAsync(7);
+
+        // Assert
+        Assert.True(trigger.FiredCount >= 1);
+        triggerable.Verify(value => value.OnTrigger(), Times.AtLeast(1));
     }
 
     private sealed class FailingTrigger : Trigger
@@ -269,6 +380,17 @@ public sealed class TriggerEngineTests
         protected override Task<Result> WaitUntilReadyAsync(
             CancellationToken cancellationToken)
             => Task.FromResult(Result.CreateFailure("Test trigger failure"));
+    }
+
+    private sealed class AlwaysReadyTrigger : Trigger
+    {
+        public AlwaysReadyTrigger(string name) : base(name)
+        {
+        }
+
+        protected override Task<Result> WaitUntilReadyAsync(
+            CancellationToken cancellationToken)
+            => Task.FromResult(Result.CreateSuccess());
     }
 
     private static ServiceProvider BuildProvider(
@@ -289,20 +411,30 @@ public sealed class TriggerEngineTests
 
     private sealed class BlockingTrigger : Trigger
     {
-        private readonly TaskCompletionSource<Result> _completion =
+        private TaskCompletionSource<Result> _completion =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource<bool> _waitStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         public BlockingTrigger(string name) : base(name)
         {
         }
 
         public Task WaitCompletion => _completion.Task;
+        public Task WaitStarted => _waitStarted.Task;
 
         public void Complete()
             => _completion.TrySetResult(Result.CreateSuccess());
 
-        protected override Task<Result> WaitUntilReadyAsync(
+        protected override async Task<Result> WaitUntilReadyAsync(
             CancellationToken cancellationToken)
-            => _completion.Task;
+        {
+            var currentCompletion = _completion;
+            _waitStarted.TrySetResult(true);
+            using var registration = cancellationToken.Register(() => currentCompletion.TrySetResult(Result.CreateFailure("Canceled")));
+            var result = await currentCompletion.Task;
+            // Reset for next wait
+            _completion = new TaskCompletionSource<Result>(TaskCreationOptions.RunContinuationsAsynchronously);
+            return result;
+        }
     }
 }
