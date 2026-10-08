@@ -37,6 +37,6 @@ int sensorHumedadSuelo::GetStatus()
 //name con el que es conocido
 String sensorHumedadSuelo::GetName()
 {
-    return "HumedadSuelo";
+    return "humedad_suelo";
 }
 void sensorHumedadSuelo::Iniciar(){}

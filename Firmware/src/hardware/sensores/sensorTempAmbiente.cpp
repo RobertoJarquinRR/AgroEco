@@ -22,7 +22,7 @@ void sensorTempAmbiente::Calibrar() {}
 //el nombre del sensor para identificarlo
 String sensorTempAmbiente::GetName()
 {
-    return "TemperaturaAmbiente";
+    return "temperatura_ambiente";
 }
 
 //verificador del estado del sensor

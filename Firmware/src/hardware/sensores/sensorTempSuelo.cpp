@@ -30,5 +30,5 @@ int sensorTempSuelo::GetStatus()
 //asignar name
 String sensorTempSuelo::GetName()
 {
-    return "TempSuelo";
+    return "temperatura_suelo";
 }
