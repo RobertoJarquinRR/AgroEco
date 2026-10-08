@@ -128,7 +128,7 @@ public sealed class TriggerEngineTests
     }
 
     [Fact]
-    public async Task StartAsync_WithDateTimeJob_CompletesJobAfterTargetTime()
+    public async Task StartAsync_WithDateTimeJob_NotifiesSubscribersOnFire()
     {
         // Arrange
         Mock<IRepository<Trigger>> triggerRepository = new();
@@ -175,8 +175,9 @@ public sealed class TriggerEngineTests
         // Assert
         Assert.True(startResult.Success);
         Assert.True(completedReport.OverallResult.Success);
-        Assert.Equal(Status.Succeeded, job.Status);
-        Assert.Equal(Status.Succeeded, job.Actions.Single().Status);
+        Assert.Single(completedReport.SubscriberReports);
+        Assert.Equal(nameof(Job), completedReport.SubscriberReports[0].SubscriberType);
+        Assert.True(completedReport.SubscriberReports[0].Result.Success);
     }
 
     [Fact]

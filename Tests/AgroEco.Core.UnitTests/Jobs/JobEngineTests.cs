@@ -1,5 +1,7 @@
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Persistence;
+using AgroEco.Core.Jobs.Runs;
+using AgroEco.Core.Jobs.Runs.Persistence;
 using AgroEco.Core.Jobs.Actions.Implementations;
 using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Implementations;
@@ -59,12 +61,13 @@ public sealed class JobEngineTests
     }
 
     [Fact]
-    public async Task RunJob_WhenTriggerCompletes_PersistsJobFromJobEngine()
+    public async Task RunJob_WhenTriggerCompletes_PersistsJobAndJobRun()
     {
         // Arrange
         Mock<IJobRepository> jobRepository = new();
         Mock<IRepository<Job>> persistenceRepository = new();
         Mock<IRepository<Trigger>> triggerRepository = new();
+        Mock<IRepository<JobRun>> jobRunRepository = new();
         Mock<IUnitOfWork> unitOfWork = new();
         DateTimeTrigger trigger = new(
             "timer",
@@ -96,6 +99,7 @@ public sealed class JobEngineTests
             jobRepository.Object,
             persistenceRepository.Object,
             triggerRepository.Object,
+            jobRunRepository.Object,
             unitOfWork.Object);
         TriggerEngine triggerEngine = provider.GetRequiredService<TriggerEngine>();
         JobEngine engine = provider.GetRequiredService<JobEngine>();
@@ -115,6 +119,9 @@ public sealed class JobEngineTests
         persistenceRepository.Verify(
             value => value.UpdateAsync(job, It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
+        jobRunRepository.Verify(
+            value => value.AddAsync(It.IsAny<JobRun>()),
+            Times.Once);
         unitOfWork.Verify(
             value => value.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.AtLeastOnce);
@@ -124,6 +131,7 @@ public sealed class JobEngineTests
         IJobRepository repository,
         IRepository<Job>? persistenceRepository = null,
         IRepository<Trigger>? triggerRepository = null,
+        IRepository<JobRun>? jobRunRepository = null,
         IUnitOfWork? unitOfWork = null)
     {
         ServiceCollection services = new();
@@ -131,10 +139,13 @@ public sealed class JobEngineTests
         services.AddScoped<GetRunningJobs>();
         services.AddScoped<GetByIdJobWithDetails>();
         services.AddScoped<UpdateJob>();
+        services.AddScoped<CreateJobRun>();
         services.AddScoped<IRepository<Job>>(
             _ => persistenceRepository ?? new Mock<IRepository<Job>>().Object);
         services.AddScoped<IRepository<Trigger>>(
             _ => triggerRepository ?? new Mock<IRepository<Trigger>>().Object);
+        services.AddScoped<IRepository<JobRun>>(
+            _ => jobRunRepository ?? new Mock<IRepository<JobRun>>().Object);
         services.AddScoped<IUnitOfWork>(
             _ => unitOfWork ?? new Mock<IUnitOfWork>().Object);
         services.AddScoped<GetByIdTrigger>();
