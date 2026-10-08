@@ -24,9 +24,9 @@ namespace AgroEco.Core.Jobs
 
         public Trigger Trigger { get; private set; } = null!;
 
-                public List<Result> Results { get; private set; } = [];
+        public List<Result> Results { get; private set; } = [];
 
-                Job(
+        Job(
             string name,
             Status status,
             string? description,
@@ -122,9 +122,100 @@ namespace AgroEco.Core.Jobs
             return Result.CreateSuccess();
         }
 
-        public Task<Result> OnTrigger()
-        {
-            return Task.FromResult(Result.CreateSuccess($"Job '{Name}' trigger acknowledged."));
+        public async Task<Result> OnTrigger()
+        {  
+            
+            Console.WriteLine("Ejecutando el Job...");
+
+            if(Status == Status.Succeeded)
+            {
+                return Result.CreateSuccess($"Job {Name} executes successfully");
+            }
+
+            Result runningResult = ChangeStatus(Status.Running);
+            if (!runningResult.Success)
+            {
+                return runningResult;
+            }
+
+            int successfulActions = 0;
+            int failedActions = 0;
+            foreach (Action action in Actions)
+            {
+                if (action.Status == Status.Succeeded)
+                {
+                    successfulActions++;
+                    continue;
+                }
+                if (action.Status == Status.Canceled)
+                {
+                    failedActions++;
+                    continue;
+                }
+
+                Result startResult = action.ChangeStatus(Status.Running);
+                if (!startResult.Success)
+                {
+                    Results.Add(startResult);
+                    failedActions++;
+                    continue;
+                }
+
+                Result actionResult;
+                try
+                {
+                    actionResult = await action.Execute();
+                }
+                catch (Exception exception)
+                {
+                    actionResult = Result.CreateFailure(
+                        $"Action '{action.Name}' failed with an exception.",
+                        exception);
+                }
+
+                Results.Add(actionResult);
+                Result actionCompletionResult = action.ChangeStatus(
+                    actionResult.Success ? Status.Succeeded : Status.Faulted);
+                if (!actionCompletionResult.Success)
+                {
+                    Results.Add(actionCompletionResult);
+                }
+
+                if (actionResult.Success && actionCompletionResult.Success)
+                {
+                    successfulActions++;
+                }
+                else
+                {
+                    failedActions++;
+                }
+            }
+
+            Status completionStatus = successfulActions == Actions.Count
+                ? Status.Succeeded
+                : successfulActions > 0
+                    ? Status.CompletedWithErrors
+                    : Status.Faulted;
+            Result completionResult = ChangeStatus(
+                completionStatus);
+            if (!completionResult.Success)
+            {
+                return completionResult;
+            }
+
+            var messages = Results
+                .Select(r => r.Message)
+                .Where(m => !string.IsNullOrEmpty(m));
+            string actionSummary = string.Join("; ", messages);
+
+            string message =
+                $"Job '{Name}' executed with status {completionStatus}. " +
+                $"Successful actions: {successfulActions}; failed actions: {failedActions}. " +
+                $"Action results: {actionSummary}";
+
+            return completionStatus == Status.Succeeded
+                ? Result.CreateSuccess(message)
+                : Result.CreateFailure(message);
         }
 
         public Result ChangeStatus(Status status)
@@ -162,14 +253,15 @@ namespace AgroEco.Core.Jobs
             return Result.CreateSuccess();
         }
 
-        public Result Rehydrate(){
+        public Result Rehydrate()
+        {
             
             try{
                 if(Trigger == null)
                 {
                     return Result.CreateFailure(
                         $"Job '{Name}' has no trigger definition.");
-
+                
                 }
 
                 return Result.CreateSuccess($"Job '{Name}' rehydrated successfully.");
@@ -187,9 +279,5 @@ namespace AgroEco.Core.Jobs
                 or Status.CompletedWithErrors
                 or Status.Faulted
                 or Status.Canceled;
-
-
-
     }
-
 }
