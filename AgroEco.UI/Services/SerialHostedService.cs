@@ -6,12 +6,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using Windows.ApplicationModel;
+using Windows.Devices.Sensors;
 
 namespace AgroEco.UI.Services;
 
 public class SerialHostedService : BackgroundService
 {
     private SerialConnection? _serialConnection;
+    private static event Action<string, object > MensajeRecibido;
     private readonly ILogger<SerialHostedService> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly SerialSettings _settings;
@@ -89,28 +92,11 @@ public class SerialHostedService : BackgroundService
     private void OnHardwareMessageReceived(object? sender, HardwareMessageReceivedEventArgs e)
     {
         var message = e.Message;
-        
-        try
+
+        if (message.Type != "sensor_reading") return;
+        if (message.Value is { } v && v.TryGetDecimal(out var decimalValue))
         {
-            if (message.Type.Equals("sensor_reading", StringComparison.OrdinalIgnoreCase) ||
-                message.Type.Equals("sensor_data", StringComparison.OrdinalIgnoreCase))
-            {
-                if (message.Value.HasValue)
-                {
-                    var dto = JsonSerializer.Deserialize<SensorReadingHandler.LecturaSensorDto>(message.Value.Value.GetRawText());
-                    if (dto != null)
-                    {
-                        // Usar el service provider para obtener el handler y enviar la lectura
-                        using var scope = _serviceProvider.CreateScope();
-                        var handler = scope.ServiceProvider.GetRequiredService<SensorReadingHandler>();
-                        handler.ProcesarLecturaExterna(dto);
-                    }
-                }
-            }
-        }
-        catch (Exception)
-        {
-            // Log error
+            MensajeRecibido?.Invoke(message.ComponentId, message.Value);
         }
     }
 
