@@ -7,6 +7,8 @@ using AgroEco.Core.Inventario;
 using AgroEco.Core.Finanzas;
 using AgroEco.Core.Alertas;
 using AgroEco.Core.Alerts;
+using AgroEco.Core.Jobs.Runs;
+using AgroEco.Core.Triggers.Events;
 using AgroEco.Data.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -29,6 +31,10 @@ namespace AgroEco.Data
             services.AddScoped<IRepository<UmbralSensor>, UmbralSensorRepository>();
             services.AddScoped<IRepository<AlertEntity>, AlertRepository>();
             services.AddScoped<IAlertRepository, AlertRepository>();
+            services.AddScoped<IRepository<JobRun>, JobRunRepository>();
+            services.AddScoped<IJobRunRepository, JobRunRepository>();
+            services.AddScoped<IRepository<JobRunAction>, RepositoryBase<JobRunAction, DataContext>>();
+            services.AddScoped<IRepository<TriggerEvent>, RepositoryBase<TriggerEvent, DataContext>>();
             services.AddScoped<IUnitOfWork, UnitOfWork<DataContext>>();
 
 

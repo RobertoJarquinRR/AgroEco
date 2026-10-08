@@ -8,6 +8,8 @@ using AgroEco.Core.Finanzas;
 using AgroEco.Core.Alertas;
 using AgroEco.Core.Alerts;
 using AgroEco.Core.Jobs.Actions.Configuration;
+using AgroEco.Core.Jobs.Runs;
+using AgroEco.Core.Triggers.Events;
 using System.Text.Json;
 
 namespace AgroEco.Data
@@ -25,6 +27,9 @@ namespace AgroEco.Data
         public DbSet<UmbralSensor> UmbralesSensor { get; set; }
         public DbSet<AlertEntity> Alerts { get; set; }
         public DbSet<AlertDeliveryEntity> AlertDeliveries { get; set; }
+        public DbSet<JobRun> JobRuns { get; set; }
+        public DbSet<JobRunAction> JobRunActions { get; set; }
+        public DbSet<TriggerEvent> TriggerEvents { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
@@ -365,6 +370,103 @@ modelBuilder.Entity<DateTimeTrigger>(entity =>{
 
                 entity.HasIndex(d => d.AlertId);
                 entity.HasIndex(d => d.ChannelType);
+            });
+            /////////////////////////////////////////////////////////////////////////////////
+
+            // Mapeo JobRuns
+            modelBuilder.Entity<JobRun>(entity =>
+            {
+                entity.ToTable("JobRuns");
+                entity.HasKey(jr => jr.Id);
+
+                entity.Property(jr => jr.JobId)
+                      .IsRequired();
+
+                entity.Property(jr => jr.TriggerId);
+
+                entity.Property(jr => jr.TriggeredBy)
+                      .HasConversion<int>();
+
+                entity.Property(jr => jr.StartedAt)
+                      .IsRequired();
+
+                entity.Property(jr => jr.FinishedAt);
+
+                entity.Property(jr => jr.Status)
+                      .HasConversion<string>();
+
+                entity.Property(jr => jr.Message)
+                      .HasMaxLength(2000);
+
+                entity.Property(jr => jr.Error)
+                      .HasMaxLength(2000);
+
+                entity.HasMany(jr => jr.Actions)
+                      .WithOne()
+                      .HasForeignKey(a => a.JobRunId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(jr => jr.JobId);
+                entity.HasIndex(jr => jr.StartedAt);
+            });
+
+            // Mapeo JobRunActions
+            modelBuilder.Entity<JobRunAction>(entity =>
+            {
+                entity.ToTable("JobRunActions");
+                entity.HasKey(jra => jra.Id);
+
+                entity.Property(jra => jra.JobRunId)
+                      .IsRequired();
+
+                entity.Property(jra => jra.ActionId)
+                      .IsRequired();
+
+                entity.Property(jra => jra.ActionName)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(jra => jra.ActionType)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(jra => jra.Status)
+                      .HasConversion<string>();
+
+                entity.Property(jra => jra.Message)
+                      .HasMaxLength(2000);
+
+                entity.Property(jra => jra.Error)
+                      .HasMaxLength(2000);
+
+                entity.Property(jra => jra.DurationMs)
+                      .IsRequired();
+
+                entity.HasIndex(jra => jra.JobRunId);
+            });
+
+            // Mapeo TriggerEvents
+            modelBuilder.Entity<TriggerEvent>(entity =>
+            {
+                entity.ToTable("TriggerEvents");
+                entity.HasKey(te => te.Id);
+
+                entity.Property(te => te.TriggerId)
+                      .IsRequired();
+
+                entity.Property(te => te.OccurredAt)
+                      .IsRequired();
+
+                entity.Property(te => te.EventType)
+                      .HasConversion<int>();
+
+                entity.Property(te => te.Message)
+                      .HasMaxLength(2000);
+
+                entity.Property(te => te.JobRunId);
+
+                entity.HasIndex(te => te.TriggerId);
+                entity.HasIndex(te => te.OccurredAt);
             });
             /////////////////////////////////////////////////////////////////////////////////
         }
