@@ -1,6 +1,87 @@
 document.addEventListener("DOMContentLoaded", () => {
     //aqui te puse eso para que se actualice el side bar bro ya con eso ya lo arregle era solo llamarla xd
     updateSidebar();
+
+    // Atajo para hablar con C# (WebView2)
+    const winObj = /** @type {any} */ (window);
+
+    // =====================================================
+    //  UTILIDADES
+    // =====================================================
+
+    // Convierte 1000 en "C$ 1,000.00". Si llega algo raro, muestra C$ 0.00
+    /** @param {any} n */
+    function formatearMonto(n) {
+        const valor = Number(n);
+        const seguro = Number.isFinite(valor) ? valor : 0;
+        return "C$ " + seguro.toLocaleString("es-NI", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    // Cambia el texto de un elemento por su id (si el elemento no existe, no hace nada)
+    /**
+     * @param {string} id
+     * @param {string} texto
+     */
+    function pintar(id, texto) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = texto;
+    }
+
+    // Manda un mensaje a C# (si la página se abre fuera de la app, no falla)
+    /**
+     * @param {string} type
+     * @param {any} [payload]
+     */
+    function enviarACSharp(type, payload) {
+        if (!winObj.chrome || !winObj.chrome.webview) {
+            console.warn(`[Finanzas] WebView2 no disponible. Se intentó enviar: ${type}`, payload);
+            return;
+        }
+        winObj.chrome.webview.postMessage({ screen: "finanzas", type, payload });
+    }
+
+    // =====================================================
+    //  RECIBIR DATOS DE C#
+    // =====================================================
+
+    if (winObj.chrome && winObj.chrome.webview) {
+        // 1) primero ESCUCHAR
+        winObj.chrome.webview.addEventListener("message", (/** @type {any} */ event) => {
+            const data = event.data;
+            if (!data) return;
+
+            const { type, payload } = data;
+
+            switch (type) {
+                case "finanzas_cargadas":
+                    if (!payload) return;
+                    pintar("ingresos", formatearMonto(payload.ingresos));
+                    pintar("costos", formatearMonto(payload.costos));
+                    pintar("ganancias", formatearMonto(payload.ganancias));
+                    pintar("ganancia-neta", (Number(payload.gananciaNeta) || 0) + "%");
+                    break;
+
+                case "cargar_registros":
+                    // la lista de movimientos llega aqui; falta pintarla en la seccion "Movimientos"
+                    break;
+
+                default:
+                    // mensajes de otras pantallas: se ignoran
+                    break;
+            }
+        });
+
+        // 2) luego PEDIR los datos
+        enviarACSharp("ready_finanzas");
+    }
+
+    // =====================================================
+    //  MODAL Y FORMULARIO
+    // =====================================================
+
     // --- Referencias al modal ---
     const btnOpenModal = document.querySelector("#addInfo");
     const modal = /** @type {HTMLDialogElement} */ (document.getElementById("showDialogNewReg"));
@@ -49,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modal?.close();
     });
 
-    // --- Validación al enviar ---
+    // --- Validación al enviar + envío a C# ---
     formNuevoRegistro?.addEventListener("submit", (e) => {
         const tipoSeleccionado = /** @type {HTMLInputElement | null} */ (
             formNuevoRegistro.querySelector('input[name="tipoRegistro"]:checked')
@@ -59,6 +140,11 @@ document.addEventListener("DOMContentLoaded", () => {
         )?.value;
 
         const monto = parseFloat(regMonto.value);
+
+        if (!tipoSeleccionado) {
+            e.preventDefault();
+            return;
+        }
 
         if (isNaN(monto) || monto <= 0) {
             e.preventDefault();
@@ -80,15 +166,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const nuevoRegistro = {
             tipo: tipoSeleccionado,
-            cultivo: cultivoSeleccionado,
+            cultivo: cultivoSeleccionado ?? "general",
             categoria: tipoSeleccionado === "costo" ? regCategoria.value : null,
             monto,
             fecha: regFecha.value,
             descripcion: regDescripcion.value
         };
 
-        // aca ira el codigo para pasar los datos al c#
-        // window.chrome.webview.postMessage({ type: "nuevoRegistroFinanciero", payload: nuevoRegistro });
+        // pasar el registro a C# (antes del reset, que borra los campos)
+        enviarACSharp("nuevoRegistroFinanciero", nuevoRegistro);
 
         formNuevoRegistro.reset();
         actualizarCategoria("ingreso");

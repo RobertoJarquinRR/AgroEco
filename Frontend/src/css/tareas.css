@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Boldonse&family=Iosevka+Charon:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import "/src/css/fonts.css";
 *{ /*Ahorro lineas de codigo por eso lo hice asi*/
     margin: 0; padding: 0;box-sizing: border-box;text-decoration: none;list-style: none;   
 }
@@ -194,12 +194,55 @@ dialog {
     border: none;
     border-radius: 16px;
     padding: 0;
-    width: 480px;
+    width: 560px;
     max-width: 90vw;
     position: fixed;
     inset: 0;
     margin: auto;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.automation-panel{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:16px;
+    border:1px solid #D9D9D9;
+    border-radius:12px;
+    background:#FAFCFB;
+}
+
+.panel-heading{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.panel-heading h2{
+    color:var(--color-text-primary);
+    font-size:16px;
+}
+
+.panel-heading p{
+    color:var(--color-text-secundary);
+    font-size:12px;
+    font-weight:400;
+}
+
+.panel-heading button{
+    border:1px solid #2FA084;
+    border-radius:6px;
+    padding:6px 8px;
+    color:#1D634F;
+    background:#FFFFFF;
+    cursor:pointer;
+}
+
+.dynamic-fields{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
 }
 
 dialog::backdrop {
@@ -361,12 +404,12 @@ dialog::backdrop {
     transition: background-color 0.2s ease-in-out;
 }
 
-.btn-completar {
+.btn-ejecutar {
     background-color: #E1F0E1;
     color: #276A2A;
 }
 
-.btn-completar:hover {
+.btn-ejecutar:hover {
     background-color: #d0e7d0;
 }
 

@@ -1,18 +1,39 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AgroEco.Core.Triggers.Configuration;
 
 namespace AgroEco.Core.Triggers.Implementations
 {
     public class DateTimeTrigger : Trigger
     {
-        public DateTimeOffset TargetTime { get; set; }
+        public DateTimeOffset TargetTime { get; private set; }
         public bool IsActive { get; set; }
 
         public DateTimeTrigger(string name, DateTimeOffset targetTime) : base(name)
         {
             TargetTime = targetTime;
+        }
+
+        public DateTimeTrigger(
+            string name,
+            DateTimeTriggerConfiguration configuration)
+            : this(name, configuration.TargetTime)
+        {
+        }
+
+        public Result UpdateConfiguration(DateTimeTriggerConfiguration configuration)
+        {
+            ArgumentNullException.ThrowIfNull(configuration);
+
+            if (configuration.TargetTime <= DateTimeOffset.UtcNow)
+            {
+                return Result.CreateFailure(
+                    "The target time must be in the future.");
+            }
+
+            TargetTime = configuration.TargetTime;
+            return Result.CreateSuccess();
         }
 
         private TimeSpan CalculateAdaptiveInterval(TimeSpan remaining)
@@ -24,49 +45,23 @@ namespace AgroEco.Core.Triggers.Implementations
             return TimeSpan.FromSeconds(1);
         }
 
-        public override async Task<Result> InitTrigger()
+        protected override async Task<Result> WaitUntilReadyAsync(
+            CancellationToken cancellationToken)
         {
-           
-            if (DateTimeOffset.UtcNow >= TargetTime)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                return Result.CreateFailure("The target time has already passed. Trigger cannot be initialized.");
-            }
-
-            try
-            {
-                while (true)
+                DateTimeOffset now = DateTimeOffset.UtcNow;
+                if (now >= TargetTime)
                 {
-                    DateTimeOffset now = DateTimeOffset.UtcNow;
-
-                   
-                    if (now >= TargetTime)
-                    {
-                        List<Result> batchResults = await ExecuteTriggerables();
-
-                        if (batchResults.Any(r => !r.Success))
-                        {
-                            return Result.CreateFailure("One or more triggers failed during execution.");
-                        }
-
-                        return Result.CreateSuccess();
-                    }
-
-                    TimeSpan remaining = TargetTime - now;
-                    TimeSpan waitInterval = CalculateAdaptiveInterval(remaining);
-
-                    Console.WriteLine($"Approximate time remaining: {remaining.Days} days, {remaining.Hours} hours. Next check in: {waitInterval.TotalSeconds} seconds.");
-
-                    await Task.Delay(waitInterval, ExecutionToken);
+                    return Result.CreateSuccess();
                 }
+
+                TimeSpan remaining = TargetTime - now;
+                TimeSpan waitInterval = CalculateAdaptiveInterval(remaining);
+                await Task.Delay(waitInterval, cancellationToken);
             }
-            catch (OperationCanceledException)
-            {
-                return Result.CreateFailure("The operation was canceled.");
-            }
-            catch (Exception ex)
-            {
-                return Result.CreateFailure($"Timer exited unexpectedly: {ex.Message}");
-            }
+
+            return Result.CreateFailure("The trigger execution was canceled.");
         }
     }
 }

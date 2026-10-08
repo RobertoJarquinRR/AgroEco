@@ -1,4 +1,5 @@
-﻿using AgroEco.Core.Jobs;
+using AgroEco.Core;
+using AgroEco.Core.Jobs;
 using AgroEco.Core.Triggers;
 using AgroEco.Data;
 
@@ -14,10 +15,11 @@ namespace AgroEco.Data.Repositories
         // ApplyChanges es requerido por la clase base para saber cómo actualizar una entidad existente
         protected override void ApplyChanges(Trigger existingEntity, Trigger newEntity)
         {
-            // Como las propiedades tienen private set, actualizamos los campos permitidos 
-            // mediante la lógica o métodos que exponga tu entidad Trigger.
-            // Por ejemplo, si añadieras un método en Trigger como 'UpdateDetails', lo llamarías aquí:
-            // existingEntity.UpdateDetails(newEntity.Name, newEntity.Type);
+            Result result = existingEntity.UpdateDetails(newEntity.Name);
+            if (!result.Success)
+            {
+                throw new InvalidOperationException(result.Message);
+            }
         }
     }
 }

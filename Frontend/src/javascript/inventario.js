@@ -24,7 +24,8 @@ if (Win.chrome && Win.chrome.webview) {
     });
 
     Win.chrome.webview.postMessage({
-        type: "ready"
+        screen: "inventario",
+        type: "ready_inventario"
     });
 }
 
@@ -92,6 +93,7 @@ if(formulario){
             descripcion: /** @type {HTMLInputElement} */(document.getElementById("inputDescripcion")).value
         };
         Win.chrome.webview.postMessage({
+            screen: "inventario",
             type: "crearInsumo",
             payload: insumo
         });
@@ -257,6 +259,7 @@ function cargarInsumos(insumos) {
                 }
                 //envia el id del insumo que se elminó
                 Win.chrome.webview.postMessage({
+                    screen: "inventario",
                     type: "eliminarInsumo",
                     payload: {
                         id

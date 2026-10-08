@@ -1,0 +1,171 @@
+[
+  {
+    "id": 1,
+    "nombre": "Antracnosis",
+    "cientifico": "Colletotrichum spp.",
+    "riesgo": "Medio",
+    "desc": "Enfermedad causada por hongos del género colletotrichum que puede afectar diferentes órganos de la planta. Su desarrollo se favorece por condiciones de alta humedad.",
+    "favorece": "Alta humedad, lluvias frecuentes, poca ventilación, estrés ambiental y falta de nutrientes.",
+    "cultivos": [
+      {
+        "idCultivo": 1,
+        "nombreCultivo": "Café",
+        "comoIdentificar": "Puede presentarse como manchas y lesiones de color café oscuro en hojas, botones florales y frutos, pudiendo ocasionar pudrición.",
+        "pasosIdentificacion": [
+          "Revisar hojas, botones florales y frutos.",
+          "Buscar manchas o lesiones de color café oscuro.",
+          "Observar si existen lesiones hundidas.",
+          "Revisar frutos que presenten pudrición o caída."
+        ],
+        "prevencion": [
+          "Mantener aproximadamente un 50 % de sombra.",
+          "Mantener un espaciado adecuado de las plantas.",
+          "Realizar manejo oportuno de monte.",
+          "Retirar y eliminar frutos y tejidos afectados."
+        ],
+        "formulaTratamiento": "Caldo bordelés: 400 g de sulfato de cobre + 300 g de cal hidratada para 20 L de agua.",
+        "dosisPor20Litros": "Aplicar 20 L de la mezcla preparada por bomba.",
+        "frecuenciaTratamiento": "Aplicar preventivamente y repetir según monitoreo, humedad y presencia de síntomas."
+      },
+      {
+        "idCultivo": 2,
+        "nombreCultivo": "Aguacate",
+        "comoIdentificar": "Puede afectar frutos, hojas, flores y ramas, produciendo lesiones oscuras y deterioro de los tejidos.",
+        "pasosIdentificacion": [
+          "Revisar frutos y ramas.",
+          "Buscar manchas oscuras o lesiones hundidas.",
+          "Revisar frutos afectados o con signos de pudrición.",
+          "Observar ramas y tejidos con signos de deterioro."
+        ],
+        "prevencion": [
+          "Podar las ramas y ramitas muertas donde proliferan los hongos",
+          "Podar y cosechar solo en condiciones secas",
+          "Mantener una buena ventilación mediante un manejo adecuado de la copa",
+          "Retirar frutos y tejidos afectados.",
+          "Mantener limpia el área alrededor de los árboles."
+        ],
+        "formulaTratamiento": "Caldo bordelés: 200 g de sulfato de cobre + 200 g de cal para completar 20 L de agua.",
+        "dosisPor20Litros": "20 L de caldo bordelés al 1% por bomba.",
+        "frecuenciaTratamiento": "Aplicar preventivamente y repetir según monitoreo, humedad y presencia de síntomas."
+      }
+    ]
+  },
+
+  {
+    "id": 2,
+    "nombre": "Trips",
+    "cientifico": "Thysanoptera",
+    "riesgo": "Medio",
+    "desc": "Insectos pequeños que se alimentan de los tejidos de la planta, principalmente brotes, hojas jóvenes, flores y frutos en desarrollo.",
+    "favorece": "Temperaturas altas, sequedad ambienta, aplicaciones desmedidas de fertilizantes nitrogenados y la presencia de malezas",
+    "cultivos": [
+      {
+        "idCultivo": 1,
+        "nombreCultivo": "Café",
+        "comoIdentificar": "Se pueden encontrar pequeños insectos en brotes, hojas tiernas y flores, acompañados de decoloraciones, cicatrices o deformaciones.",
+        "pasosIdentificacion": [
+          "Revisar brotes y hojas jóvenes.",
+          "Inspeccionar flores y tejidos tiernos.",
+          "Buscar insectos pequeños de cuerpo alargado.",
+          "Observar decoloraciones, cicatrices o deformaciones.",
+          "Utilizar una lupa para confirmar la presencia."
+        ],
+        "prevencion": [
+          "Realizar monitoreos frecuentes de brotes, hojas y flores.",
+          "Eliminar tejidos severamente afectados cuando sea necesario.",
+          "Mantener un manejo adecuado de monte.",
+          "Permitir la presencia de árboles con flores alrededor de la finca para atraer a enemigos naturales de los trips"
+        ],
+        "formulaTratamiento": "Extracto de ajo y ají picante",
+        "dosisPor20Litros": "60 mililitros",
+        "frecuenciaTratamiento": "Cada 7 días durante infestaciones activas"
+      },
+      {
+        "idCultivo": 2,
+        "nombreCultivo": "Aguacate",
+        "comoIdentificar": "Frutos jóvenes con anillos o manchas color café con textura áspera y acorchada.",
+        "pasosIdentificacion": [
+          "Inspeccionar brotes tiernos y frutos recién cuajados.",
+          "Sacudir ramas sobre una superficie blanca para observar insectos.",
+          "Detectar plateado o bronceado superficial en hojas jóvenes.",
+          "Buscar cicatrices y deformaciones en frutos pequeños."
+        ],
+        "prevencion": [
+          "Monitorear brotes tiernos y frutos recién cuajados.",
+          "Eliminar tejidos o frutos severamente afectados.",
+          "Mantener un manejo adecuado de monte.",
+          "Colocar y mantener una capa de mantillo orgánico grueso de 15 cm de espesor debajo de la copa de los árboles."
+        ],
+        "formulaTratamiento": "Extracto de ajo y ají picante",
+        "dosisPor20Litros": "60 mililitros",
+        "frecuenciaTratamiento": "Cada 7 días durante infestaciones activas"
+      }
+    ]
+  },
+
+  {
+    "id": 3,
+    "nombre": "Roya",
+    "cientifico": "Hemileia vastatrix",
+    "riesgo": "Alto",
+    "desc": "Enfermedad causada por un hongo que afecta principalmente las hojas y tallos de diversos cultivos, puede provocar pérdida prematura de las hojas y reducción de la producción.",
+    "favorece": "Alta humedad, períodos prolongados de mojado de las hojas, ausencia de podas, lluvias frecuentes y condiciones de poca ventilación.",
+    "cultivos": [
+      {
+        "idCultivo": 1,
+        "nombreCultivo": "Café",
+        "comoIdentificar": "En el envés de las hojas aparecen manchas amarillas o anaranjadas acompañadas de un polvo de color amarillo-anaranjado.",
+        "pasosIdentificacion": [
+          "Revisar principalmente el envés de las hojas.",
+          "Buscar manchas amarillas o anaranjadas.",
+          "Observar si existe polvo amarillo o anaranjado.",
+          "Revisar si las lesiones aumentan de tamaño.",
+          "Registrar la incidencia durante los monitoreos."
+        ],
+        "prevencion": [
+          "Regular la sombra",
+          "Mantener una densidad de siembra adecuada.",
+          "Realizar monitoreos periódicos de las hojas.",
+          "Realizar podas de ventilación",
+          "Retirar hojas severamente afectadas cuando corresponda.",
+          "Mantener un buen estado nutricional de las plantas."
+        ],
+        "formulaTratamiento": "Oxicloruro de cobre 50% a 10 g/L de agua.",
+        "dosisPor20Litros": "200 g de oxicloruro de cobre 50% para completar 20 L de agua.",
+        "frecuenciaTratamiento": "Primera aplicación aproximadamente 60 días después de la floración principal y posteriores aplicaciones cada 45 días, según monitoreo."
+      }
+    ]
+  },
+
+  {
+    "id": 4,
+    "nombre": "Broca del café",
+    "cientifico": "Hypothenemus hampei",
+    "riesgo": "Alto",
+    "desc": "Pequeño insecto que perfora los frutos del café y puede afectar el peso y la calidad del grano.",
+    "favorece": "Frutos de café que quedan en la planta o en el suelo después de la cosecha, falta de regulación de sombra y falta de recolección de frutos infestados.",
+    "cultivos": [
+      {
+        "idCultivo": 1,
+        "nombreCultivo": "Café",
+        "comoIdentificar": "La presencia puede detectarse mediante perforaciones en los frutos y mediante muestreos para determinar el nivel de infestación.",
+        "pasosIdentificacion": [
+          "Revisar frutos verdes, pintones, maduros y sobremaduros.",
+          "Buscar perforaciones en los frutos.",
+          "Realizar muestreos para determinar el nivel de infestación.",
+          "Recolectar frutos sobrantes después de la cosecha.",
+          "Registrar los resultados del monitoreo."
+        ],
+        "prevencion": [
+          "Realizar una recolección completa de los frutos durante la cosecha.",
+          "Recolectar frutos sobrantes después de la cosecha.",
+          "Evitar dejar frutos maduros o secos en la planta.",
+          "Realizar monitoreos periódicos para detectar oportunamente la infestación."
+        ],
+        "formulaTratamiento": "Beauveria bassiana a 2 g/L de agua.",
+        "dosisPor20Litros": "40 g de Beauveria bassiana para completar 20 L de agua.",
+        "frecuenciaTratamiento": "Aplicar cuando la infestación supere el 2% y más del 50% de los frutos perforados presenten brocas en posiciones A o B."
+      }
+    ]
+  }
+]

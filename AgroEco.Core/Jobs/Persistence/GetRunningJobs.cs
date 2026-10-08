@@ -13,9 +13,10 @@ namespace AgroEco.Core.Jobs.Persistence
             _jobRepository = jobRepository;
         }
 
-        public async Task<Result<List<Job>>> HandleAsync()
+        public async Task<Result<List<Job>>> HandleAsync(
+            CancellationToken ct = default)
         {
-            var jobs = await _jobRepository.GetRunningJobsAsync();
+            var jobs = await _jobRepository.GetRunningJobsAsync(ct);
 
             if (jobs == null || jobs.Count == 0)
             {

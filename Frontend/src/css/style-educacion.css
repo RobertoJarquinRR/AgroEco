@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Boldonse&family=Iosevka+Charon:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import "/src/css/fonts.css";
 
 :root {
     --font-primary: 'Poppins', sans-serif;
@@ -44,9 +44,8 @@ img {
     max-width: 100%;
 }
 
-/* ==========================================
-   ESTRUCTURA GENERAL Y SIDEBAR (ORIGINAL)
-   ========================================== */
+/*
+   ESTRUCTURA GENERAL Y SIDEBAR (ORIGINAL)*/
 
 .app-container {
     display: grid;
@@ -134,9 +133,9 @@ aside {
     color: #bc6661;
 }
 
-/* ==========================================
+/* 
    CONTENIDO PRINCIPAL (AJUSTADO SIN SCROLL)
-   ========================================== */
+*/
 
 .main-content {
     padding: 20px 25px;
@@ -241,7 +240,20 @@ svg{
 .filters-row.wrap {
     flex-wrap: wrap;
 }
+/* paneles */
+.etapas-panels {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
 
+.etapa-panel {
+    display: none;
+}
+
+.etapa-panel.active {
+    display: block;
+}
 
 .filter-btn {
     background: white;

@@ -127,54 +127,193 @@ document.addEventListener('DOMContentLoaded', () => {
 //     dosis: "1 L de biol por cada 10 L de agua"
 // };
     // --obtener datos--
-    const Win = /** @type {any} */ (window);
-    if (Win.chrome && win.chrome.webview) {
-    Win.chrome.webview.addEventListener("message",
-        (/** @type {MessageEvent} */ event) => {
+const Win = /** @type {any} */ (window);
+    if (Win.chrome && Win.chrome.webview) {
+        // Entorno real de C# (WPF WebView2)
+        Win.chrome.webview.addEventListener("message", (/** @type {MessageEvent} */ event) => {
             const { type, payload } = event.data;
             switch (type) {
+                case "educacion_contenidos":
+                    inicializarModuloEducacion(payload);
+                    break;
                 case "datosEtapa":
                     mostrarDatosEtapa(payload);
                     break;
-
                 case "alturaMaxima":
                     mostrarAlturaMaxima(payload);
                     break;
-
                 case "infoPoda":
                     mostrarInfoPoda(payload);
                     break;
-
                 case "listaBioinsumos":
                     cargarBioinsumos(payload);
                     break;
-
-                case "detalleBioinsumo":
-                    const card = /** @type {HTMLElement | null} */ (
-                        document.querySelector(
-                        `.accordion-item[data-id="${idBioInsumo}"]`
-                        )
-                    );
-
-                    if (card) {
-                        mostrarDetalleBioinsumo(payload, card);
-                    }
-
+                case "cargar_detalle_bioinsumo":
+                    mostrarDetalleBioinsumo(payload, document.querySelector('.accordion-item.open'));
                     break;
-
                 case "alertaClimatica":
                     mostrarAlertaClimatica(payload);
                     break;
-
-                default:
-                    console.warn(
-                        "Tipo de mensaje no reconocido:",
-                        type
-                    );
-                    break;
             }
         });
-        Win.chrome.webview.postMessage({type: "ready"});
+        Win.chrome.webview.postMessage({ type: "ready_educacion" });
+    } else {
+        // Entorno de prueba en Navegador (Live Server / Vite)
+        console.warn("Ejecutando en navegador web local. Cargando JSON localmente...");
+        // La carpeta 'public' se sirve en la ra�z '/' por Vite
+        fetch('/data/educacion.json')
+            .then(res => {
+                if (!res.ok) throw new Error("No se pudo cargar el archivo educacion.json");
+                return res.json();
+            })
+            .then(data => {
+                console.log("JSON cargado con éxito en navegador:", data);
+                inicializarModuloEducacion(data);
+            })
+            .catch(err => console.error("Error al cargar el JSON:", err));
+    }
+    let datosGlobales = null; // Guardamos el JSON aquí para usarlo en los filtros
+    const isBrowserMode = !(Win.chrome && Win.chrome.webview); // true si NO hay WebView2
+
+    /**@param {*} data  */
+    function inicializarModuloEducacion(data) {
+        datosGlobales = data;
+        
+        // 1. Renderizar botones de cultivos dinámicamente si tienes un contenedor para ellos
+        renderizarFiltroCultivos(data.cultivos);
+        
+        // 2. Cargar bioinsumos generales
+        if (data.bioinsumos) {
+            cargarBioinsumos(data.bioinsumos);
+        }
+
+        // 3. Seleccionar por defecto el primer cultivo si existe
+        if (data.cultivos && data.cultivos.length > 0) {
+            seleccionarCultivo(data.cultivos[0].id);
+        }
+    }
+    // ========== MODO NAVEGADOR (sin C#) ==========
+    // Estas funciones leen directo de datosGlobales en vez de pedir a C#
+    
+    /** @param {string | number} cultivo */
+    function seleccionarCultivoBrowser(cultivo) {
+        idCultivo = Number(cultivo);
+        // Renderizar stepper de etapas para este cultivo
+        renderizarStepperEtapas(idCultivo);
+        // Seleccionar primera etapa por defecto
+        const etapas = datosGlobales.etapas?.filter(e => e.cultivoIds.includes(idCultivo)) || [];
+        if (etapas.length > 0) {
+            seleccionarEtapaBrowser(etapas[0].id);
+        }
+    }
+    
+    /** @param {string | number} etapa */
+    function seleccionarEtapaBrowser(etapa) {
+        idEtapa = Number(etapa);
+        const etapaData = datosGlobales.etapas?.find(e => e.id === idEtapa && e.cultivoIds.includes(idCultivo));
+        if (etapaData) {
+            mostrarDatosEtapa(etapaData);
+        }
+        // Actualizar UI stepper
+        document.querySelectorAll('.step').forEach(s => s.classList.toggle('active', s.dataset.step == idEtapa));
+        document.querySelectorAll('.etapa-panel').forEach(p => p.classList.toggle('active', p.dataset.step == idEtapa));
+    }
+    
+    function renderizarStepperEtapas(cultivoId) {
+        const stepper = document.querySelector('.stepper-horizontal');
+        if (!stepper) return;
+        const etapas = datosGlobales.etapas?.filter(e => e.cultivoIds.includes(cultivoId)) || [];
+        if (etapas.length === 0) return;
+        
+        stepper.innerHTML = '';
+        etapas.forEach((etapa, index) => {
+            const stepDiv = document.createElement('div');
+            stepDiv.className = 'step' + (index === 0 ? ' active' : '');
+            stepDiv.dataset.step = etapa.id;
+            stepDiv.innerHTML = `\n                <div class="step-icon">\n                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>\n                </div>\n                <span class="step-label">${etapa.nombre}</span>\n            `;
+            stepDiv.addEventListener('click', () => {
+                document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+                stepDiv.classList.add('active');
+                document.querySelectorAll('.etapa-panel').forEach(p => p.classList.toggle('active', p.dataset.step == etapa.id));
+                seleccionarEtapaBrowser(etapa.id);
+            });
+            stepper.appendChild(stepDiv);
+            if (index < etapas.length - 1) {
+                const line = document.createElement('div');
+                line.className = 'step-line';
+                stepper.appendChild(line);
+            }
+        });
+    }
+    
+    /** @param {string | number} poda */
+    function seleccionarTipoPodaBrowser(poda) {
+        idPoda = Number(poda);
+        // Filtrar podas del cultivo actual y tipo seleccionado
+        const podaData = datosGlobales.podas?.find(p => 
+            p.tipoId === idPoda && p.cultivoIds.includes(idCultivo)
+        );
+        if (podaData) {
+            mostrarInfoPoda(podaData);
+        }
+        // Actualizar filtros visuales
+        document.querySelectorAll('#filter-poda .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter == idPoda));
+        document.querySelectorAll('.icon-filter').forEach(f => f.classList.toggle('active', f.dataset.filter == idPoda));
+    }
+    
+    /** @param {string | number} categoria */
+    function seleccionarCategoriaBIBrowser(categoria) {
+        idCategoriaBioInsumo = Number(categoria);
+        let bioinsumos = datosGlobales.bioinsumos || [];
+        if (idCategoriaBioInsumo !== 1) { // 1 = "Todos"
+            const catMap = {2: 'JADAM', 3: 'FPJ', 4: 'Extractos', 5: 'Cobertura'};
+            const catNombre = catMap[idCategoriaBioInsumo];
+            if (catNombre) bioinsumos = bioinsumos.filter(b => b.categoria === catNombre);
+        }
+        cargarBioinsumos(bioinsumos);
+    }
+    
+    /** @param {string | number} insumo */
+    function seleccionarBioInsumoBrowser(insumo) {
+        idBioInsumo = Number(insumo);
+        const bio = datosGlobales.bioinsumos?.find(b => b.id === idBioInsumo);
+        if (bio) {
+            const index = datosGlobales.bioinsumos?.findIndex(b => b.id === idBioInsumo) ?? 0;
+            const card = document.querySelector(`.accordion-item:nth-child(${index + 1})`);
+            if (card && card.classList.contains('open')) {
+                mostrarDetalleBioinsumo(bio, card);
+            }
+        }
+    }
+    
+    /** @param {string | number} dist */
+    function seleccionarDistanciaBrowser(dist) {
+        distancia = Number(dist);
+        const altura = Math.round(distancia * 0.7 * 10) / 10; // 70% con 1 decimal
+        mostrarAlturaMaxima(altura);
+    }
+
+    /**@param {Array<{id: number, nombre: string, icono: string}>} cultivos  */
+
+    function renderizarFiltroCultivos(cultivos) {
+        const contenedorFiltro = document.getElementById("filter-cultivos");
+        if (!contenedorFiltro) return;
+
+        contenedorFiltro.innerHTML = "";
+        cultivos.forEach((cultivo, index) => {
+            const btn = document.createElement("button");
+            btn.className = `filter-btn ${index === 0 ? 'active' : ''}`;
+            btn.setAttribute("data-filter", String(cultivo.id));
+            btn.textContent = cultivo.nombre;
+            
+            btn.addEventListener('click', () => {
+                contenedorFiltro.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                seleccionarCultivo(cultivo.id);
+            });
+
+            contenedorFiltro.appendChild(btn);
+        });
     }
 
     let idCultivo = 1;
@@ -197,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         Win.chrome.webview.postMessage({
+            screen: "educacion",
             type: type,
             payload: payload
         });
@@ -206,6 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
     * @param {string | number} cultivo
     */
     function seleccionarCultivo(cultivo) {
+        if (isBrowserMode) { seleccionarCultivoBrowser(cultivo); return; }
         idCultivo = Number(cultivo)
         solicitarDatosEtapa();
     }
@@ -213,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string | number} etapa
     */
     function seleccionarEtapa(etapa) {
-
+        if (isBrowserMode) { seleccionarEtapaBrowser(etapa); return; }
         idEtapa = Number(etapa);
         solicitarDatosEtapa();
     }
@@ -234,6 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string | number} dist
     */
     function seleccionarDistancia(dist) {
+        if (isBrowserMode) { seleccionarDistanciaBrowser(dist); return; }
         distancia = Number(dist);
         enviarMensaje("obtenerAlturaMaxima", distancia);
     }
@@ -243,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string | number} poda
     */
     function seleccionarTipoPoda(poda){
+        if (isBrowserMode) { seleccionarTipoPodaBrowser(poda); return; }
         idPoda = Number(poda)
         enviarMensaje("obtenerDatosPoda", idPoda);
     }
@@ -252,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string | number} categoria
     */
     function seleccionarCategoriaBI(categoria){
+        if (isBrowserMode) { seleccionarCategoriaBIBrowser(categoria); return; }
         idCategoriaBioInsumo = Number(categoria)
         enviarMensaje("obtenerDatosCategoriaBioInsumo", idCategoriaBioInsumo);
     }
@@ -259,6 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string | number} insumo
     */
     function seleccionarBioInsumo(insumo){
+        if (isBrowserMode) { seleccionarBioInsumoBrowser(insumo); return; }
         idBioInsumo = Number(insumo)
         enviarMensaje("obtenerDatosBioinsumo", idBioInsumo);
     }
@@ -266,34 +411,33 @@ document.addEventListener('DOMContentLoaded', () => {
     //--mostrar datos--
     //ciclo de cultivo
     /** @param {{id: number, nombre: string, duracion: string, descripcion: string, insumos: Array<{dia: number, nombre: string, dosis:string}>}} datos */
-     function mostrarDatosEtapa(datos){
-        document.querySelectorAll('.icon-step')
-            .forEach(svg => svg.classList.remove('active'));
+    function mostrarDatosEtapa(datos){
+        const panel = document.getElementById(`etapa-${datos.id ?? idEtapa}`);
+        if (!panel) return;
 
-        /** @type {HTMLElement} */ (document.querySelector(`.icon-step[data-step="${idEtapa}"]`)).classList.add('active');
-        /** @type {HTMLElement} */ (document.getElementById("etapaTitulo")).textContent = datos.nombre;
-        /** @type {HTMLElement} */ (document.getElementById("etapaDuracion")).textContent = datos.duracion;
-        /** @type {HTMLElement} */ (document.getElementById("etapaDescripcion")).textContent = datos.descripcion;
+        /** @param {string} campo */
+        const campo = (campo) => /** @type {HTMLElement} */ (panel.querySelector(`[data-field="${campo}"]`));
 
-        const contenedor = /** @type {HTMLElement} */  (document.getElementById("vertical-timeline-box"));
+        campo("nombre").textContent = datos.nombre;
+        campo("duracion").textContent = datos.duracion;
+        campo("descripcion").textContent = datos.descripcion;
+
+        const contenedor = campo("insumos");
         contenedor.innerHTML = "";
         datos.insumos.forEach(insumo => {
             const card = document.createElement("div");
-
-            card.className = `timeline-step`;
-
+            card.className = "timeline-step";
             card.innerHTML = `
-            <div class="timeline-line"></div>
-            <span class="timeline-label">Día ${insumo.dia}</span>
-            <div class="timeline-content">
-                <p class="insumo-name">${insumo.nombre}</p>
-                <p class="insumo-dosis">${insumo.dosis}</p>
-            </div>
+                <div class="timeline-line"></div>
+                <span class="timeline-label">Día ${insumo.dia}</span>
+                <div class="timeline-content">
+                    <p class="insumo-name">${insumo.nombre}</p>
+                    <p class="insumo-dosis">${insumo.dosis}</p>
+                </div>
             `;
             contenedor.appendChild(card);
-    });
-}
-
+        });
+    }
 //calculadora de altura maxima
  /** @param {number} altura */
 function mostrarAlturaMaxima(altura){
@@ -533,16 +677,19 @@ function mostrarDetalleBioinsumo(datos, card){
 // fases del cultivo (ciclo del cultivo)
     const step = document.querySelectorAll('.stepper-horizontal .step');
     step.forEach(boton => {
-        boton.addEventListener("click", () => {
-            step.forEach(o => o.classList.remove("active"));
-            boton.classList.add("active");
+    boton.addEventListener("click", () => {
+        step.forEach(o => o.classList.remove("active"));
+        boton.classList.add("active");
 
-            const id = /** @type {HTMLElement} */(boton).dataset.step;
-            
-            seleccionarEtapa(String(id))
-            // mostrarDatosEtapa(datosEtapaPrueba) //para probar xd
+        const id = /** @type {HTMLElement} */(boton).dataset.step;
+
+        document.querySelectorAll('.etapa-panel').forEach(p => {
+            p.classList.toggle("active", /** @type {HTMLElement} */(p).dataset.step === id);
         });
+
+        seleccionarEtapa(String(id));
     });
+});
 
     //valores de la calculadora de altura maxima
     const rango = /** @type {HTMLInputElement} */(document.getElementById("input-rango"));
@@ -569,3 +716,10 @@ function mostrarDetalleBioinsumo(datos, card){
         }
     });
 });
+
+
+
+
+
+
+

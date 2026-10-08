@@ -11,6 +11,7 @@ namespace AgroEco.Core.Jobs
         Running = 3,
         Succeeded = 4,
         Faulted = 5,
-        Canceled = 6
+        Canceled = 6,
+        CompletedWithErrors = 7
     }
 }

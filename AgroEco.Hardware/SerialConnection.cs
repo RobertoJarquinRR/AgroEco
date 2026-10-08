@@ -11,7 +11,9 @@ namespace AgroEco.Hardware;
 
 public sealed class SerialConnection : ISerialConnection, IDisposable
 {
-    private const string ConnectionChallenge = "canYouconectect?";
+    private const string ConnectionChallenge = "ECOAGRO/1 CHALLENGE";
+    private const string ConnectionAccept = "ECOAGRO/1 ACCEPT";
+    private const string ConnectionReady = "ECOAGRO/1 READY";
     private const string MessageStart = "@{";
     private const string MessageEnd = "}*";
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -290,7 +292,14 @@ public sealed class SerialConnection : ISerialConnection, IDisposable
                 ConnectionChallenge,
                 StringComparison.Ordinal))
             {
-                serialPort.WriteLine("y");
+                serialPort.WriteLine(ConnectionAccept);
+                incomingData.Clear();
+            }
+
+            if (incomingData.ToString().Contains(
+                ConnectionReady,
+                StringComparison.Ordinal))
+            {
                 return true;
             }
 

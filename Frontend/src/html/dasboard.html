@@ -84,28 +84,28 @@
                             <img src="/images/svg-hackaton/Vector (7).svg" alt="Sensores Activos">
                             <span>Sensores Activos</span>
                         </div>
-                        <span class="num">{num}</span>
+                        <span class="num" id="stat-sensores">0</span>
                     </div>
                     <div class="box">
                         <div class="top">
                             <img src="/images/svg-hackaton/Vector (8).svg" alt="Alertas">
                             <span>Alertas</span>
                         </div>
-                        <span class="num">{num}</span>
+                        <span class="num" id="stat-alertas">0</span>
                     </div>
                     <div class="box">
                         <div class="top">
                             <img src="/images/svg-hackaton/money-income 1.svg" alt="Tareas Activas">
                             <span>Tareas Activas</span>
                         </div>
-                        <span class="num">{num}</span>
+                        <span class="num" id="stat-tareas-activas">0</span>
                     </div>
                     <div class="box">
                         <div class="top">
                             <img src="/images/svg-hackaton/task-checklist 2.svg" alt="Tareas Completadas">
                             <span>Tareas Completadas</span>
                         </div>
-                        <span class="num">{num}</span>
+                        <span class="num" id="stat-tareas-completadas">0</span>
                     </div>
                 </div>
 
@@ -122,26 +122,26 @@
                             <div class="boxCalendar">
                                 <span id = "dia1">Lun</span>
                                 <img src="/images/svg-hackaton/Vector (6).svg" alt="sun" width="25px" height="25px">
-                                <span id = "tempDia1">{temp}</span>
-                                <span id = "humedadDia1">{hum}</span>
+                                <span id = "tempDia1">—</span>
+                                <span id = "humedadDia1">—</span>
                             </div>
                             <div class="boxCalendar">
                                 <span id = "dia2">Mar</span>
                                 <img src="/images/svg-hackaton/Vector (6).svg" alt="sun" width="25px" height="25px">
-                                <span id = "tempDia2">{temp}</span>
-                                <span id = "humedadDia2">{hum}</span>
+                                <span id = "tempDia2">—</span>
+                                <span id = "humedadDia2">—</span>
                             </div>
                             <div class="boxCalendar">
                                 <span id = "dia3">Mie</span>
                                 <img src="/images/svg-hackaton/Vector (6).svg" alt="sun" width="25px" height="25px">
-                                <span id = "tempDia3">{temp}</span>
-                                <span id = "humedadDia3">{hum}</span>
+                                <span id = "tempDia3">—</span>
+                                <span id = "humedadDia3">—</span>
                             </div>
                             <div class="boxCalendar">
                                 <span id = "dia4">Jue</span>
                                 <img src="/images/svg-hackaton/Vector (6).svg" alt="sun" width="25px" height="25px">
-                                <span id = "tempDia4">{temp}</span>
-                                <span id = "humedadDia4">{hum}</span>
+                                <span id = "tempDia4">—</span>
+                                <span id = "humedadDia4">—</span>
                             </div>
 
                         </div>
@@ -170,23 +170,23 @@
                             <span class = "alertaspan">Alertas Recientes</span>
                         </div>
                         <div class="num">
-                            <span id = "alertNotification" style="pointer-events: none;">2</span>
+                            <span id = "alertNotification" style="pointer-events: none;">0</span>
                         </div>
                     </div>
                     <!--Cards-->
                     <div class="cards"> <!--Son card de manera vertical son rows de la alertas pueden hgenerarse muchas -->
-                        <div class="card">                                                     
+                        <div class="card" style="display:none;">                                                     
                             <img src="/images/svg-hackaton/alerta1.svg">                                                    
                             <div class="join">
                                 <h4>Alerta 1</h4>
-                                <p>Hace : <span id = "alertTime">{Min}</span></p> <!--Aqui sera con c# comunicacion js con c# y luego muestra datos-->
+                                <p>Hace : <span id = "alertTime">—</span></p>
                             </div>
                         </div>
-                        <div class="card">                            
+                        <div class="card" style="display:none;">                            
                             <img src="/images/svg-hackaton/alerta2.svg">
                             <div class="join">
                                 <h4>Alerta 2</h4>
-                                <p>Hace : <span id = "alertTime">{minutos -horas -dias}</span></p>
+                                <p>Hace : <span id = "alertTime">—</span></p>
                             </div>                            
                         </div>
                     </div>
@@ -197,11 +197,20 @@
                             <img src="/images/svg-hackaton/Vector (9).svg" alt="vectorcheck">
                             <span class="alertaspan">Tareas de la finca</span>
                         </div>
-                        <div class="num"> <!--reutilizo solo el css en realidas es el ver todas las tareas-->
-                            <a href="#" class="ref">Ver todas ></a>
+                        <div class="num">
+                            <a href="/src/html/modulo-tareas.html" class="ref">Ver todas ></a>
                         </div>
                     </div>
                         <!--cards  futuro agregadas con c#-->
+                </div>
+                <div class="tareas">
+                    <div class="line">
+                        <div class="union">
+                            <img src="/images/svg-hackaton/Vector (7).svg" alt="Umbrales">
+                            <span class="alertaspan">Umbrales Recientes</span>
+                        </div>
+                    </div>
+                    <div id="umbralesContainer" class="umbrales-list"></div>
                 </div>
             </div>
         </main>

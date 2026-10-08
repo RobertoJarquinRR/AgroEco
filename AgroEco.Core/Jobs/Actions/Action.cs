@@ -1,4 +1,5 @@
 ﻿using AgroEco.Core.Interfaces;
+using AgroEco.Core.Jobs.Actions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +12,7 @@ namespace AgroEco.Core.Jobs.Actions
         public string Name { get; private set; }
         public Status Status { get; private set; }
         public int JobId { get; private set; }
+        public ActionConfiguration? Configuration { get; set; }
 
         protected Action(string name){ 
             Name = name;
@@ -21,8 +23,17 @@ namespace AgroEco.Core.Jobs.Actions
 
         public abstract Task<Result> Execute();
 
+        internal virtual void AttachServices(IServiceProvider services)
+        {
+        }
+
         public Result ChangeStatus(Status status)
         {
+            if (Status == status)
+            {
+                return Result.CreateSuccess();
+            }
+
             if (!IsValidTransition(Status, status))
             {
                 return Result.CreateFailure(
