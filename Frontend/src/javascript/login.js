@@ -24,7 +24,7 @@ const alertaMensaje = document.getElementById("alerta-mensaje"); //mensaje que s
 
 btnLogin?.addEventListener("click", () => {
     //ojo esto es de prueba un bypass
-    location.assign("/src/html/selector-fincas.html");
+    location.assign("/src/html/dasboard.html");
 
     /* //obtener correo, tipo: string
     const correo = correoInput ? correoInput.value : "";
