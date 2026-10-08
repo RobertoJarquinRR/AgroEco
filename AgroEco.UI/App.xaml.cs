@@ -50,7 +50,9 @@ namespace AgroEco.UI
             {
                 using var scope = ServiceProvider.CreateScope();
                 var database = scope.ServiceProvider.GetRequiredService<DataContext>();
-                database.Database.Migrate();
+                //database.Database.Migrate();
+                database.Database.EnsureDeleted();
+                database.Database.EnsureCreated();
             }
             catch (Exception exception)
             {
@@ -66,6 +68,7 @@ namespace AgroEco.UI
             
 
         }
+        
 
         protected override void OnExit(ExitEventArgs e)
         {
