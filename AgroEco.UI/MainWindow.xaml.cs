@@ -8,11 +8,13 @@ using System.Text.Json;
 using AgroEco.UI.Handlers;
 using AgroEco.UI.Alerts;
 using AgroEco.UI.Mensajeros;
+using AgroEco.UI.Services;
 
 namespace AgroEco.UI
 {
     public partial class MainWindow : Window
     {
+
         private readonly MsgRouter _router;
         private readonly ILogger<MainWindow> _logger;
 
@@ -36,6 +38,12 @@ namespace AgroEco.UI
             var finanzasHandler = finanzasFactory(EnviarAJS);
             var dashboardHandler = dashboardFactory(EnviarAJS);
             var sensoresHandler = sensoresFactory(EnviarAJS);
+            //COONECCION DE SENSOR
+            SerialHostedService.MensajeRecibido += (type, payload) =>
+            {
+                EnviarAJS(type, payload);
+            };
+
             var sensorReadingHandler = sensorReadingFactory(EnviarAJS);
             var inventarioHandler = inventarioFactory(EnviarAJS);
             var educacionHandler = educacionFactory(EnviarAJS);

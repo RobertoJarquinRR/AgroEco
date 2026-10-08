@@ -14,7 +14,7 @@ namespace AgroEco.UI.Services;
 public class SerialHostedService : BackgroundService
 {
     private SerialConnection? _serialConnection;
-    private static event Action<string, object > MensajeRecibido;
+    public static event Action<string, object > MensajeRecibido;
     private readonly ILogger<SerialHostedService> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly SerialSettings _settings;
@@ -96,7 +96,7 @@ public class SerialHostedService : BackgroundService
         if (message.Type != "sensor_reading") return;
         if (message.Value is { } v && v.TryGetDecimal(out var decimalValue))
         {
-            MensajeRecibido?.Invoke(message.ComponentId, message.Value);
+            MensajeRecibido?.Invoke(message.ComponentId, decimalValue);
         }
     }
 
