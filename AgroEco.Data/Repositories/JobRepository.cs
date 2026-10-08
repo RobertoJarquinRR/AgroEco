@@ -1,8 +1,8 @@
 using AgroEco.Core;
 using AgroEco.Core.Jobs;
 using AgroEco.Core.Jobs.Runs;
+using AgroEco.Core.Triggers;
 using AgroEco.Core.Triggers.Configuration;
-using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Persistence.Queries;
 using Microsoft.EntityFrameworkCore;
 namespace AgroEco.Data.Repositories
@@ -63,23 +63,30 @@ namespace AgroEco.Data.Repositories
                     $"Job '{existingEntity.Name}' must have a trigger.");
             }
 
-            if (existingEntity.Trigger is not DateTimeTrigger existingDateTime
-                || newEntity.Trigger is not DateTimeTrigger newDateTime)
+            if (existingEntity.Trigger.GetType() != newEntity.Trigger.GetType())
             {
                 throw new InvalidOperationException(
-                    "The trigger type cannot be updated through the current repository.");
+                    $"Trigger type cannot be changed from {existingEntity.Trigger.GetType().Name} to {newEntity.Trigger.GetType().Name}.");
             }
 
-            _context.Entry(existingDateTime)
-                .Property(trigger => trigger.TargetTime)
-                .CurrentValue = newDateTime.TargetTime;
+            var configResult = existingEntity.Trigger.UpdateConfiguration(newEntity.Trigger.GetConfiguration());
+            if (!configResult.Success)
+            {
+                throw new InvalidOperationException(configResult.Message);
+            }
+
+            var nameResult = existingEntity.Trigger.UpdateDetails(newEntity.Trigger.Name);
+            if (!nameResult.Success)
+            {
+                throw new InvalidOperationException(nameResult.Message);
+            }
         }
 
         public async Task<List<Job>> GetRunningJobsAsync(
             CancellationToken ct = default)
         {
             List<Job> jobs = await _context.Jobs
-            .Where(j => j.Status == Status.Running)
+            .Where(j => j.Trigger.Enabled)
             .AsNoTracking()
             .Include(j => j.Trigger)
             .Include(j => j.Actions)

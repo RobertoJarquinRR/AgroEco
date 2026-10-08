@@ -123,11 +123,8 @@ namespace AgroEco.Core.Jobs
         }
 
         public async Task<Result> OnTrigger()
-        {  
-            
-            Console.WriteLine("Ejecutando el Job...");
-
-            if(Status == Status.Succeeded)
+        {
+            if (Status == Status.Succeeded)
             {
                 return Result.CreateSuccess($"Job {Name} executes successfully");
             }

@@ -13,8 +13,6 @@ using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Triggers.Events.Persistence;
 using AgroEco.Core.Inventario.Persistence;
 using AgroEco.Core.Finanzas.Persistence;
-using AgroEco.Core.Alertas.Persistence;
-using AgroEco.Core.Alertas;
 using AgroEco.Core.Alerts;
 using AgroEco.Core.Alerts.Persistence;
 using AgroEco.Core.Reportes;
@@ -70,13 +68,6 @@ namespace AgroEco.Core
             services.AddScoped<GetByIdRegistroFinanciero>();
             services.AddScoped<UpdateRegistroFinanciero>();
             services.AddScoped<DeleteRegistroFinanciero>();
-
-            // Umbrales de sensores
-            services.AddScoped<CreateUmbralSensor>();
-            services.AddScoped<GetAllUmbralesSensor>();
-            services.AddScoped<GetByIdUmbralSensor>();
-            services.AddScoped<UpdateUmbralSensor>();
-            services.AddScoped<DeleteUmbralSensor>();
 
             // Reportes
             services.AddScoped<IExportService, ExportService>();

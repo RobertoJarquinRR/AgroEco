@@ -51,7 +51,7 @@ public sealed class JobRepositoryTests
     }
 
     [Fact]
-    public async Task GetRunningJobsAsync_WhenRunningJobExists_ReturnsOnlyRunningJobs()
+    public async Task GetRunningJobsAsync_WhenEnabledTriggerExists_ReturnsJob()
     {
         // Arrange
         await using SqliteConnection connection = new("Data Source=:memory:");
@@ -63,17 +63,19 @@ public sealed class JobRepositoryTests
         await using (DataContext context = new(options))
         {
             await context.Database.EnsureCreatedAsync();
+            var trigger = new DateTimeTrigger(
+                "watering",
+                DateTimeOffset.UtcNow.AddHours(1));
+            trigger.Enable(); // Enable the trigger
+            
             Result<Job> creation = await Job.CreateJob(
                 "running job",
                 null,
                 Status.Created,
                 null,
                 [new NoOpAction("action")],
-                new DateTimeTrigger(
-                    "watering",
-                    DateTimeOffset.UtcNow.AddHours(1)));
+                trigger);
             Assert.True(creation.Success);
-            Assert.True(creation.Value.ChangeStatus(Status.Running).Success);
             context.Jobs.Add(creation.Value);
             await context.SaveChangesAsync();
         }
@@ -85,8 +87,8 @@ public sealed class JobRepositoryTests
 
         // Assert
         Job job = Assert.Single(jobs);
-        Assert.Equal(Status.Running, job.Status);
         Assert.NotNull(job.Trigger);
+        Assert.True(job.Trigger.Enabled);
         Assert.Single(job.Actions);
     }
 

@@ -5,7 +5,6 @@ using AgroEco.Core.Triggers.Implementations;
 using AgroEco.Core.Jobs.Actions.Implementations;
 using AgroEco.Core.Inventario;
 using AgroEco.Core.Finanzas;
-using AgroEco.Core.Alertas;
 using AgroEco.Core.Alerts;
 using AgroEco.Core.Jobs.Actions.Configuration;
 using AgroEco.Core.Jobs.Runs;
@@ -24,7 +23,6 @@ namespace AgroEco.Data
         public DbSet<Trigger> Triggers { get; set; }
         public DbSet<Insumo> Insumos { get; set; }
         public DbSet<RegistroFinanciero> RegistrosFinancieros { get; set; }
-        public DbSet<UmbralSensor> UmbralesSensor { get; set; }
         public DbSet<AlertEntity> Alerts { get; set; }
         public DbSet<AlertDeliveryEntity> AlertDeliveries { get; set; }
         public DbSet<JobRun> JobRuns { get; set; }
@@ -258,55 +256,6 @@ modelBuilder.Entity<DateTimeTrigger>(entity =>{
                 entity.HasIndex(r => r.Fecha);
                 entity.HasIndex(r => r.Tipo);
                 entity.HasIndex(r => r.TaskId);
-            });
-
-            // Mapeo Umbrales Sensor
-            modelBuilder.Entity<UmbralSensor>(entity =>
-            {
-                entity.ToTable("UmbralesSensor");
-                entity.HasKey(u => u.Id);
-                
-                entity.Property(u => u.SensorTipo)
-                      .IsRequired()
-                      .HasMaxLength(50);
-                
-                entity.Property(u => u.FincaNombre)
-                      .HasMaxLength(50);
-                
-                entity.Property(u => u.Minimo)
-                      .HasColumnType("decimal(18,2)");
-                
-                entity.Property(u => u.Maximo)
-                      .HasColumnType("decimal(18,2)");
-                
-                entity.Property(u => u.SeveridadMinima)
-                      .HasMaxLength(20);
-                
-                entity.Property(u => u.SeveridadMaxima)
-                      .HasMaxLength(20);
-                
-                entity.Property(u => u.AccionSugerida)
-                      .HasMaxLength(500);
-                
-                entity.Property(u => u.CantidadInsumoSugerida)
-                      .HasColumnType("decimal(18,2)");
-                
-                entity.Property(u => u.CostoUnitarioSugerido)
-                      .HasColumnType("decimal(18,2)");
-                
-                entity.Property(u => u.AccionTipo)
-                      .HasMaxLength(50);
-                
-                entity.Property(u => u.AccionConfigJson)
-                      .HasColumnType("TEXT");
-                
-                entity.Property(u => u.CooldownMinutos);
-                
-                entity.Property(u => u.UltimoDisparo);
-                
-                entity.HasIndex(u => u.SensorTipo);
-                entity.HasIndex(u => u.FincaId);
-                entity.HasIndex(u => u.Activo);
             });
 
             modelBuilder.Entity<AlertEntity>(entity =>

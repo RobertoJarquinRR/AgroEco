@@ -1,4 +1,5 @@
 using AgroEco.Core.Interfaces;
+using AgroEco.Core.Triggers.Configuration;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AgroEco.Core.Triggers
@@ -52,6 +53,12 @@ namespace AgroEco.Core.Triggers
             Name = name.Trim();
             return Result.CreateSuccess();
         }
+
+        public virtual TriggerConfiguration GetConfiguration()
+            => throw new NotSupportedException($"{GetType().Name} does not support configuration extraction.");
+
+        public virtual Result UpdateConfiguration(TriggerConfiguration configuration)
+            => Result.CreateFailure($"{GetType().Name} does not support configuration updates.");
 
         public Result Subscribe(ITriggerable triggerable)
         {
