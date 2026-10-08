@@ -18,18 +18,18 @@ using namespace std;
 long ultimaLectura = 0 ;
 
 //textofijo para mandar mensajes
-const String jsonTypeRead = "reading";
+const String jsonTypeRead = "sensor_reading";
 const String jsonTypeFailed = "fault";
-sensorHumedadAmbiente sensorHumedadAmb(4);
-sensorHumedadSuelo sensorHSuelo(34,300, 4095);
-sensorTempAmbiente sensorTempAmb(4);
+sensorHumedadAmbiente humedad_ambiente(4);
+sensorHumedadSuelo humedad_suelo(34,300, 4095);
+sensorTempAmbiente temperatura_ambiente (4);
 sensorLuz senLuz(35,4095, 0);
-sensorTempSuelo tempSuelo(32);
+sensorTempSuelo temperatura_suelo(32);
 
 //actuadores
 actuadorRiego riego(27);
 
-Isensor* sensores[] = {&sensorHSuelo , &sensorHumedadAmb,&sensorTempAmb, &senLuz , &tempSuelo};
+Isensor* sensores[] = {&humedad_suelo , &humedad_ambiente,&temperatura_ambiente, &senLuz , &temperatura_suelo};
 
 int cantidadSensores = 5;
 
@@ -39,9 +39,9 @@ void setup()
   Serial.begin(115200);
 
   //inicio solo estos el de humedad suelo no necesita eso
-  sensorHumedadAmb.Iniciar();
-  sensorTempAmb.Iniciar();
-  tempSuelo.Iniciar();
+  humedad_ambiente.Iniciar();
+  temperatura_ambiente.Iniciar();
+  temperatura_suelo.Iniciar();
 
   //inicio el actuador pero ojo la configuracion no es que va a arrancar 
   riego.IniciarA();//basicamente le hago saber que en el pin 27 va a mandar senal para activarse o no eso se vera en el c#
@@ -117,7 +117,5 @@ void loop()
     
     Serial.println(result.c_str());
     mi.DataQueue.pop();
-  }
-
-  
+  }  
 }

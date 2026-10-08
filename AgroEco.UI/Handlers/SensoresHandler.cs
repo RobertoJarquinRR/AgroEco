@@ -1,10 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using AgroEco.UI.Mensajeros;
+using AgroEco.Core;
+
 
 namespace AgroEco.UI.Handlers
 {
+
     public class SensoresHandler
     {
+
+
         private readonly Action<string, object> _enviar;
         private readonly ILogger<SensoresHandler> _logger;
 
