@@ -34,7 +34,7 @@ namespace AgroEco.Data
             services.AddScoped<IRepository<JobRun>, JobRunRepository>();
                         services.AddScoped<IJobRunRepository, JobRunRepository>();
                         services.AddScoped<IRepository<JobRunAction>, JobRunActionRepository>();
-                        services.AddScoped<IRepository<TriggerEvent>, RepositoryBase<TriggerEvent, DataContext>>();
+                        services.AddScoped<IRepository<TriggerEvent>, TriggerEventRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork<DataContext>>();
 
 
