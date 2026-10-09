@@ -138,7 +138,7 @@ aside {
 */
 
 .main-content {
-    padding: 20px 25px;
+    padding: 30px;
     display: flex;
     flex-direction: column;
     background-color: var(--color-fondo-app);
@@ -179,10 +179,10 @@ aside {
 }
 
 .header-text p {
-    margin: 0;
+    margin-top: 5px;
     color: var(--grey-text);
     font-weight: 500;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .sub-nav {
@@ -826,7 +826,7 @@ ol li::before {
     .main-content {
         height: auto;
         overflow: visible;
-        padding: 15px;
+        padding: 30px;
     }
 }
 .icon-step, .icon-filter{

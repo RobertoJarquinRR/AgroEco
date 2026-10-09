@@ -87,7 +87,7 @@ aside{
     font-size:14px;
     font-weight: var(--font-weight-primary);
     border-radius: 12px; 
-    cursor:default;
+    cursor:pointer;
     transition:all 0.3s ease-in-out;   
 }
 .sidebar ul li a:hover{    
