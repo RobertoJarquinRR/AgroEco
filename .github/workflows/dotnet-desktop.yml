@@ -1,0 +1,52 @@
+name: Compilacion Hibrida (Web + Desktop)
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build_app:
+    runs-on: windows-latest
+
+    env:
+      solution: AgroEco.slnx
+      Ui: AgroEco.UI/AgroEco.UI.csproj
+      
+    steps:
+    - name: source_code
+      uses: actions/checkout@v4
+
+    - name: pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
+    - name: Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+   
+    - name: dependencies
+      working-directory: Frontend
+      run: pnpm install
+   
+    - name: build frontend
+      working-directory: Frontend
+      run: pnpm build
+
+    - name: .NET App
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: unit tests
+      run: dotnet test $env:solution --configuration Release
+
+    - name: publish desktop app
+      run: dotnet publish $env:Ui -c Release -r win-x64 -p:PublishSingleFile=true -o ./BuildOutput
+
+    - name: upload 
+      uses: actions/upload-artifact@v4
+      with:
+        name: App
+        path: ./BuildOutput
