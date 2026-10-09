@@ -247,7 +247,7 @@ function solicitarUmbrales() {
     /** @type {any} */
     const win = window;
     if (win.chrome && win.chrome.webview) {
-        win.chrome.webview.postMessage({ type: "obtenerUmbrales" });
+        win.chrome.webview.postMessage({ screen: "sensores", type: "obtenerUmbrales" });
     }
 }
 
@@ -255,7 +255,7 @@ function solicitarAccionesDisponibles() {
     /** @type {any} */
     const win = window;
     if (win.chrome && win.chrome.webview) {
-        win.chrome.webview.postMessage({ type: "obtenerAccionesDisponibles" });
+        win.chrome.webview.postMessage({ screen: "sensores", type: "obtenerAccionesDisponibles" });
     }
 }
 
@@ -470,7 +470,7 @@ function enviarUmbral() {
     /** @type {any} */
     const win = window;
     if (win.chrome && win.chrome.webview) {
-        win.chrome.webview.postMessage({ type: tipo, payload: datos });
+        win.chrome.webview.postMessage({ screen: "sensores", type: tipo, payload: datos });
     }
 }
 
@@ -522,7 +522,7 @@ function editarUmbral(id) {
     const win = window;
     if (win.chrome && win.chrome.webview) {
         // Solicitar umbrales y luego buscar el que coincide
-        win.chrome.webview.postMessage({ type: "obtenerUmbrales" });
+        win.chrome.webview.postMessage({ screen: "sensores", type: "obtenerUmbrales" });
         // Guardar el ID para cuando llegue la respuesta
         umbralAEditar = id;
     }
@@ -544,7 +544,7 @@ function eliminarUmbral(id) {
     /** @type {any} */
     const win = window;
     if (win.chrome && win.chrome.webview) {
-        win.chrome.webview.postMessage({ type: "eliminarUmbral", payload: { Id: id } });
+        win.chrome.webview.postMessage({ screen: "sensores", type: "eliminarUmbral", payload: { Id: id } });
     }
     cerrarModalEliminar();
 }
@@ -647,9 +647,9 @@ function cerrarModalEliminar() {
         });
 
         // Solicitar alertas activas al iniciar
-        winSensores.chrome.webview.postMessage({ type: "obtenerAlertasActivas" });
+        winSensores.chrome.webview.postMessage({ screen: "sensores", type: "obtenerAlertasActivas" });
 
-        winSensores.chrome.webview.postMessage({ type: "ready_sensores" });
+        winSensores.chrome.webview.postMessage({ screen: "sensores", type: "ready_sensores" });
 
         // Cargar la lista de umbrales al abrir la pantalla
         solicitarUmbrales();

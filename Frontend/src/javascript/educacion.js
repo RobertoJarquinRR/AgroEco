@@ -136,7 +136,7 @@ const Win = /** @type {any} */ (window);
                 case "educacion_contenidos":
                     inicializarModuloEducacion(payload);
                     break;
-                case "datosEtapa":
+                case "cargar_etapas":  // Coincide con lo que envía C# (EducacionHandler.cs línea 270)
                     mostrarDatosEtapa(payload);
                     break;
                 case "alturaMaxima":
@@ -156,7 +156,8 @@ const Win = /** @type {any} */ (window);
                     break;
             }
         });
-        Win.chrome.webview.postMessage({ type: "ready_educacion" });
+        // Usar el mismo tipo que define TiposMensaje.ListoEducacion = "listo_educacion"
+        Win.chrome.webview.postMessage({ screen: "educacion", type: "listo_educacion" });
     } else {
         // Entorno de prueba en Navegador (Live Server / Vite)
         console.warn("Ejecutando en navegador web local. Cargando JSON localmente...");
@@ -347,7 +348,9 @@ const Win = /** @type {any} */ (window);
     */
     function seleccionarCultivo(cultivo) {
         if (isBrowserMode) { seleccionarCultivoBrowser(cultivo); return; }
-        idCultivo = Number(cultivo)
+        idCultivo = Number(cultivo);
+        idEtapa = 1; // Reset a primera etapa del nuevo cultivo
+        renderizarStepperEtapas(idCultivo); // Reconstruir stepper para este cultivo
         solicitarDatosEtapa();
     }
     /**
@@ -364,7 +367,8 @@ const Win = /** @type {any} */ (window);
             return;
         }
 
-        enviarMensaje("obtenerDatosEtapa", {
+        // Coincide con TiposMensaje.ObtenerDatosEtapa = "obtener_datos_etapa"
+        enviarMensaje("obtener_datos_etapa", {
             idCultivoSelec: idCultivo,
             idEtapaSelec: idEtapa
         });
@@ -410,21 +414,25 @@ const Win = /** @type {any} */ (window);
 
     //--mostrar datos--
     //ciclo de cultivo
-    /** @param {{id: number, nombre: string, duracion: string, descripcion: string, insumos: Array<{dia: number, nombre: string, dosis:string}>}} datos */
+    /** @param {{id: number, nombre: string, duracion: string, descripcion: string, insumos: Array<{dia: number, nombre: string, dosis:string}>} | Array<{id: number, nombre: string, duracion: string, descripcion: string, insumos: Array<{dia: number, nombre: string, dosis:string}>}>} datos */
     function mostrarDatosEtapa(datos){
-        const panel = document.getElementById(`etapa-${datos.id ?? idEtapa}`);
+        // C# envía un array (lista), tomar el primer elemento
+        const etapa = Array.isArray(datos) ? datos[0] : datos;
+        if (!etapa) return;
+        
+        const panel = document.getElementById(`etapa-${etapa.id ?? idEtapa}`);
         if (!panel) return;
 
         /** @param {string} campo */
         const campo = (campo) => /** @type {HTMLElement} */ (panel.querySelector(`[data-field="${campo}"]`));
 
-        campo("nombre").textContent = datos.nombre;
-        campo("duracion").textContent = datos.duracion;
-        campo("descripcion").textContent = datos.descripcion;
+        campo("nombre").textContent = etapa.nombre;
+        campo("duracion").textContent = etapa.duracion;
+        campo("descripcion").textContent = etapa.descripcion;
 
         const contenedor = campo("insumos");
         contenedor.innerHTML = "";
-        datos.insumos.forEach(insumo => {
+        (etapa.insumos || []).forEach(insumo => {
             const card = document.createElement("div");
             card.className = "timeline-step";
             card.innerHTML = `

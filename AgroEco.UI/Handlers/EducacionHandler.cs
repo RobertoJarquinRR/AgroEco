@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.IO;
 
 namespace AgroEco.UI.Handlers
 {
@@ -75,22 +76,26 @@ namespace AgroEco.UI.Handlers
                 _logger.LogError(ex, "Error cargando educacion.json");
             }
         }
+        private static readonly string RutaJson = Path.Combine(AppContext.BaseDirectory, "Data", "educacion.json");
 
-        private void EnviarContenidos()
+       private void EnviarContenidos()
+{
+    try
+    {
+        if (!File.Exists(RutaJson))
         {
-            if (_data is null) return;
-
-            var resumen = new
-            {
-                tiposPoda = _data.TiposPoda.Select(t => new { t.Id, t.Nombre }),
-                cultivos = _data.Cultivos.Select(c => new { c.Id, c.Nombre, c.Cientifico, c.Icono }),
-                podas = _data.Podas.Select(p => new { p.Id, p.Nombre, p.Fase, p.TipoId, p.CultivoIds }),
-                etapas = _data.Etapas.Select(e => new { e.Id, e.Nombre, e.Duracion, e.CultivoIds }),
-                bioinsumos = _data.Bioinsumos.Select(b => new { b.Id, b.Nombre, b.Categoria, b.CategoriaId, b.CultivoIds })
-            };
-
-            _enviar("educacion_contenidos", resumen);
+            _logger.LogError("No se encontró {Ruta}", RutaJson);
+            return;
         }
+
+        var contenido = JsonSerializer.Deserialize<JsonElement>(File.ReadAllText(RutaJson));
+        _enviar("educacion_contenidos", contenido);
+        }
+        catch (Exception ex)
+        {
+        _logger.LogError(ex, "Error al enviar contenidos de educación");
+        }
+    }
 
         private void ObtenerDatosPoda(Mensaje msg)
         {

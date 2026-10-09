@@ -1,0 +1,664 @@
+{
+  "tiposPoda": [
+    { "id": 1, "nombre": "Formación" },
+    { "id": 2, "nombre": "Mantenimiento" },
+    { "id": 3, "nombre": "Sanitaria" },
+    { "id": 4, "nombre": "Renovación / Recepa" }
+  ],
+
+  "cultivos": [
+    { "id": 1, "nombre": "Café", "cientifico": "Coffea arabica", "icono": "cafe.svg" },
+    { "id": 2, "nombre": "Aguacate", "cientifico": "Persea americana", "icono": "avocado-svgrepo-com.svg" },
+    { "id": 3, "nombre": "Mango", "cientifico": "Mangifera indica", "icono": "mango.svg" },
+    { "id": 4, "nombre": "Naranja", "cientifico": "Citrus sinensis", "icono": "naranja.svg" },
+    { "id": 5, "nombre": "Limón", "cientifico": "Citrus spp.", "icono": "limon.svg" },
+    { "id": 6, "nombre": "Cacao", "cientifico": "Theobroma cacao", "icono": "cacao.svg" },
+    { "id": 7, "nombre": "Guayaba", "cientifico": "Psidium guajava", "icono": "guayaba.svg" }
+  ],
+
+  "podas": [
+    {
+      "id": 1, "cultivoIds": [1], "tipoId": 1,
+      "nombre": "Poda de formación", "fase": "Crecimiento",
+      "objetivo": "Establecer la estructura principal del cafeto en etapas tempranas.",
+      "procedimiento": [
+        "Realizar desmoche o deshije para favorecer el desarrollo de ramas productivas.",
+        "Desinfectar las herramientas de corte antes y después de cada planta."
+      ],
+      "justificacion": "Una estructura definida desde el inicio distribuye mejor la energía de la planta y facilita el manejo del cultivo."
+    },
+    {
+      "id": 2, "cultivoIds": [1], "tipoId": 2,
+      "nombre": "Poda de mantenimiento / deshije", "fase": "Producción / Post-cosecha",
+      "objetivo": "Eliminar chupones, ramas secas o enfermas para mejorar la ventilación e iluminación.",
+      "procedimiento": [
+        "Cortar chupones salientes del tronco principal a ras de tallo.",
+        "Retirar ramas bajeras o muertas para prevenir el ataque de hongos."
+      ],
+      "justificacion": "Menos follaje innecesario mejora la aireación y reduce la humedad donde proliferan los hongos."
+    },
+    {
+      "id": 3, "cultivoIds": [1], "tipoId": 4,
+      "nombre": "Poda de renovación / zoqueo", "fase": "Post-cosecha",
+      "objetivo": "Rejuvenecer el tejido productivo del lote agotado.",
+      "procedimiento": [
+        "Realizar el corte en bisel (en diagonal) a 30-40 cm del suelo.",
+        "Aplicar pasta cicatrizante o biocontrolador sobre la herida del corte."
+      ],
+      "justificacion": "El corte en bisel evita que el agua se acumule en la herida, y el rebrote da tejido nuevo y productivo."
+    },
+    {
+      "id": 4, "cultivoIds": [2], "tipoId": 1,
+      "nombre": "Poda de formación", "fase": "Crecimiento",
+      "objetivo": "Definir un eje central o estructura en copa balanceada.",
+      "procedimiento": [
+        "Despuntar el brote apical para incentivar la ramificación lateral.",
+        "Manejar la altura del árbol para facilitar las labores de cosecha."
+      ],
+      "justificacion": "Despuntar rompe la dominancia apical y genera más ramas laterales; controlar la altura facilita la cosecha."
+    },
+    {
+      "id": 5, "cultivoIds": [2], "tipoId": 3,
+      "nombre": "Poda sanitaria y de aireación", "fase": "Producción",
+      "objetivo": "Aumentar la entrada de luz solar y flujo de aire al interior de la copa.",
+      "procedimiento": [
+        "Eliminar ramas cruzadas, quebradas o atacadas por plagas/enfermedades.",
+        "Pintar o proteger las ramas gruesas expuestas al sol directo para evitar quemaduras."
+      ],
+      "justificacion": "Más luz y aire en la copa reducen focos de plagas y enfermedades y mejoran la fructificación."
+    },
+    {
+      "id": 6, "cultivoIds": [3], "tipoId": 1,
+      "nombre": "Poda de formación", "fase": "Crecimiento",
+      "objetivo": "Conformar una estructura de pirámide invertida con ramas bien distribuidas.",
+      "procedimiento": [
+        "Aplicarla cuando la planta alcance entre 70 y 100 cm de altura.",
+        "Cortar el tallo principal para estimular brotes laterales y dejar las ramas mejor ubicadas.",
+        "Repetir despuntes en los siguientes flujos de crecimiento, dejando 3 a 4 brotes por rama."
+      ],
+      "justificacion": "Una estructura abierta y baja facilita la cosecha, el control de plagas y la entrada de luz."
+    },
+    {
+      "id": 7, "cultivoIds": [3], "tipoId": 2,
+      "nombre": "Poda de mantenimiento y aclareo", "fase": "Producción / Post-cosecha",
+      "objetivo": "Mantener la copa aireada y productiva año con año.",
+      "procedimiento": [
+        "Cortar siempre por debajo de cada nudo de crecimiento.",
+        "Eliminar los brotes verticales.",
+        "Abrir ventanas en el centro de la copa quitando ramas con ángulo de inserción menor a 45°."
+      ],
+      "justificacion": "Más luz y aire en el interior favorece la floración y reduce la humedad que propicia enfermedades."
+    },
+    {
+      "id": 8, "cultivoIds": [3], "tipoId": 4,
+      "nombre": "Poda de rejuvenecimiento", "fase": "Post-cosecha",
+      "objetivo": "Recuperar árboles viejos o descuidados.",
+      "procedimiento": [
+        "Cortar las ramas principales de forma severa después de la cosecha.",
+        "Dejar de 3 a 4 brotes por rama en el rebrote.",
+        "Dar pinzados consecutivos siguiendo los criterios de la poda de formación."
+      ],
+      "justificacion": "El rebrote genera madera nueva y productiva y baja la altura del árbol."
+    },
+    {
+      "id": 9, "cultivoIds": [4, 5], "tipoId": 1,
+      "nombre": "Poda de formación", "fase": "Crecimiento",
+      "objetivo": "Definir una estructura equilibrada con ramas principales bien repartidas.",
+      "procedimiento": [
+        "Seleccionar 3 ramas vigorosas bien separadas (aprox. 120° entre sí) como ramas principales.",
+        "Eliminar chupones y brotes por debajo de la primera ramificación.",
+        "Evitar podas fuertes en árboles jóvenes: retrasan la entrada en producción."
+      ],
+      "justificacion": "Una estructura bien formada desde el inicio sostiene el peso de la cosecha y facilita el manejo."
+    },
+    {
+      "id": 10, "cultivoIds": [4, 5], "tipoId": 2,
+      "nombre": "Poda de fructificación y mantenimiento", "fase": "Producción / Post-cosecha",
+      "objetivo": "Sostener una producción estable y de buena calidad.",
+      "procedimiento": [
+        "Podar como mínimo una vez al año, después de la cosecha.",
+        "No eliminar más del 30% de ramas y hojas en una sola poda.",
+        "Quitar ramas secas, cruzadas y chupones para mejorar la iluminación interna."
+      ],
+      "justificacion": "Demasiado follaje crea microclimas húmedos que favorecen plagas y enfermedades."
+    },
+    {
+      "id": 11, "cultivoIds": [4, 5], "tipoId": 4,
+      "nombre": "Poda de rejuvenecimiento", "fase": "Post-cosecha",
+      "objetivo": "Recuperar árboles viejos o debilitados con baja productividad.",
+      "procedimiento": [
+        "Acortar ramas largas con una poda fuerte, de forma gradual.",
+        "Desinfectar las herramientas entre árboles.",
+        "Proteger los cortes gruesos de la exposición directa al sol."
+      ],
+      "justificacion": "Renueva la estructura del árbol para volver a producir fruta de calidad."
+    },
+    {
+      "id": 12, "cultivoIds": [6], "tipoId": 1,
+      "nombre": "Poda de formación", "fase": "Crecimiento (primeros 3 años)",
+      "objetivo": "Formar un árbol bajo con una sola horqueta bien definida.",
+      "procedimiento": [
+        "Dejar la primera horqueta y no permitir que se forme una segunda.",
+        "Eliminar a tiempo los chupones basales y brotes mal dirigidos.",
+        "Despuntar ramas con dominancia exagerada."
+      ],
+      "justificacion": "Una copa baja y ordenada facilita el manejo y deja entrar la luz necesaria."
+    },
+    {
+      "id": 13, "cultivoIds": [6], "tipoId": 2,
+      "nombre": "Poda de mantenimiento", "fase": "Producción",
+      "objetivo": "Mantener la copa sana, cónica y con una altura manejable (menos de 4 m).",
+      "procedimiento": [
+        "Hacerla una vez en época seca y otra después de la cosecha.",
+        "Retirar chupones y ramas entrecruzadas del interior de la copa.",
+        "Controlar la altura del árbol."
+      ],
+      "justificacion": "Mejora la ventilación y la entrada de luz, lo que ayuda a controlar enfermedades del fruto."
+    },
+    {
+      "id": 14, "cultivoIds": [6], "tipoId": 3,
+      "nombre": "Poda sanitaria", "fase": "Producción",
+      "objetivo": "Eliminar tejido enfermo o dañado.",
+      "procedimiento": [
+        "Retirar ramas secas, enfermas y frutos infectados.",
+        "Desinfectar las herramientas entre plantas.",
+        "Proteger los cortes con pasta cicatrizante."
+      ],
+      "justificacion": "Quitar focos de infección reduce la propagación de enfermedades en la plantación."
+    },
+    {
+      "id": 15, "cultivoIds": [6], "tipoId": 4,
+      "nombre": "Poda de rehabilitación", "fase": "Post-cosecha",
+      "objetivo": "Recuperar plantaciones viejas o descuidadas.",
+      "procedimiento": [
+        "Elegir entre rehabilitación parcial o total según el estado del lote.",
+        "Seleccionar los brotes que formarán el nuevo árbol.",
+        "Proteger los cortes y vigilar el rebrote durante los meses de recuperación."
+      ],
+      "justificacion": "Permite renovar la producción sin replantar todo el cacaotal."
+    },
+    {
+      "id": 16, "cultivoIds": [7], "tipoId": 1,
+      "nombre": "Poda de formación", "fase": "Crecimiento (primer año)",
+      "objetivo": "Establecer la estructura y eliminar chupones en la planta joven.",
+      "procedimiento": [
+        "Hacer la primera poda cuando el árbol alcance unos 50 cm de altura.",
+        "Eliminar chupones y dejar las ramas principales bien repartidas.",
+        "Continuar el despunte en los primeros años."
+      ],
+      "justificacion": "Una buena formación temprana define la producción de los años siguientes."
+    },
+    {
+      "id": 17, "cultivoIds": [7], "tipoId": 2,
+      "nombre": "Poda de producción", "fase": "Post-cosecha",
+      "objetivo": "Estimular brotes nuevos, que son los que dan fruto.",
+      "procedimiento": [
+        "Podar después de cada cosecha.",
+        "Acortar ramas para provocar brotación nueva.",
+        "Ralear flores o frutos si hay exceso, para mejorar el tamaño."
+      ],
+      "justificacion": "La guayaba fructifica en brotes nuevos; sin poda produce menos y de peor calidad."
+    },
+    {
+      "id": 18, "cultivoIds": [7], "tipoId": 3,
+      "nombre": "Poda sanitaria", "fase": "Todo el ciclo",
+      "objetivo": "Eliminar focos de enfermedad.",
+      "procedimiento": [
+        "Retirar ramas secas, enfermas o dañadas.",
+        "Aplicar fungicida o pasta cicatrizante en los cortes.",
+        "Desinfectar herramientas entre árboles."
+      ],
+      "justificacion": "Reduce la presencia de plagas y patógenos en la huerta."
+    },
+    {
+      "id": 19, "cultivoIds": [7], "tipoId": 4,
+      "nombre": "Poda de rejuvenecimiento", "fase": "Árboles viejos",
+      "objetivo": "Renovar árboles viejos o con formación descuidada.",
+      "procedimiento": [
+        "Cortar las ramas principales dejando troncos o ramas bajas.",
+        "Seleccionar los brotes nuevos más vigorosos.",
+        "Aplicar protección en los cortes."
+      ],
+      "justificacion": "Devuelve vigor y productividad a árboles que ya no rinden."
+    }
+  ],
+
+  "etapas": [
+    {
+      "id": 1, "cultivoIds": [1], "nombre": "Germinación",
+      "duracion": "40 a 45 días en germinador (chapolas listas a los ~70 días)",
+      "descripcion": "La semilla germina en el semillero y pasa por las fases de fosforito y chapola. Las chapolas sanas y vigorosas se trasplantan a bolsas en el vivero, cerca del área de siembra.",
+      "insumos": [
+        { "dia": 0, "nombre": "Desinfección del sustrato con plástico transparente", "dosis": "3 a 5 días cubierto" },
+        { "dia": 45, "nombre": "Trasplante de chapolas sanas a bolsas de vivero", "dosis": "Bolsas de 6 x 8 pulgadas" },
+        { "dia": 75, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" }
+      ]
+    },
+    {
+      "id": 2, "cultivoIds": [1], "nombre": "Crecimiento",
+      "duracion": "Vivero ~6 meses y ~2.5 años en campo hasta producir",
+      "descripcion": "Las plantas pasan unos 6 meses en vivero y luego crecen en la parcela. En esta fase se forma la estructura del cafeto, se maneja la sombra y se controlan las malezas.",
+      "insumos": [
+        { "dia": 0, "nombre": "Pulpa de café descompuesta al sembrar", "dosis": "Alrededor de cada planta" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 60, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 90, "nombre": "Mulch (cobertura muerta)", "dosis": "Capa en el plato, sin tocar el tallo" }
+      ]
+    },
+    {
+      "id": 3, "cultivoIds": [1], "nombre": "Producción",
+      "duracion": "De 3 a 20 años de producción",
+      "descripcion": "Con las primeras lluvias (mayo en el Pacífico) ocurre la floración principal. Entre la floración y la madurez del fruto pasan de 6 a 9 meses. Se mantiene la nutrición, la sombra y la sanidad del lote.",
+      "insumos": [
+        { "dia": 0, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 15, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 30, "nombre": "Extracto de ajo y cebolla (preventivo)", "dosis": "1 L por bomba de 20 L" },
+        { "dia": 60, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:500 al suelo" }
+      ]
+    },
+    {
+      "id": 4, "cultivoIds": [1], "nombre": "Cosecha",
+      "duracion": "6 a 9 meses después de la floración (varios pases de corte)",
+      "descripcion": "Se cortan solo las cerezas maduras, en varios pases, porque la floración no es uniforme. Después del corte se da el beneficiado y se aprovecha la pulpa como abono.",
+      "insumos": [
+        { "dia": 0, "nombre": "Corte selectivo de cerezas maduras", "dosis": "Solo frutos maduros, en varios pases" },
+        { "dia": 30, "nombre": "Poda post-cosecha", "dosis": "Ver Guías de poda" },
+        { "dia": 45, "nombre": "Pulpa de café descompuesta", "dosis": "Devolver al lote como abono" }
+      ]
+    },
+
+    {
+      "id": 1, "cultivoIds": [2], "nombre": "Germinación",
+      "duracion": "Patrón en vivero hasta ~10 meses (edad de injerto)",
+      "descripcion": "Se siembra semilla de aguacate criollo para obtener el patrón. Cuando tiene unos 10 meses se injerta con la variedad deseada, ya que la propagación por injerto es la más apropiada para plantaciones.",
+      "insumos": [
+        { "dia": 0, "nombre": "Siembra de semilla criolla para patrón", "dosis": "Semilla fresca y sana" },
+        { "dia": 15, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 300, "nombre": "Injerto sobre el patrón", "dosis": "A los ~10 meses de edad" }
+      ]
+    },
+    {
+      "id": 2, "cultivoIds": [2], "nombre": "Crecimiento",
+      "duracion": "Hasta ~5 años desde la plantación (árbol injertado)",
+      "descripcion": "El árbol se planta en el campo unos 4 a 6 meses después del injerto. En los primeros años se forma la copa y se cuida el desarrollo. La primera cosecha comercial llega alrededor de los 5 años.",
+      "insumos": [
+        { "dia": 0, "nombre": "Trasplante al campo", "dosis": "4 a 6 meses después del injerto" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 60, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 90, "nombre": "Mulch (cobertura muerta)", "dosis": "Capa alrededor del tronco, sin tocarlo" }
+      ]
+    },
+    {
+      "id": 3, "cultivoIds": [2], "nombre": "Producción",
+      "duracion": "Floración a madurez del fruto: 6 a 11 meses",
+      "descripcion": "El fruto tarda entre 6 y 11 meses en madurar. Es común que haya cosechas grandes solo en años alternos, por lo que conviene cuidar la nutrición y la sanidad del árbol cada año.",
+      "insumos": [
+        { "dia": 0, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 30, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 60, "nombre": "Extracto de ajo y cebolla (preventivo)", "dosis": "1 L por bomba de 20 L" },
+        { "dia": 90, "nombre": "Mulch (cobertura muerta)", "dosis": "Renovar la capa en el plato" }
+      ]
+    },
+    {
+      "id": 4, "cultivoIds": [2], "nombre": "Cosecha",
+      "duracion": "Cosecha extendida, según la variedad",
+      "descripcion": "Se cosechan frutos que alcanzaron madurez fisiológica. El fruto aguanta en el árbol en buenas condiciones durante un tiempo, lo que permite extender la cosecha.",
+      "insumos": [
+        { "dia": 0, "nombre": "Cosecha escalonada de frutos con madurez fisiológica", "dosis": "Recolectar por pases" },
+        { "dia": 30, "nombre": "Poda sanitaria y de aireación", "dosis": "Ver Guías de poda" },
+        { "dia": 45, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" }
+      ]
+    },
+
+    {
+      "id": 1, "cultivoIds": [3], "nombre": "Germinación",
+      "duracion": "10 a 20 días germinación; 5 a 6 meses en vivero",
+      "descripcion": "Se usa semilla fresca (pierde rápido su poder de germinación), sin la cáscara dura. Las plantas pasan unos 5 a 6 meses en vivero con sombra parcial antes de injertarse o pasar al campo.",
+      "insumos": [
+        { "dia": 0, "nombre": "Siembra de semilla fresca sin endocarpio", "dosis": "En cama con sustrato suelto" },
+        { "dia": 20, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 60, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 150, "nombre": "Trasplante o injerto", "dosis": "Plantas de 5 a 6 meses" }
+      ]
+    },
+    {
+      "id": 2, "cultivoIds": [3], "nombre": "Crecimiento",
+      "duracion": "4 a 5 años hasta la primera floración (árbol injertado)",
+      "descripcion": "El árbol joven se establece en el campo y se forma con podas tempranas. Los árboles injertados pueden empezar a dar fruto entre los 4 y 5 años.",
+      "insumos": [
+        { "dia": 0, "nombre": "Trasplante al campo con mulch", "dosis": "Capa en el plato, sin tocar el tallo" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 60, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 90, "nombre": "Poda de formación", "dosis": "Cuando mida 70 a 100 cm" }
+      ]
+    },
+    {
+      "id": 3, "cultivoIds": [3], "nombre": "Producción",
+      "duracion": "Fruto madura de 2 a 4 meses después de la floración",
+      "descripcion": "La floración se favorece con un período seco antes de las lluvias. La floración es la etapa más sensible a enfermedades como el oídio, por lo que se vigila la sanidad de la copa.",
+      "insumos": [
+        { "dia": 0, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 15, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 30, "nombre": "Extracto de chile con jabón", "dosis": "1 L por bomba de 20 L" }
+      ]
+    },
+    {
+      "id": 4, "cultivoIds": [3], "nombre": "Cosecha",
+      "duracion": "Según la variedad y el clima",
+      "descripcion": "La cosecha se hace a mano y en forma selectiva, cuando el fruto alcanzó madurez fisiológica. Después de la cosecha se hace la poda de mantenimiento para favorecer la floración siguiente.",
+      "insumos": [
+        { "dia": 0, "nombre": "Cosecha manual selectiva", "dosis": "Fruto con madurez fisiológica" },
+        { "dia": 15, "nombre": "Poda de mantenimiento y aclareo", "dosis": "Ver Guías de poda" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" }
+      ]
+    },
+
+    {
+      "id": 1, "cultivoIds": [4, 5], "nombre": "Germinación",
+      "duracion": "7 a 14 días germinación del patrón; injerto de yema después",
+      "descripcion": "Las plantas de cítricos se producen injertando una yema de la variedad deseada sobre un patrón de semilla. El prendimiento del injerto se revisa a los 15 días y la cinta se retira a los ~22 días.",
+      "insumos": [
+        { "dia": 0, "nombre": "Siembra de semillas del patrón", "dosis": "0.5 a 1 cm de profundidad" },
+        { "dia": 14, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 120, "nombre": "Injerto de yema sobre el patrón", "dosis": "Revisar a los 15 días; retirar cinta a los ~22" }
+      ]
+    },
+    {
+      "id": 2, "cultivoIds": [4, 5], "nombre": "Crecimiento",
+      "duracion": "Primeros años en campo, hasta la primera cosecha",
+      "descripcion": "Se forma el árbol con 3 ramas principales bien repartidas. Conviene evitar podas fuertes en árboles jóvenes porque retrasan la entrada en producción.",
+      "insumos": [
+        { "dia": 0, "nombre": "Trasplante al campo con mulch", "dosis": "Capa en el plato, sin tocar el tallo" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 60, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 90, "nombre": "Poda de formación", "dosis": "Ver Guías de poda" }
+      ]
+    },
+    {
+      "id": 3, "cultivoIds": [4, 5], "nombre": "Producción",
+      "duracion": "Naranja: ~8 meses de floración a cosecha; limón: floración casi continua",
+      "descripcion": "La floración ocurre 15 a 30 días después de lluvias fuertes tras un período seco. El limón florece casi todo el año; la naranja tiene épocas definidas. Se vigilan plagas comunes como minador, pulgones y mosca blanca.",
+      "insumos": [
+        { "dia": 0, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 15, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 30, "nombre": "Extracto de ajo y cebolla", "dosis": "1 L por bomba de 20 L" },
+        { "dia": 45, "nombre": "Extracto de chile con jabón", "dosis": "1 L por bomba de 20 L" }
+      ]
+    },
+    {
+      "id": 4, "cultivoIds": [4, 5], "nombre": "Cosecha",
+      "duracion": "Escalonada, según variedad y época",
+      "descripcion": "Se cosecha cuando el fruto alcanza su madurez comercial. La poda de fructificación y mantenimiento se hace después de la cosecha, sin quitar más del 30% de ramas y hojas.",
+      "insumos": [
+        { "dia": 0, "nombre": "Cosecha manual de frutos maduros", "dosis": "Cortar con tijera, sin jalar" },
+        { "dia": 15, "nombre": "Poda de fructificación y mantenimiento", "dosis": "Máx. 30% de ramas y hojas" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" }
+      ]
+    },
+
+    {
+      "id": 1, "cultivoIds": [6], "nombre": "Germinación",
+      "duracion": "7 a 15 días germinación; vivero máx. ~4 meses",
+      "descripcion": "La semilla debe sembrarse fresca, a más tardar 7 a 8 días después de sacarla de la mazorca. Las plántulas crecen en bolsas bajo sombra y se llevan al campo antes de pasar demasiado tiempo en el vivero.",
+      "insumos": [
+        { "dia": 0, "nombre": "Siembra de semilla fresca en bolsa", "dosis": "Sembrar máx. 7 a 8 días tras sacarla de la mazorca" },
+        { "dia": 10, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 30, "nombre": "Sombra en el vivero", "dosis": "Mantener sombreado y húmedo" },
+        { "dia": 100, "nombre": "Trasplante al campo", "dosis": "Plantas de ~4 meses" }
+      ]
+    },
+    {
+      "id": 2, "cultivoIds": [6], "nombre": "Crecimiento",
+      "duracion": "3 a 5 años hasta las primeras mazorcas",
+      "descripcion": "El cacao necesita sombra. Se establece sombra temporal y permanente en los primeros años y se hace la poda de formación para dejar una sola horqueta.",
+      "insumos": [
+        { "dia": 0, "nombre": "Sombra temporal y permanente", "dosis": "Establecer antes o junto con el cacao" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 60, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 90, "nombre": "Mulch (cobertura muerta)", "dosis": "Capa en el plato, sin tocar el tallo" }
+      ]
+    },
+    {
+      "id": 3, "cultivoIds": [6], "nombre": "Producción",
+      "duracion": "Mazorca madura en 5 a 7 meses (150 a 210 días)",
+      "descripcion": "Las mazorcas tardan entre 5 y 7 meses en madurar según el material genético. Las enfermedades principales son la monilia y la mazorca negra: conviene revisar el lote con frecuencia y sacar las mazorcas enfermas.",
+      "insumos": [
+        { "dia": 0, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 15, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 30, "nombre": "Retiro de mazorcas enfermas del lote", "dosis": "Revisar con frecuencia" },
+        { "dia": 45, "nombre": "Poda de mantenimiento", "dosis": "Ver Guías de poda" }
+      ]
+    },
+    {
+      "id": 4, "cultivoIds": [6], "nombre": "Cosecha",
+      "duracion": "Corte de mazorcas maduras, luego fermentación y secado",
+      "descripcion": "Se cortan las mazorcas maduras y se extraen los granos. La fermentación y el secado después de la cosecha definen gran parte de la calidad final del cacao.",
+      "insumos": [
+        { "dia": 0, "nombre": "Corte de mazorcas maduras", "dosis": "Solo mazorcas maduras" },
+        { "dia": 3, "nombre": "Fermentación del cacao en baba", "dosis": "~6 días (referencia)" },
+        { "dia": 10, "nombre": "Secado del grano", "dosis": "8 a 10 días (referencia)" }
+      ]
+    },
+
+    {
+      "id": 1, "cultivoIds": [7], "nombre": "Germinación",
+      "duracion": "15 a 40 días, según el tratamiento de la semilla",
+      "descripcion": "La guayaba se propaga por semilla o por injerto (el injerto da más uniformidad y vigor). La semilla escarificada germina mejor. Las plántulas se trasplantan a bolsas en vivero.",
+      "insumos": [
+        { "dia": 0, "nombre": "Siembra de semilla escarificada", "dosis": "En almácigo o bolsa" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 60, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" }
+      ]
+    },
+    {
+      "id": 2, "cultivoIds": [7], "nombre": "Crecimiento",
+      "duracion": "3 a 4 años hasta producir",
+      "descripcion": "Los árboles de guayaba empiezan a producir entre los 3 y 4 años. La primera poda de formación se puede hacer 3 a 4 meses después del trasplante.",
+      "insumos": [
+        { "dia": 0, "nombre": "Trasplante al campo con mulch", "dosis": "Capa en el plato, sin tocar el tallo" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 60, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 100, "nombre": "Poda de formación", "dosis": "3 a 4 meses tras el trasplante" }
+      ]
+    },
+    {
+      "id": 3, "cultivoIds": [7], "nombre": "Producción",
+      "duracion": "Fruto en 5 a 6 meses después de la poda (ciclo poda-cosecha)",
+      "descripcion": "La guayaba florece con las lluvias y fructifica en brotes nuevos. La poda de producción después de cada cosecha estimula nuevos brotes. Se vigilan nematodos, picudo y otros insectos.",
+      "insumos": [
+        { "dia": 0, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" },
+        { "dia": 15, "nombre": "FPJ (jugo fermentado de plantas)", "dosis": "1:1000 foliar" },
+        { "dia": 30, "nombre": "Extracto de chile con jabón", "dosis": "1 L por bomba de 20 L" },
+        { "dia": 45, "nombre": "Raleo de flores y frutos", "dosis": "Si hay exceso de carga" }
+      ]
+    },
+    {
+      "id": 4, "cultivoIds": [7], "nombre": "Cosecha",
+      "duracion": "150 a 180 días desde la floración",
+      "descripcion": "La cosecha se hace cuando el fruto cambia ligeramente de color. Es una fruta muy perecedera y debe manipularse con cuidado. Después de cada cosecha se hace poda de producción y sanitaria.",
+      "insumos": [
+        { "dia": 0, "nombre": "Cosecha manual con cuidado", "dosis": "Al primer cambio de color de la piel" },
+        { "dia": 15, "nombre": "Poda de producción y sanitaria", "dosis": "Ver Guías de poda" },
+        { "dia": 30, "nombre": "JMS (solución de microorganismos JADAM)", "dosis": "1 L en 20 L de agua" }
+      ]
+    }
+  ],
+
+  "bioinsumos": [
+    {
+      "id": 1,
+      "categoriaId": 2,
+      "categoria": "JADAM",
+      "nombre": "JMS - Solución de microorganismos JADAM",
+      "descripcion": "Cultivo de microorganismos nativos a partir de hojarasca y papa, usado para mejorar la vida del suelo y la salud del cultivo.",
+      "ingredientes": [
+        { "ingrediente": "Agua sin cloro", "cantidad": "40 L" },
+        { "ingrediente": "Sal marina", "cantidad": "40 g" },
+        { "ingrediente": "Papas hervidas y trituradas", "cantidad": "6 medianas (aprox.)" },
+        { "ingrediente": "Hojarasca de monte", "cantidad": "4 puñados (aprox.)" }
+      ],
+      "procedimiento": [
+        "Hervir las papas y triturarlas hasta obtener una pasta espesa.",
+        "Poner la pasta de papa en una bolsa de tela o colador y amarrarla.",
+        "Poner la hojarasca en otra bolsa y amarrarla.",
+        "Disolver la sal marina en el agua sin cloro dentro de un balde.",
+        "Sumergir las dos bolsas en el agua y tapar el balde.",
+        "Dejar reposar unos 2 días en un lugar cálido hasta que tenga burbujas y espuma.",
+        "Colar y diluir antes de aplicar."
+      ],
+      "tiempo": "2 días",
+      "dosis": "1 L de JMS en 20 L de agua (1:20)",
+      "cultivoIds": [1, 2, 3, 4, 5, 6, 7]
+    },
+    {
+      "id": 2,
+      "categoriaId": 3,
+      "categoria": "FPJ",
+      "nombre": "FPJ de brotes tiernos",
+      "descripcion": "Jugo fermentado de brotes tiernos y vigorosos con azúcar, usado como estimulante del crecimiento.",
+      "ingredientes": [
+        { "ingrediente": "Brotes tiernos (puntas de plantas vigorosas)", "cantidad": "1 kg" },
+        { "ingrediente": "Azúcar morena o melaza", "cantidad": "1 kg" }
+      ],
+      "procedimiento": [
+        "Recolectar los brotes por la mañana temprano, sin lavarlos.",
+        "Picar y mezclar con el azúcar en partes iguales (por peso).",
+        "Comprimir en un recipiente, dejando espacio arriba.",
+        "Cubrir con papel o tela respirable y atar.",
+        "Dejar fermentar a la sombra de 5 a 7 días.",
+        "Colar el líquido y guardarlo en un frasco tapado."
+      ],
+      "tiempo": "5 a 7 días",
+      "dosis": "1:1000 foliar o 1:500 al suelo (1 a 2 cucharadas por 4 galones)",
+      "cultivoIds": [1, 2, 3, 4, 5, 6, 7]
+    },
+    {
+      "id": 3,
+      "categoriaId": 3,
+      "categoria": "FPJ",
+      "nombre": "FPJ de frutas maduras",
+      "descripcion": "Fermentado de frutas maduras o descartes con azúcar, que se aprovecha en la etapa de producción.",
+      "ingredientes": [
+        { "ingrediente": "Frutas maduras o descartes", "cantidad": "1 kg" },
+        { "ingrediente": "Azúcar morena o melaza", "cantidad": "1 kg" }
+      ],
+      "procedimiento": [
+        "Picar las frutas en trozos pequeños.",
+        "Mezclar con el azúcar en partes iguales (por peso).",
+        "Poner en un recipiente y cubrir con papel o tela respirable.",
+        "Dejar fermentar a la sombra de 5 a 7 días.",
+        "Colar y guardar en un frasco tapado."
+      ],
+      "tiempo": "5 a 7 días",
+      "dosis": "1:1000 foliar o 1:500 al suelo",
+      "cultivoIds": [1, 2, 3, 4, 5, 6, 7]
+    },
+    {
+      "id": 4,
+      "categoriaId": 4,
+      "categoria": "Extractos",
+      "nombre": "Extracto de ajo y cebolla",
+      "descripcion": "Insecticida casero a base de ajo y cebolla para el manejo preventivo de plagas.",
+      "ingredientes": [
+        { "ingrediente": "Ajo", "cantidad": "1 diente" },
+        { "ingrediente": "Cebolla cabezona", "cantidad": "1 unidad" },
+        { "ingrediente": "Agua", "cantidad": "1 L" }
+      ],
+      "procedimiento": [
+        "Machacar el ajo y la cebolla.",
+        "Agregar el litro de agua y mezclar.",
+        "Dejar reposar durante 24 horas.",
+        "Colar antes de aplicar."
+      ],
+      "tiempo": "24 horas",
+      "dosis": "1 L de la mezcla por bomba de 20 L",
+      "cultivoIds": [1, 2, 3, 4, 5, 6, 7]
+    },
+    {
+      "id": 5,
+      "categoriaId": 4,
+      "categoria": "Extractos",
+      "nombre": "Extracto de chile con jabón",
+      "descripcion": "Insecticida y acaricida botánico a base de chile, ajo y jabón.",
+      "ingredientes": [
+        { "ingrediente": "Chile macerado", "cantidad": "100 g" },
+        { "ingrediente": "Agua para el chile", "cantidad": "5 L" },
+        { "ingrediente": "Jabón rallado", "cantidad": "1/4 de barra" },
+        { "ingrediente": "Agua para el jabón", "cantidad": "1 L" },
+        { "ingrediente": "Ajo", "cantidad": "1 unidad" }
+      ],
+      "procedimiento": [
+        "Macerar el chile y mezclarlo con los 5 L de agua.",
+        "Dejar reposar un día completo.",
+        "Rallar el jabón en el litro de agua.",
+        "Mezclar la solución de jabón con el ajo y unirla con el extracto de chile.",
+        "Colar antes de aplicar."
+      ],
+      "tiempo": "24 horas",
+      "dosis": "1 L de la mezcla por bomba de 20 L",
+      "cultivoIds": [1, 2, 3, 4, 5, 6, 7]
+    },
+    {
+      "id": 6,
+      "categoriaId": 4,
+      "categoria": "Extractos",
+      "nombre": "Extracto de semilla de neem",
+      "descripcion": "Extracto vegetal de semillas de neem, usado como bioplaguicida. La dosis para cultivos debe validarse antes de uso comercial.",
+      "ingredientes": [
+        { "ingrediente": "Semilla de neem", "cantidad": "1 libra" },
+        { "ingrediente": "Agua hirviendo", "cantidad": "1 L" }
+      ],
+      "procedimiento": [
+        "Poner el litro de agua a hervir.",
+        "Agregar la libra de semilla y hervir 5 minutos hasta que libere la grasa.",
+        "Dejar reposar 24 horas.",
+        "Colar el extracto.",
+        "Usar recipientes que no se utilicen para alimentos."
+      ],
+      "tiempo": "24 horas",
+      "dosis": "Probar primero en pocas plantas y validar la dosis con el INTA",
+      "cultivoIds": [1, 2, 3, 4, 5, 6, 7]
+    },
+    {
+      "id": 7,
+      "categoriaId": 5,
+      "categoria": "Cobertura",
+      "nombre": "Mulch (cobertura muerta)",
+      "descripcion": "Capa de material vegetal sobre el suelo que conserva la humedad, protege contra la erosión y mantiene la temperatura.",
+      "ingredientes": [
+        { "ingrediente": "Hojarasca", "cantidad": "Según disponibilidad" },
+        { "ingrediente": "Rastrojo (por ejemplo de frijol)", "cantidad": "Según disponibilidad" },
+        { "ingrediente": "Pulpa de café", "cantidad": "Según disponibilidad" }
+      ],
+      "procedimiento": [
+        "Limpiar el plato alrededor de la planta.",
+        "Extender el material formando una capa de 5 a 10 cm.",
+        "Dejar libre unos centímetros alrededor del tallo para evitar pudriciones.",
+        "Renovar la capa cuando se descomponga."
+      ],
+      "tiempo": "Aplicación inmediata",
+      "dosis": "Capa de 5 a 10 cm alrededor del plato",
+      "cultivoIds": [1, 2, 3, 4, 5, 6, 7]
+    },
+    {
+      "id": 8,
+      "categoriaId": 5,
+      "categoria": "Cobertura",
+      "nombre": "Cobertura viva de leguminosas",
+      "descripcion": "Plantas leguminosas (como maní forrajero) sembradas entre las calles para proteger el suelo y aportar materia orgánica.",
+      "ingredientes": [
+        { "ingrediente": "Maní forrajero (Arachis pintoi)", "cantidad": "Según el área" },
+        { "ingrediente": "Otras leguminosas (frijol, Canavalia, Vigna)", "cantidad": "Según el área" }
+      ],
+      "procedimiento": [
+        "Sembrar la leguminosa en las calles del cultivo.",
+        "Mantener libre la zona de raíces (plato) de la cobertura para que no compita con el árbol.",
+        "Chapear o podar la cobertura cuando crezca demasiado.",
+        "Dejar los residuos sobre el suelo como mulch."
+      ],
+      "tiempo": "Establecimiento de 2 a 3 meses",
+      "dosis": "Cobertura continua en las calles",
+      "cultivoIds": [1, 2, 3, 4, 5, 6, 7]
+    }
+  ]
+}

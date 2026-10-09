@@ -6,7 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let plagas = [];
     let idPlaga = 1;
     const winObj = /** @type {any} */ (window);
+    const isBrowserMode = !(winObj.chrome && winObj.chrome.webview);
+
     if (winObj.chrome && winObj.chrome.webview) {
+        // Modo WebView2 (aplicación C#)
         winObj.chrome.webview.addEventListener("message", (/** @type {any} */ event) => {
             const { type, payload } = event.data;
 
@@ -42,6 +45,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
         winObj.chrome.webview.postMessage({ screen: "plagas", type: "listo_plagas" });
         winObj.chrome.webview.postMessage({ screen: "plagas", type: "obtener_detalle_plaga", payload: 1 });
+    } else {
+        // Modo navegador (Vite / Live Server) - cargar JSON local
+        console.warn("Ejecutando en navegador web local. Cargando plagas.json localmente...");
+        fetch('/data/plagas.json')
+            .then(res => {
+                if (!res.ok) throw new Error("No se pudo cargar el archivo plagas.json");
+                return res.json();
+            })
+            .then(data => {
+                console.log("JSON plagas cargado con éxito en navegador:", data);
+                plagas = data;
+                cargarPlagas(plagas);
+                // Cargar detalles de la primera plaga por defecto
+                if (data.length > 0) {
+                    cargarPlaga(data[0]);
+                    idPlaga = data[0].id;
+                }
+            })
+            .catch(err => console.error("Error al cargar plagas.json:", err));
     }
     
     const MAX_TAREAS = 8;

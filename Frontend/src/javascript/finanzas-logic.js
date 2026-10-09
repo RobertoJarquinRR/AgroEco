@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     break;
 
                 case "cargar_registros":
-                    // la lista de movimientos llega aqui; falta pintarla en la seccion "Movimientos"
+                    renderizarMovimientos(payload);
                     break;
 
                 default:
@@ -202,3 +202,49 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Estado inicial de categoría al cargar ---
     actualizarCategoria("ingreso");
 });
+
+// =====================================================
+//  RENDERIZAR MOVIMIENTOS (HISTORIAL)
+// =====================================================
+
+/**
+ * @param {Array<{id: number, descripcion: string, monto: number, fecha: string, tipo: string}>} registros
+ */
+function renderizarMovimientos(registros) {
+    const container = document.getElementById("movimientosContainer");
+    if (!container) return;
+
+    if (!registros || registros.length === 0) {
+        container.innerHTML = '<p class="sin-movimientos">No hay registros financieros</p>';
+        return;
+    }
+
+    // Ordenar por fecha descendente (más reciente primero)
+    const ordenados = [...registros].sort((a, b) => {
+        const fa = a.fecha.split("/").reverse().join("-");
+        const fb = b.fecha.split("/").reverse().join("-");
+        return fb.localeCompare(fa);
+    });
+
+    container.innerHTML = ordenados.map(r => {
+        const esIngreso = r.tipo === "ingreso";
+        const signo = esIngreso ? "+" : "-";
+        const clase = esIngreso ? "ingreso" : "costo";
+        const icono = esIngreso
+            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>'
+            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 18l-9.5-9.5-5 5L1 6"/><path d="M17 18h6v-6"/></svg>';
+
+        return `
+            <div class="movimiento-item ${clase}" data-id="${r.id}">
+                <div class="mov-info">
+                    <span class="mov-icon ${clase}">${icono}</span>
+                    <div class="mov-detalle">
+                        <span class="mov-descripcion">${r.descripcion || "Sin descripcion"}</span>
+                        <span class="mov-fecha">${r.fecha}</span>
+                    </div>
+                </div>
+                <span class="mov-monto ${clase}">${signo} C$ ${Number(r.monto).toLocaleString("es-NI", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+            </div>
+        `;
+    }).join("");
+}

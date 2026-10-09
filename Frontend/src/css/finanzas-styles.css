@@ -532,3 +532,122 @@ input[type="date"].form-control::-webkit-datetime-edit-day-field,
 input[type="date"].form-control::-webkit-datetime-edit-year-field {
     color: #2D3748;
 }
+
+/* ============================================
+   MOVIMIENTOS / HISTORIAL FINANCIERO
+   ============================================ */
+
+.movimientos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.movimiento-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.movimiento-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-color: #CBD5E0;
+}
+
+.mov-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.mov-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.mov-icon.ingreso {
+    background: #E8F5E9;
+    color: #2D8A68;
+}
+
+.mov-icon.costo {
+    background: #FFEBEE;
+    color: #E57373;
+}
+
+.mov-detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.mov-descripcion {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1A202C;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mov-fecha {
+    font-size: 12px;
+    color: #718096;
+    font-weight: 500;
+}
+
+.mov-monto {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.mov-monto.ingreso {
+    color: #2D8A68;
+}
+
+.mov-monto.costo {
+    color: #E57373;
+}
+
+.sin-movimientos {
+    text-align: center;
+    color: #718096;
+    font-size: 14px;
+    padding: 30px 20px;
+}
+
+/* Scrollbar styling */
+.movimientos-lista::-webkit-scrollbar {
+    width: 6px;
+}
+
+.movimientos-lista::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.movimientos-lista::-webkit-scrollbar-thumb {
+    background: #CBD5E0;
+    border-radius: 3px;
+}
+
+.movimientos-lista::-webkit-scrollbar-thumb:hover {
+    background: #A0AEC0;
+}
