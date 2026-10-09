@@ -40,6 +40,10 @@
 
   <ItemGroup>
     <Folder Include="Handlers\" />
+	  <Content Include="Frontend\**\*"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest"
+             ExcludeFromSingleFile="true" />
   </ItemGroup>
 
 </Project>

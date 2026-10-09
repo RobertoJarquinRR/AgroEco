@@ -442,3 +442,7 @@ AgroEco.UI/Frontend/*
 *.db
 *.db-shm
 *.db-wal
+
+# Build artifacts
+BuildOutput/
+Frontend/public/
