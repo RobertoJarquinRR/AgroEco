@@ -80,7 +80,7 @@ aside{
     font-size:14px;
     font-weight: var(--font-weight-primary);
     border-radius: 12px; 
-    cursor:default;
+    cursor:pointer;
     transition:all 0.3s ease-in-out;   
 }
 .sidebar ul li a:hover{    
@@ -100,7 +100,7 @@ aside{
 /*styles del contenido principal*/
 .contenedor-main{
     width: 100%;
-    padding:20px;  
+    padding: 30px;  
     display:flex;
     flex-direction: column;
     gap:20px;  
@@ -113,11 +113,12 @@ aside{
 .hero-text h1{
     color:var(--color-text-primary);
     font-size:32px;
-    font-weight: 700;
+    font-weight: 600;
 }
 .hero-text p {
     color: var(--color-text-secundary);
     font-size: 16px;
+    font-weight: 500;
 }
 /*styles del texto principal*/
 .cuadro-1{
@@ -132,19 +133,25 @@ aside{
 }
 .btn-exportar-info{
     border:1px solid #BFC6C4;
-    padding:10px 20px;
-    border-radius:8px;
+    padding:8px 40px;
+    border-radius:6px;
     background-color:#F7F7F7;
     color:#2FA084;
+    font-size: 16px;
     font-weight:600;
+    cursor: pointer;
+    font-family: var(--font-primary);
 }
 .btn-agregar-info{
     border:none;
-    padding:10px 20px;
-    border-radius:8px;
+    padding:8px 40px;
+    border-radius:6px;
     background-color:#2FA084;
     color:#F7F7F7;
+    font-size: 16px;
     font-weight:600;
+    cursor: pointer;
+    font-family: var(--font-primary);
 }
 
 /*styles de los cards*/

@@ -80,7 +80,7 @@ aside{
     font-size:14px;
     font-weight: var(--font-weight-primary);
     border-radius: 12px; 
-    cursor:default;
+    cursor:pointer;
     transition:all 0.3s ease-in-out;   
 }
 .sidebar ul li a:hover{    
@@ -118,20 +118,22 @@ aside{
 .join h1{
     color:var(--color-text-primary);
     font-size:32px;
-    font-weight: 700;
+    font-weight: 600;
 }
 .join p {
     color: var(--color-text-secundary);
     font-size: 16px;
+    font-weight: 500;
 }
 #makeTarea{
+    font-family: var(--font-primary);
     border:none;
-    padding:10px 20px;
+    padding:8px 40px 8px 40px;
     border-radius:8px;
     background-color: #2FA084;
     color:#FFFFFF;
-    font-size: 14px;
-    font-weight: 400;    
+    font-size: 16px;
+    font-weight: 600;    
     cursor:pointer
 }
 #makeTarea:active{
@@ -259,8 +261,8 @@ dialog::backdrop {
 }
 
 .dialog-cont h1{
-    font-size:22px;
-    font-weight:700;
+    font-size:32px;
+    font-weight:600;
     color:var(--color-text-primary);
 }
 
