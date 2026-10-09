@@ -40,10 +40,19 @@
 
   <ItemGroup>
     <Folder Include="Handlers\" />
-	  <Content Include="Frontend\**\*"
+    <Content Include="Frontend\**\*"
              CopyToOutputDirectory="PreserveNewest"
              CopyToPublishDirectory="PreserveNewest"
              ExcludeFromSingleFile="true" />
   </ItemGroup>
+
+  <Target Name="CopyFrontendToPublish" AfterTargets="Publish">
+    <ItemGroup>
+      <FrontendFiles Include="$(MSBuildProjectDirectory)\Frontend\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FrontendFiles)"
+          DestinationFiles="@(FrontendFiles->'$(PublishDir)\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
 
 </Project>
