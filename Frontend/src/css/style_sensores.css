@@ -139,16 +139,15 @@ aside {
 }
 
 .header-title h2 {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 32px;
+    font-weight: 600;
     color: var(--color-text-primary);
 }
 
 .header-title p {
-    font-size: 13px;
-    color: var(--color-text-primary);
-    opacity: 0.6;
-    margin-top: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-text-secundary);
 }
 
 .status-badge {
@@ -675,7 +674,8 @@ aside {
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 16px;
+    font-family: var(--font-primary);
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
@@ -849,9 +849,8 @@ aside {
 
 .btn-nuevo-umbral {
     height: 36px;
-    padding: 0 14px;
     gap: 6px;
-    font-size: 13px;
+    font-size: 16px;
     line-height: 1;
     white-space: nowrap;
     border-radius: 8px;

@@ -125,7 +125,7 @@ aside {
 }
 
 .main-content {
-    padding: 12px 20px;
+    padding: 30px;
     background-color: var(--color-fondo-app);
     display: flex;
     flex-direction: column;
@@ -136,15 +136,15 @@ aside {
 }
 
 .content-header h2 {
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 32px;
+    font-weight: 600;
     color: var(--color-text-primary);
 }
 
 .content-header p {
-    font-size: 12px;
-    color: var(--color-text-primary);
-    opacity: 0.6;
+    font-size: 16px;
+    color: var(--color-text-secundary);
+    font-weight: 500;
     margin-top: 2px;
 }
 
@@ -189,7 +189,7 @@ aside {
     padding: 10px 14px 10px 40px;
     border: 2px solid #eaeaea;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 16px;
     outline: none;
     color: var(--color-text-primary);
     transition: var(--transition);
@@ -219,7 +219,7 @@ aside {
 .search-results li {
     padding: 12px 16px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 14.5px;
     border-bottom: 1px solid #f5f5f5;
 }
 
@@ -234,7 +234,7 @@ aside {
     align-items: center;
     gap: 4px;
     margin-top: 6px;
-    font-size: 11px;
+    font-size: 14.5px;
     color: var(--color-text-secundary);
 }
 
@@ -244,7 +244,7 @@ aside {
     padding: 4px 10px;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 11px;
+    font-size: 14.5px;
     font-weight: 600;
     color: var(--color-text-primary);
     transition: var(--transition);
@@ -272,14 +272,14 @@ aside {
 }
 
 .pest-title-block h3 {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 24px;
+    font-weight: 600;
     margin-top: 2px;
 }
 
 .pest-title-block em {
-    color: var(--color-placeholder);
-    font-size: 13px;
+    color: #758A93;
+    font-size: 14px;
 }
 
 #pest-risk{
@@ -319,10 +319,10 @@ aside {
 }
 
 .pest-description h4, .pest-treatment h4, .pest-steps h4, .section-sub-title {
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: 600;
     color: var(--color-text-custom1);
     margin-bottom: 2px;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
@@ -331,16 +331,14 @@ aside {
 }
 
 .pest-description p, .pest-treatment p, .pest-identification p {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1.4;
-    opacity: 0.85;
     margin-bottom: 10px;
 }
 
 .steps-list-styled {
     margin-left: 18px;
-    font-size: 13px;
-    opacity: 0.85;
+    font-size: 14px;
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -358,6 +356,7 @@ aside {
 .btn-start-task {
     background-color: var(--color-text-custom1);
     color: var(--color-blanco);
+    font-family: var(--font-primary);
     border: none;
     padding: 10px 16px;
     border-radius: 8px;
@@ -366,7 +365,7 @@ aside {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 16px;
     transition: var(--transition);
     width: 100%;
     justify-content: center;
@@ -379,7 +378,7 @@ aside {
 .card-active-tasks {
     background-color: var(--color-blanco);
     border-radius: var(--border-radius);
-    padding: 14px;
+    padding: 14.5px;
     border: 0.5px solid var(--color-border);
     display: flex;
     flex-direction: column;
@@ -401,7 +400,7 @@ aside {
 .task-count {
     background-color: var(--color-fondo-app);
     color: var(--color-text-custom1);
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     padding: 4px 10px;
     border-radius: 12px;
@@ -439,18 +438,18 @@ aside {
 }
 
 .task-details h4 {
-    font-size: 12px;
+    font-size: 14.5px;
     font-weight: 600;
     color: var(--color-text-primary);
 }
 
 .task-sub {
-    font-size: 11px;
+    font-size: 14.5px;
     color: var(--color-text-secundary);
 }
 
 .task-date {
-    font-size: 10px;
+    font-size: 14.5px;
     color: var(--color-text-secundary);
 }
 
@@ -512,7 +511,7 @@ aside {
     }
 
     .main-content {
-        padding: 16px;
+        padding: 30px;
         height: auto;
         overflow-y: visible;
     }
@@ -553,7 +552,7 @@ h4{
     background-color: #fdfdfd;
     color: var(--color-text-primary);
     font-weight: var(--font-weight-primary);
-    font-size: 14px ;
+    font-size: 14.5px ;
 }
 
 .accordion-arrow {

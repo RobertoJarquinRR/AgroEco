@@ -80,7 +80,7 @@ aside{
     font-size:14px;
     font-weight: var(--font-weight-primary);
     border-radius: 12px; 
-    cursor:default;
+    cursor:pointer;
     transition:all 0.3s ease-in-out;   
 }
 .sidebar ul li a:hover{    
@@ -156,7 +156,8 @@ aside{
 }
 .union span{
     color:#1A3D33;
-    font-size: 13px;
+    font-size: 16px;
+    font-weight: 500;
 }
 .HeadText{
     margin-top: 25px;
@@ -235,7 +236,7 @@ aside{
     height:25px;
 }
 .box .top span{
-    font-size:14px;
+    font-size:16px;
     color: var(--color-text-secundary);
 }
 .box .num{
